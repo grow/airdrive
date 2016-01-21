@@ -1,0 +1,11 @@
+*.pyc
+.DS_Store
+.coverage
+bower_components
+build
+config.yaml
+env
+htmlcov
+lib
+node_modules
+*.pem

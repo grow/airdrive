@@ -1,0 +1,27 @@
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+- url: .*
+  script: main.app
+  secure: always
+  login: required
+
+libraries:
+- name: ssl
+  version: latest
+- name: webapp2
+  version: "2.5.2"
+- name: jinja2
+  version: latest
+- name: yaml
+  version: latest
+
+skip_files:
+- - ^(.*/)?.*~
+- ^(.*/)?.*\.md$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?\.DS_Store$
+- ^(.*/)?\.gitignore$
+- ^\.git/.*

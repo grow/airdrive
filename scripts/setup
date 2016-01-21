@@ -1,0 +1,27 @@
+#!/bin/bash
+
+pip --version 2>&1> /dev/null || {
+  echo "pip not installed. Installing..."
+  sudo easy_install pip
+}
+
+virtualenv --version 2>&1> /dev/null || {
+  echo "virtualenv not installed. Installing..."
+  sudo pip install virtualenv
+}
+
+gaenv -h 2>&1> /dev/null || {
+  echo "gaenv not installed. Installing..."
+  sudo pip install gaenv
+}
+
+virtualenv env
+source env/bin/activate
+pip install \
+  --upgrade \
+  --allow-unverified dateutil \
+  --allow-external dateutil \
+  -r \
+  requirements.txt
+gaenv --lib lib --no-import
+deactivate
