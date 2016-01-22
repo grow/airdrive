@@ -7,6 +7,7 @@ import httplib2
 import logging
 import os
 from . import assets
+from . import folders
 from . import pages
 
 
@@ -83,6 +84,7 @@ def download_resource(resource_id):
 
 
 def process_assets_folder_response(resp):
+  folders.Folder.process(resp)
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   child_resource_ids = [child['id'] for child in child_resource_responses]
@@ -92,6 +94,7 @@ def process_assets_folder_response(resp):
 
 
 def process_folder_response(resp):
+  folders.Folder.process(resp)
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   for child in child_resource_responses:

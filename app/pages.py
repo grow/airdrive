@@ -13,17 +13,23 @@ class Page(models.Model):
   title = ndb.StringProperty()
   etag = ndb.StringProperty()
   build = ndb.IntegerProperty()
+  parents = ndb.KeyProperty(repeated=True)
+  unprocessed_html = ndb.StringProperty()
+  slug = ndb.StringProperty()
 
   @classmethod
   def process(cls, resp, unprocessed_content):
     resource_id = resp['id']
     title = resp['title']
-    page = cls.get_or_instantiate(resource_id)
-    page.title = title
-    page.markdown = cls.convert_html_to_markdown(unprocessed_content)
-    page.html = cls.convert_markdown_to_html(page.markdown)
-    page.synced = datetime.datetime.now()
-    page.put()
+    ent = cls.get_or_instantiate(resource_id)
+    ent.title = title
+    ent.resource_id = resource_id
+    ent.unprocessed_html = unprocessed_content
+    ent.markdown = cls.convert_html_to_markdown(unprocessed_content)
+    ent.html = cls.convert_markdown_to_html(ent.markdown)
+    ent.synced = datetime.datetime.now()
+    ent.parents = cls.generate_parent_keys(resp['parents'])
+    ent.put()
 
   @staticmethod
   def convert_html_to_markdown(html):

@@ -15,3 +15,13 @@ class Model(ndb.Model):
       key = ndb.Key(cls.__name__, ident)
       ent = cls(key=key)
     return ent
+
+  @classmethod
+  def generate_parent_keys(cls, parents_resp):
+    return [
+        ndb.Key('Folder', parent['id'])
+        for parent in parents_resp]
+
+  @classmethod
+  def generate_slug(cls, title):
+    pass

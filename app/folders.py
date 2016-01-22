@@ -1,5 +1,8 @@
-from google.appengine.ext import ndb
+from . import assets
 from . import models
+from . import pages
+from google.appengine.ext import ndb
+import datetime
 
 
 class Folder(models.Model):
@@ -8,3 +11,33 @@ class Folder(models.Model):
   title = ndb.StringProperty()
   synced = ndb.DateTimeProperty()
   build = ndb.IntegerProperty()
+  parents = ndb.KeyProperty(repeated=True)
+  slug = ndb.StringProperty()
+
+  @classmethod
+  def process(cls, resp):
+    resource_id = resp['id']
+    title = resp['title']
+    ent = cls.get_or_instantiate(resource_id)
+    ent.resource_id = resource_id
+    ent.title = title
+    ent.synced = datetime.datetime.now()
+    ent.parents = cls.generate_parent_keys(resp['parents'])
+    ent.put()
+
+  def list_children(self):
+    children = {
+        'assets': [],
+        'folders': [],
+        'pages': [],
+    }
+    query = assets.Asset.query()
+    query = query.filter(assets.Asset.parents == self.key)
+    children['assets'] = query.fetch()
+    query = pages.Page.query()
+    query = query.filter(pages.Page.parents == self.key)
+    children['pages'] = query.fetch()
+    query = Folder.query()
+    query = query.filter(Folder.parents == self.key)
+    children['folders'] = query.fetch()
+    return children
