@@ -1,25 +1,36 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta content="IE=Edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic" rel="stylesheet">
+<link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
 <title></title>
-
 <body>
-
-  <nav>
-    <ul>
-      {% for folder in folders %}
-        <li><a href="{{folder.url}}">{{folder.title}}</a>
-        <ul>
-          {% for sub_folder in folder.children['folders'] %}
-            <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
-          {% endfor %}
-          {% for page in folder.children['pages'] %}
-            <li><a href="{{page.url}}">{{page.title}}</a></li>
-          {% endfor %}
-        </ul>
-      {% endfor %}
-    </ul>
-  </nav>
-  <main>
-    {% block main %}
-    {% endblock %}
-  </main>
+  <table>
+    <tr>
+      <td width="300" valign="top">
+        <nav>
+          <ul>
+            {% for folder in folders %}
+              <li><a href="{{folder.url}}">{{folder.title}}</a>
+              <ul>
+                {% for sub_folder in folder.children['folders'] %}
+                  <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
+                {% endfor %}
+                {% for page in folder.children['pages'] %}
+                  <li><a href="{{page.url}}">{{page.title}}</a></li>
+                {% endfor %}
+              </ul>
+            {% endfor %}
+          </ul>
+        </nav>
+      </td>
+      <td valign="top">
+        <main>
+          {% block main %}
+          {% endblock %}
+        </main>
+      </td>
+    </tr>
+  </table>

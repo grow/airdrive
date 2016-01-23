@@ -40,6 +40,7 @@ class FolderHandler(Handler):
       self.error(404)
       return
     params = {
+        'config': appengine_config,
         'folder': folder,
         'folders': folder_ents,
     }
@@ -57,6 +58,7 @@ class PageHandler(Handler):
       self.error(404)
       return
     params = {
+        'config': appengine_config,
         'folders': folder_ents,
         'page': page,
     }

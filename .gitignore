@@ -1,11 +1,12 @@
+*.pem
 *.pyc
 .DS_Store
 .coverage
 bower_components
 build
 config.yaml
+dist
 env
 htmlcov
 lib
 node_modules
-*.pem
