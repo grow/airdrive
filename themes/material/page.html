@@ -3,4 +3,7 @@
 {% block main %}
   <h1>{{page.title}}</h1>
   {{page.html|safe}}
+  <div class="page-meta">
+    Updated {{page.modified}}
+  </div>
 {% endblock %}

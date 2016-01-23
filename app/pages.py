@@ -50,6 +50,8 @@ class Page(models.Model):
   @staticmethod
   def convert_html_to_markdown(html):
     h2t = html2text.HTML2Text()
+    h2t.bypass_tables = True
+    h2t.ignore_images = True
     content = h2t.handle(html)
     return content
 

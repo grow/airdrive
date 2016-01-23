@@ -14,7 +14,7 @@ httplib2
 six
 uritemplate
 beautifulsoup4==4.4.0
-html2text==2015.6.21
+html2text==2016.1.8
 
 # Testing.
 NoseGAE==0.5.6
