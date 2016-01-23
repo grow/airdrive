@@ -7,30 +7,36 @@
 <link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
 <title></title>
 <body>
-  <table>
-    <tr>
-      <td width="300" valign="top">
-        <nav>
-          <ul>
-            {% for folder in folders %}
-              <li><a href="{{folder.url}}">{{folder.title}}</a>
-              <ul>
-                {% for sub_folder in folder.children['folders'] %}
-                  <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
-                {% endfor %}
-                {% for page in folder.children['pages'] %}
-                  <li><a href="{{page.url}}">{{page.title}}</a></li>
-                {% endfor %}
-              </ul>
-            {% endfor %}
-          </ul>
-        </nav>
-      </td>
-      <td valign="top">
-        <main>
-          {% block main %}
-          {% endblock %}
-        </main>
-      </td>
-    </tr>
-  </table>
+  <div class="layout">
+    <div class="layout-side">
+      <ul>
+        {% for folder in folders %}
+        <li><a href="{{folder.url}}">{{folder.title}}</a>
+        <ul>
+          {% for sub_folder in folder.children['folders'] %}
+          <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
+          {% endfor %}
+          {% for page in folder.children['pages'] %}
+          <li><a href="{{page.url}}">{{page.title}}</a></li>
+          {% endfor %}
+        </ul>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="layout-main">
+      <div class="layout-main-header">
+        <div class="layout-main-header-title">
+          {% if folder %}
+            {{folder.title}}
+          {% endif %}
+        </div>
+        <div class="layout-main-header-side">
+          {{user.email()}}
+        </div>
+      </div>
+      <div class="layout-main-content">
+        {% block main %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>

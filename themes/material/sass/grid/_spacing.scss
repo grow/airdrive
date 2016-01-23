@@ -1,0 +1,68 @@
+// Copyright 2015 Steven Le (stevenle08@gmail.com)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+$spacing-base: 10px;
+$spacing-small: 3 * $spacing-base;
+$spacing-medium: 6 * $spacing-base;
+$spacing-large: 10 * $spacing-base;
+
+$spacing-map: (
+  base: $spacing-base,
+  small: $spacing-small,
+  medium: $spacing-medium,
+  large: $spacing-large,
+);
+
+@each $size, $space in $spacing-map {
+  .space-#{$size} {
+    margin: $space;
+  }
+  .space-horz-#{$size} {
+    margin-left: $space;
+    margin-right: $space;
+  }
+  .space-vert-#{$size} {
+    margin-bottom: $space;
+    margin-top: $space;
+  }
+  .pad-#{$size} {
+    padding: $space;
+  }
+  .pad-horz-#{$size} {
+    padding-left: $space;
+    padding-right: $space;
+  }
+  .pad-vert-#{$size} {
+    padding-bottom: $space;
+    padding-top: $space;
+  }
+}
+
+@each $side in bottom, left, right, top {
+  .space-#{$side} {
+    margin-#{$side}: $spacing-base;
+  }
+  .pad-#{$side} {
+    padding-#{$side}: $spacing-base;
+  }
+
+  @each $size, $space in $spacing-map {
+    .space-#{$side}-#{$size} {
+      margin-#{$side}: $space;
+    }
+    .pad-#{$side}-#{$size} {
+      padding-#{$side}: $space;
+    }
+  }
+}

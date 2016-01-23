@@ -6,6 +6,8 @@ import os
 
 DOWNLOAD_URL_FORMAT = 'https://www.googleapis.com/drive/v3/files/{resource_id}?alt=media&key={key}'
 
+THUMBNAIL_URL_FORMAT = 'https://drive.google.com/thumbnail?sz=w{size}&id={resource_id}'
+
 CONFIG = appengine_config.CONFIG
 
 
@@ -16,7 +18,6 @@ class Asset(models.Model):
   size = ndb.IntegerProperty()
   build = ndb.IntegerProperty()
   mimetype = ndb.StringProperty()
-  thumbnail_url = ndb.StringProperty()
   md5 = ndb.StringProperty()
   parents = ndb.KeyProperty(repeated=True)
   slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
@@ -35,7 +36,6 @@ class Asset(models.Model):
     ent.size = int(resp['fileSize'])
     ent.url = resp['webContentLink']
     ent.icon_url = resp['iconLink']
-    ent.thumbnail_url = resp['thumbnailLink']
     ent.title = resp['title']
     ent.md5 = resp['md5Checksum']
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
@@ -49,3 +49,9 @@ class Asset(models.Model):
     return DOWNLOAD_URL_FORMAT.format(
         resource_id=self.resource_id,
         key=CONFIG['apikey'])
+
+  @property
+  def thumbnail_url(self):
+    return THUMBNAIL_URL_FORMAT.format(
+        resource_id=self.resource_id,
+        size=250)

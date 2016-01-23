@@ -1,7 +1,8 @@
+from . import common
 from . import folders
 from . import pages
 from . import sync
-from . import common
+from google.appengine.api import users
 import appengine_config
 import jinja2
 import os
@@ -21,9 +22,11 @@ JINJA.filters['filesizeformat'] = common.do_filesizeformat
 
 
 class Handler(webapp2.RequestHandler):
-  pass
 
   def render_template(self, path, params):
+    user = users.get_current_user()
+    params['config'] = appengine_config
+    params['user'] = user
     template = JINJA.get_template(path)
     html = template.render(params)
     self.response.out.write(html)
@@ -40,7 +43,6 @@ class FolderHandler(Handler):
       self.error(404)
       return
     params = {
-        'config': appengine_config,
         'folder': folder,
         'folders': folder_ents,
     }
@@ -58,7 +60,6 @@ class PageHandler(Handler):
       self.error(404)
       return
     params = {
-        'config': appengine_config,
         'folders': folder_ents,
         'page': page,
     }

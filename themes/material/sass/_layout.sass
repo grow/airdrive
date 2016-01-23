@@ -1,0 +1,51 @@
+$side-width: 270px
+$header-height: 70px
+
+.layout
+  &-side
+    background: $color-light-bg
+    border-right: 1px solid $color-border
+    bottom: 0
+    box-sizing: border-box
+    left: 0
+    padding: $pad-md
+    position: fixed
+    top: 0
+    width: $side-width
+
+  &-main
+    position: fixed
+    left: $side-width
+    right: 0
+    bottom: 0
+    top: 0
+
+    &-content
+      bottom: 0
+      box-sizing: border-box
+      left: 0
+      overflow: auto
+      padding: $pad-lg $pad-xx
+      position: absolute
+      right: 0
+      top: $header-height
+
+    &-header
+      background: $color-brand
+      color: $color-text-on-brand
+      box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12)
+      padding: 0 $pad-xx
+      height: $header-height
+      line-height: $header-height
+      box-sizing: border-box
+
+      &-title
+        font-weight: $semibold
+        font-size: $font-size-lg
+        float: left
+      
+      &-side
+        float: right
+        font-size: $font-size-sm
+        font-weight: $semibold
+        text-align: right
