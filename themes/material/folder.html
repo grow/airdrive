@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block main %}
+  <h1>{{folder.title}}</h1>
+
+  <h2>Assets</h2>
+  {% for asset in folder.children['assets'] %}
+    <li>
+      <div><img src="{{asset.thumbnail_url}}"></div>
+      <a href="{{asset.url}}">{{asset.title}}</a> ({{asset.size|filesizeformat}})</li>
+    </li>
+  {% endfor %}
+
+{% endblock %}

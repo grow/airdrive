@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<title></title>
+
+<body>
+
+  <nav>
+    <ul>
+      {% for folder in folders %}
+        <li><a href="{{folder.url}}">{{folder.title}}</a>
+        <ul>
+          {% for sub_folder in folder.children['folders'] %}
+            <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
+          {% endfor %}
+          {% for page in folder.children['pages'] %}
+            <li><a href="{{page.url}}">{{page.title}}</a></li>
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    </ul>
+  </nav>
+  <main>
+    {% block main %}
+    {% endblock %}
+  </main>

@@ -14,7 +14,7 @@ class Asset(models.Model):
   thumbnail_url = ndb.StringProperty()
   md5 = ndb.StringProperty()
   parents = ndb.KeyProperty(repeated=True)
-  slug = ndb.StringProperty()
+  slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
 
   @classmethod
   def process(cls, resp):

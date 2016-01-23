@@ -1,4 +1,5 @@
 from google.appengine.ext import ndb
+import re
 
 
 class Model(ndb.Model):
@@ -23,5 +24,6 @@ class Model(ndb.Model):
         for parent in parents_resp]
 
   @classmethod
-  def generate_slug(cls, title):
-    pass
+  def generate_slug(cls, text):
+    if text is not None:
+      return re.sub(r'\W+', '-', text.lower())

@@ -113,8 +113,9 @@ def get_file_content(resp):
 
 def process_file_response(resp):
   if resp['mimeType'] == 'application/vnd.google-apps.document':
-    content = get_file_content(resp)
-    pages.Page.process(resp, content)
+    if pages.Page.should_reprocess(resp):
+      content = get_file_content(resp)
+      pages.Page.process(resp, content)
   else:
     assets.Asset.process(resp)
 
