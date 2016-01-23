@@ -1,6 +1,7 @@
 from . import folders
 from . import pages
 from . import sync
+from . import common
 import appengine_config
 import jinja2
 import os
@@ -16,6 +17,7 @@ JINJA = jinja2.Environment(
     loader=jinja2.FileSystemLoader(_theme_path),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
+JINJA.filters['filesizeformat'] = common.do_filesizeformat
 
 
 class Handler(webapp2.RequestHandler):

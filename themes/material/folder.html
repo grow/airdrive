@@ -1,14 +1,31 @@
 {% extends "base.html" %}
 
+{% macro render_assets(assets) %}
+  {% for group in assets|groupby('basename') %}
+    <li>
+      <div><img src="{{group.list[0].thumbnail_url}}"></div>
+      {% for asset in group.list %}
+        <a href="{{asset.url}}">{{asset.title}}</a> ({{asset.size|filesizeformat}})</li>
+      {% endfor %}
+    </li>
+  {% endfor %}
+
+{% endmacro %}
+
 {% block main %}
   <h1>{{folder.title}}</h1>
 
-  <h2>Assets</h2>
-  {% for asset in folder.children['assets'] %}
-    <li>
-      <div><img src="{{asset.thumbnail_url}}"></div>
-      <a href="{{asset.url}}">{{asset.title}}</a> ({{asset.size|filesizeformat}})</li>
-    </li>
+  <ul class="toc">
+    {% for f in folder.children['folders'] %}
+      <li><a href="#{{f.slug}}">{{f.title}}</a></li>
+    {% endfor %}
+  </ul>
+
+  {% for f in folder.children['folders'] %}
+    <h3 id="{{f.slug}}">{{f.title}}</h3>
+    {{render_assets(f.children['assets'])}}
   {% endfor %}
+
+  {{render_assets(folder.children['assets'])}}
 
 {% endblock %}

@@ -1,4 +1,5 @@
 from google.appengine.ext import ndb
+import datetime
 import re
 
 
@@ -27,3 +28,8 @@ class Model(ndb.Model):
   def generate_slug(cls, text):
     if text is not None:
       return re.sub(r'\W+', '-', text.lower())
+
+  @classmethod
+  def parse_datetime_string(cls, datetime_string):
+    fmt = '%Y-%m-%dT%H:%M:%S.%fZ'
+    return datetime.datetime.strptime(datetime_string, fmt)

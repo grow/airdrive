@@ -14,6 +14,7 @@ class Folder(models.Model):
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
   slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
+  modified = ndb.DateTimeProperty()
 
   @classmethod
   def process(cls, resp):
@@ -24,6 +25,7 @@ class Folder(models.Model):
     ent.title = title
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
+    ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.put()
 
   @classmethod
