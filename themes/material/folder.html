@@ -23,21 +23,25 @@
 {% endmacro %}
 
 {% block main %}
-  <h1>{{folder.title}}</h1>
+  <div class="contained">
 
-  <div class="toc">
-    <ul>
-      {% for f in folder.children['folders'] %}
+    <h1>{{folder.title}}</h1>
+
+    <div class="toc">
+      <ul>
+        {% for f in folder.children['folders'] %}
         <li><a href="#{{f.slug}}">{{f.title}}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
+        {% endfor %}
+      </ul>
+    </div>
 
-  {% for f in folder.children['folders'] %}
+    {% for f in folder.children['folders'] %}
+    <hr>
     <h3 id="{{f.slug}}">{{f.title}}</h3>
     {{render_assets(f.children['assets'])}}
-  {% endfor %}
+    {% endfor %}
 
-  {{render_assets(folder.children['assets'])}}
+    {{render_assets(folder.children['assets'])}}
 
+  </div>
 {% endblock %}

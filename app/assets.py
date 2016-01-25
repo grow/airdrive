@@ -12,18 +12,13 @@ CONFIG = appengine_config.CONFIG
 
 
 class Asset(models.Model):
-  resource_id = ndb.StringProperty()
-  title = ndb.StringProperty()
-  synced = ndb.DateTimeProperty()
   size = ndb.IntegerProperty()
   build = ndb.IntegerProperty()
   mimetype = ndb.StringProperty()
   md5 = ndb.StringProperty()
   parents = ndb.KeyProperty(repeated=True)
-  slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
   basename = ndb.StringProperty()
   ext = ndb.StringProperty()
-  modified = ndb.DateTimeProperty()
   url = ndb.StringProperty()
   icon_url = ndb.StringProperty()
 
@@ -36,7 +31,7 @@ class Asset(models.Model):
     ent.size = int(resp['fileSize'])
     ent.url = resp['webContentLink']
     ent.icon_url = resp['iconLink']
-    ent.title = resp['title']
+    ent.title, ent.weight = cls.parse_title_and_weight(resp['title'])
     ent.md5 = resp['md5Checksum']
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.synced = datetime.datetime.now()

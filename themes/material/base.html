@@ -1,3 +1,17 @@
+{% macro render_menu(folder, indent=True) %}
+  {% if indent %}
+    <li><a href="{{folder.url}}">{{folder.title}}</a>
+  {% endif %}
+  {% if indent %}<ul>{% endif %}
+    {% for sub_folder in folder.children['folders'] %}
+    <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
+    {% endfor %}
+    {% for page in folder.children['pages'] %}
+    <li><a href="{{page.url}}">{{page.title}}</a></li>
+    {% endfor %}
+  {% if indent %}</ul>{% endif %}
+{% endmacro %}
+
 <!doctype html>
 <meta charset="utf-8">
 <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -14,17 +28,18 @@
       </div>
       <ul>
         {% for folder in folders %}
-        <li><a href="{{folder.url}}">{{folder.title}}</a>
-        <ul>
-          {% for sub_folder in folder.children['folders'] %}
-          <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
-          {% endfor %}
-          {% for page in folder.children['pages'] %}
-          <li><a href="{{page.url}}">{{page.title}}</a></li>
-          {% endfor %}
-        </ul>
+          {% if folder.weight != -1 %}{% continue %}{% endif %}
+          {{render_menu(folder, indent=False)}}
         {% endfor %}
       </ul>
+      <div class="layout-side-bordered">
+        <ul>
+          {% for folder in folders %}
+            {% if folder.weight == -1 %}{% continue %}{% endif %}
+            {{render_menu(folder)}}
+          {% endfor %}
+        </ul>
+      </div>
       <div class="layout-side-bottom">
         {{config.CONFIG.sidebar|safe}}
       </div>

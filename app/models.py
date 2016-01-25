@@ -4,6 +4,12 @@ import re
 
 
 class Model(ndb.Model):
+  modified = ndb.DateTimeProperty()
+  resource_id = ndb.StringProperty()
+  slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
+  title = ndb.StringProperty()
+  weight = ndb.FloatProperty(default=0.0)
+  synced = ndb.DateTimeProperty()
 
   @classmethod
   def get(cls, ident):
@@ -41,3 +47,13 @@ class Model(ndb.Model):
     if parent:
       query = query.filter(cls.parents == ndb.Key('Folder', parent))
     return query.get()
+
+  @classmethod
+  def parse_title_and_weight(cls, unprocessed_title):
+    match = re.findall('\[([^\]]*)\] (.*)', unprocessed_title)
+    if match:
+      try:
+        return (match[0][1], float(match[0][0]))
+      except ValueError:
+        return (match[0][1], None)
+    return (unprocessed_title, None)

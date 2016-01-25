@@ -7,25 +7,19 @@ import webapp2
 
 
 class Folder(models.Model):
-  resource_id = ndb.StringProperty()
   updated = ndb.DateTimeProperty(auto_now=True)
-  title = ndb.StringProperty()
-  synced = ndb.DateTimeProperty()
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
-  slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
-  modified = ndb.DateTimeProperty()
 
   @classmethod
   def process(cls, resp):
     resource_id = resp['id']
-    title = resp['title']
     ent = cls.get_or_instantiate(resource_id)
     ent.resource_id = resource_id
-    ent.title = title
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
+    ent.title, ent.weight = cls.parse_title_and_weight(resp['title'])
     ent.put()
 
   @classmethod
@@ -34,6 +28,7 @@ class Folder(models.Model):
     if parent:
       parent_key = ndb.Key('Folder', parent)
       query = query.filter(Folder.parents == parent_key)
+      query = query.order(-Folder.weight)
     return query.fetch()
 
   def list_children(self):
@@ -44,12 +39,15 @@ class Folder(models.Model):
     }
     query = assets.Asset.query()
     query = query.filter(assets.Asset.parents == self.key)
+    query = query.order(assets.Asset.weight)
     children['assets'] = query.fetch()
     query = pages.Page.query()
     query = query.filter(pages.Page.parents == self.key)
+    query = query.order(pages.Page.weight)
     children['pages'] = query.fetch()
     query = Folder.query()
     query = query.filter(Folder.parents == self.key)
+    query = query.order(Folder.weight)
     children['folders'] = query.fetch()
     return children
 

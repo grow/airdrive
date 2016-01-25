@@ -15,42 +15,35 @@ EDIT_URL_FORMAT = 'https://docs.google.com/document/d/{resource_id}/edit'
 
 
 class Page(models.Model):
-  resource_id = ndb.StringProperty()
   html = ndb.TextProperty()
   markdown = ndb.TextProperty()
-  synced = ndb.DateTimeProperty()
-  title = ndb.StringProperty()
   etag = ndb.StringProperty()
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
   unprocessed_html = ndb.TextProperty()
-  slug = ndb.ComputedProperty(lambda self: self.generate_slug(self.title))
-  modified = ndb.DateTimeProperty()
 
   @classmethod
-  def process(cls, resp, unprocessed_content):
+  def process(cls, resp):
     resource_id = resp['id']
-    title = resp['title']
     etag = resp['etag']
     ent = cls.get_or_instantiate(resource_id)
-    ent.title = title
+    ent.title, ent.weight = cls.parse_title_and_weight(resp['title'])
     ent.resource_id = resource_id
     ent.etag = etag
-    ent.unprocessed_html = unprocessed_content
-    ent.markdown = cls.convert_html_to_markdown(unprocessed_content)
-    ent.html = cls.convert_markdown_to_html(ent.markdown)
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.put()
+    return ent
 
-  @classmethod
-  def should_reprocess(cls, resp):
-    resource_id = resp['id']
-    ent = cls.get(resource_id)
-    if ent is None:
-      return True
-    return ent.etag != resp['etag']
+  def process_content(self, unprocessed_content):
+    self.unprocessed_html = unprocessed_content
+    self.markdown = self.convert_html_to_markdown(unprocessed_content)
+    self.html = self.convert_markdown_to_html(self.markdown)
+    self.put()
+
+  def should_process_content(self, resp):
+    return self.etag != resp['etag']
 
   @staticmethod
   def convert_html_to_markdown(html):

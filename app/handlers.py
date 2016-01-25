@@ -17,7 +17,10 @@ _here = os.path.dirname(__file__)
 _theme_path = os.path.join(_here, '..', 'themes', CONFIG['theme'])
 JINJA = jinja2.Environment(
     loader=jinja2.FileSystemLoader(_theme_path),
-    extensions=['jinja2.ext.autoescape'],
+    extensions=[
+        'jinja2.ext.autoescape',
+        'jinja2.ext.loopcontrols',
+    ],
     autoescape=True)
 JINJA.filters['filesizeformat'] = common.do_filesizeformat
 
