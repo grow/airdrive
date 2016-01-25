@@ -20,6 +20,8 @@ libraries:
   version: latest
 - name: yaml
   version: latest
+- name: lxml
+  version: latest
 
 skip_files:
 - - ^(.*/)?.*~

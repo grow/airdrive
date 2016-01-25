@@ -1,4 +1,6 @@
 Markdown==2.4
+html5lib
+bleach==1.4.2
 
 # Emails.
 premailer

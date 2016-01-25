@@ -8,10 +8,41 @@ $header-height: 70px
     bottom: 0
     box-sizing: border-box
     left: 0
-    padding: $pad-md
     position: fixed
     top: 0
     width: $side-width
+
+    &-top
+      border-bottom: 1px solid $color-border
+      box-sizing: border-box
+      font-size: $font-size-sm
+      height: $header-height
+      margin-bottom: $pad-md
+      padding: $pad-md
+
+    &-bottom
+      font-size: $font-size-sm
+      margin-top: $pad-md
+      padding: $pad-md
+      border-top: 1px solid $color-border
+      line-height: $line-height-sm
+
+    ul
+      padding: 0
+      margin: 0
+      list-style: none
+      font-size: $font-size-sm
+
+      a
+        color: $color-text
+        display: block
+        font-weight: $bold
+        padding: $pad-xs $pad-md
+
+      ul
+        a
+          padding-left: $pad-md * 2
+          font-weight: $semibold
 
   &-main
     position: fixed
@@ -33,7 +64,7 @@ $header-height: 70px
     &-header
       background: $color-brand
       color: $color-text-on-brand
-      box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12)
+      box-shadow: 0 2px 2px 0 rgba(0,0,0,.2)
       padding: 0 $pad-xx
       height: $header-height
       line-height: $header-height

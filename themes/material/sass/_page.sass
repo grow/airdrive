@@ -1,0 +1,62 @@
+.page
+  max-width: $max-content-width
+  margin: 0 auto
+
+  &-component-color
+    border-radius: 3px
+    display: block
+    height: 50px
+
+  &-document
+    img
+      max-width: 100%
+
+      + br + i,
+      + i
+        color: $color-grey
+        display: block
+        font-size: $font-size-sm
+        font-weight: $bold
+        line-height: $line-height-sm
+        margin-bottom: $pad-lg
+
+    table
+      border-collapse: collapse
+      width: 100%
+
+      td
+        vertical-align: top
+
+      &.cols-2
+        td
+          width: 50%
+
+          &:first-child
+            padding-right: $pad-md
+
+          &:last-child
+            padding-left: $pad-md
+
+      &.cols-3
+        td
+          width: 33%
+          padding: $pad-md
+
+          &:first-child
+            padding-left: 0
+
+          &:last-child
+            padding-right: 0
+
+    hr
+      color: $color-grey
+      height: 1px
+      border: 0
+      border-top: 1px solid $color-grey
+      margin: $pad-xx 0
+
+  &-meta
+    border-top: 1px solid $color-grey
+    font-size: $font-size-sm
+    margin-top: $pad-xx
+    padding-top: $pad-md

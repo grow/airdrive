@@ -1,12 +1,17 @@
 from . import models
 from google.appengine.ext import ndb
+from markdown.extensions import tables
+from markdown.extensions import toc
+import bleach
 import bs4
 import datetime
 import html2text
+import logging
 import markdown
+import re
 import webapp2
-from markdown.extensions import tables
-from markdown.extensions import toc
+
+EDIT_URL_FORMAT = 'https://docs.google.com/document/d/{resource_id}/edit'
 
 
 class Page(models.Model):
@@ -70,3 +75,36 @@ class Page(models.Model):
   @property
   def url(self):
     return '/{}/{}/{}/'.format(self.parent.slug, self.key.id(), self.slug)
+
+  @property
+  def edit_url(self):
+    return EDIT_URL_FORMAT.format(resource_id=self.resource_id)
+
+  @property
+  def sync_url(self):
+    return '/sync/{}'.format(self.resource_id)
+
+  @property
+  def pretty_html(self):
+    ATTRS = ['src', 'href', 'style']
+    TAGS = [
+        'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
+        'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',
+    ]
+    html = self.unprocessed_html
+    soup = bs4.BeautifulSoup(html)
+    html = soup.body.prettify()
+    html = bleach.clean(html,
+        tags=TAGS,
+        attributes=ATTRS,
+        strip=True)
+    html = self.markdownify(html)
+    return html
+
+  @classmethod
+  def markdownify(cls, html):
+    html = re.sub('\_{2}(.+)\_{2}', '<i>\\1</i>', html, re.MULTILINE)
+    html = re.sub('\*{2}(.+)\*{2}', '<strong>\\1</strong>', html, re.MULTILINE)
+    html = re.sub('\[COLOR:([^\]]*)\]', '<div class="page-component-color" style="background-color:\\1"></div>', html, re.MULTILINE)
+    html = html.replace('[TOC]', '<div class="toc toc--auto"><ul></ul></div>')
+    return html

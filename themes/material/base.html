@@ -5,10 +5,13 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic" rel="stylesheet">
 <link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
-<title></title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<title>{{config.CONFIG.title}}</title>
 <body>
   <div class="layout">
     <div class="layout-side">
+      <div class="layout-side-top">
+      </div>
       <ul>
         {% for folder in folders %}
         <li><a href="{{folder.url}}">{{folder.title}}</a>
@@ -22,6 +25,9 @@
         </ul>
         {% endfor %}
       </ul>
+      <div class="layout-side-bottom">
+        {{config.CONFIG.sidebar|safe}}
+      </div>
     </div>
     <div class="layout-main">
       <div class="layout-main-header">

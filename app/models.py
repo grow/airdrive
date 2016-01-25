@@ -33,3 +33,11 @@ class Model(ndb.Model):
   def parse_datetime_string(cls, datetime_string):
     fmt = '%Y-%m-%dT%H:%M:%S.%fZ'
     return datetime.datetime.strptime(datetime_string, fmt)
+
+  @classmethod
+  def get_by_slug(cls, slug, parent=None):
+    query = cls.query()
+    query = query.filter(cls.slug == slug)
+    if parent:
+      query = query.filter(cls.parents == ndb.Key('Folder', parent))
+    return query.get()
