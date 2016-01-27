@@ -1,3 +1,7 @@
+{% macro asset(path) -%}
+/_app/{{config.VERSION}}/config/{{path}}
+{%- endmacro %}
+
 {% macro render_menu(folder, indent=True) %}
   {% if indent %}
     <li><a href="{{folder.url}}">{{folder.title}}</a>
@@ -23,8 +27,11 @@
 <title>{{config.CONFIG.title}}</title>
 <body>
   <div class="layout">
+    {% if enable_sidebar is not sameas false %}
     <div class="layout-side">
       <div class="layout-side-top">
+        <a href="{{uri_for('home')}}"><img src="{{asset(config.CONFIG.logo)}}" class="layout-side-top-logo"></a>
+        <div class="layout-side-top-subtitle">{{config.CONFIG.sidebar_title|safe}}</div>
       </div>
       <ul>
         {% for folder in folders %}
@@ -44,15 +51,14 @@
         {{config.CONFIG.sidebar|safe}}
       </div>
     </div>
+    {% endif %}
     <div class="layout-main">
       <div class="layout-main-header">
         <div class="layout-main-header-title">
-          {% if folder %}
-            {{folder.title}}
-          {% endif %}
+          {{title}}
         </div>
         <div class="layout-main-header-side">
-          {{user.email()}}
+          <a href="{{uri_for('settings')}}">{{user.email()}}</a>
         </div>
       </div>
       <div class="layout-main-content">

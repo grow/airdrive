@@ -43,6 +43,7 @@ class Page(models.Model):
     self.put()
 
   def should_process_content(self, resp):
+    return True
     return self.etag != resp['etag']
 
   @staticmethod
@@ -83,6 +84,7 @@ class Page(models.Model):
     TAGS = [
         'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
         'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',
+        'sup',
     ]
     html = self.unprocessed_html
     soup = bs4.BeautifulSoup(html)

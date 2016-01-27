@@ -1,3 +1,4 @@
+from . import assets
 from . import common
 from . import folders
 from . import pages
@@ -25,12 +26,22 @@ JINJA = jinja2.Environment(
 JINJA.filters['filesizeformat'] = common.do_filesizeformat
 
 
+def get_config_content(name):
+  path = os.path.join(appengine_config.CONFIG_PATH, 'templates', name)
+  return open(path).read()
+
+
 class Handler(webapp2.RequestHandler):
 
-  def render_template(self, path, params):
+  def has_access(self):
+    pass
+
+  def render_template(self, path, params=None):
+    params = params or {}
     user = users.get_current_user()
     params['config'] = appengine_config
     params['user'] = user
+    params['uri_for'] = self.uri_for
 
     folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID)
     params['folders'] = folder_ents
@@ -42,8 +53,8 @@ class Handler(webapp2.RequestHandler):
 
 class FolderHandler(Handler):
 
-  def get(self, folder_slug, subfolder_short_id):
-    folder = folders.Folder.get(subfolder_short_id)
+  def get(self, folder_slug, resource_id):
+    folder = folders.Folder.get(resource_id)
     if folder is None:
       self.error(404)
       return
@@ -55,8 +66,8 @@ class FolderHandler(Handler):
 
 class PageHandler(Handler):
 
-  def get(self, folder_slug, page_short_id, page_slug):
-    page = pages.Page.get(page_short_id)
+  def get(self, folder_slug, resource_id, page_slug):
+    page = pages.Page.get(resource_id)
     if page is None:
       self.error(404)
       return
@@ -84,3 +95,29 @@ class MainFolderHandler(Handler):
         'folder': folder,
     }
     self.render_template('folder.html', params)
+
+
+class HomepageHandler(Handler):
+
+  def get(self):
+    params = {
+        'content': get_config_content('welcome.html')
+    }
+    self.render_template('interstitial.html', params)
+
+
+class AssetDownloadHandler(Handler):
+
+  def get(self, resource_id):
+    asset = assets.Asset.get(resource_id)
+    if asset is None:
+      self.error(404)
+      return
+    self.response.status = 302
+    self.response.headers['Location'] = str(asset.url)
+
+
+class SettingsHandler(Handler):
+
+  def get(self):
+    self.render_template('settings.html')

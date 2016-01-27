@@ -3,6 +3,9 @@ api_version: 1
 threadsafe: yes
 
 handlers:
+- url: /_app/[^/]*/config/
+  static_dir: config/assets/
+  secure: always
 - url: /_app/[^/]*/assets/
   static_dir: dist/
   secure: always

@@ -18,4 +18,3 @@ class TestCase(unittest.TestCase):
     self.testbed.init_mail_stub()
     self.testbed.setup_env(testing='True')
     reload(appengine_config)
-

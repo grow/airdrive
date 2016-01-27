@@ -14,11 +14,20 @@ $header-height: 70px
 
     &-top
       border-bottom: 1px solid $color-border
-      box-sizing: border-box
       font-size: $font-size-sm
-      height: $header-height
       margin-bottom: $pad-md
+      height: $header-height
+      box-sizing: border-box
       padding: $pad-md
+      line-height: $header-height - 2 * $pad-md
+
+      &-logo
+        vertical-align: middle
+        max-width: 100px
+        opacity: .5
+
+      &-subtitle
+        display: none
 
     &-bottom
       font-size: $font-size-sm
@@ -49,9 +58,12 @@ $header-height: 70px
           padding-left: $pad-md * 2
           font-weight: $semibold
 
+  &-side + &-main
+    left: $side-width
+
   &-main
     position: fixed
-    left: $side-width
+    left: 0
     right: 0
     bottom: 0
     top: 0
@@ -74,6 +86,9 @@ $header-height: 70px
       height: $header-height
       line-height: $header-height
       box-sizing: border-box
+
+      a
+        color: $color-text-on-brand
 
       &-title
         font-weight: $semibold

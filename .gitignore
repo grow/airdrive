@@ -10,3 +10,4 @@ env
 htmlcov
 lib
 node_modules
+config/

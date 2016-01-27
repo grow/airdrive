@@ -50,3 +50,7 @@ class Asset(models.Model):
     return THUMBNAIL_URL_FORMAT.format(
         resource_id=self.resource_id,
         size=250)
+
+  @property
+  def download_url(self):
+    return '/assets/{}'.format(self.resource_id)

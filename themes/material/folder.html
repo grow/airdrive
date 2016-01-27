@@ -1,3 +1,4 @@
+{% set title = folder.title %}
 {% extends "base.html" %}
 
 {% macro render_assets(assets) %}
@@ -13,7 +14,7 @@
           </div>
           {% for asset in group.list %}
             <div class="assets-asset-meta-link">
-              <a href="{{asset.url}}">{{asset.ext[1:]|upper}}</a> {{asset.size|filesizeformat}}</li>
+              <a href="{{asset.download_url}}">{{asset.ext[1:]|upper}}</a> {{asset.size|filesizeformat}}</li>
             </div>
           {% endfor %}
         </div>

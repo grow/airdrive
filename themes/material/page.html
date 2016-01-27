@@ -1,3 +1,4 @@
+{% set title = page.title %}
 {% extends "base.html" %}
 
 {% block main %}
@@ -12,7 +13,7 @@
   </div>
   <script>
     $('table').each(function(i, $table) {
-      var numCols = $(this).find('tr > td').size();
+      var numCols = $(this).find('tr:first-child > td').size();
       $(this).addClass('cols-' + numCols);
     });
 
