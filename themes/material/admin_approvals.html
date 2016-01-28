@@ -45,7 +45,7 @@
         <td>
           <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.created}} by {{approval.user.email}}</a>
         </td>
-        <td>{{approval.updated_by}}</td>
+        <td>{{approval.updated_by.email}}</td>
       </tr>
     {% endfor %}
   </tbody>

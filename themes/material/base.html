@@ -4,7 +4,6 @@
 
 {% macro render_menu(folder, indent=True, active_folder=None, active_page=None) %}
   {% if indent %}
-    <li class="{{"active" if (folder == active_folder or folder == active_folder.parent)}}">
       <a href="{{folder.url}}">
         {{folder.title}}
         <i class="material-icons">expand_more</i>
@@ -34,7 +33,13 @@
     {% if enable_sidebar is not sameas false %}
     <div class="layout-side">
       <div class="layout-side-top">
-        <a href="{{uri_for('home')}}"><img src="{{asset(config.CONFIG.logo)}}" class="layout-side-top-logo"></a>
+        <a href="{{uri_for('home')}}">
+          {% if config.CONFIG.logo %}
+            <img src="{{asset(config.CONFIG.logo)}}" class="layout-side-top-logo">
+          {% else %}
+            {{config.CONFIG.title or config.CONFIG.sidebar_title}}
+          {% endif %}
+        </a>
         <div class="layout-side-top-subtitle">{{config.CONFIG.sidebar_title|safe}}</div>
       </div>
       {% block side %}
@@ -67,7 +72,7 @@
     <div class="layout-main">
       <div class="layout-main-header">
         {% if enable_sidebar is sameas false %}
-          <div class="contained">
+          <div class="contained contained--sm">
         {% endif %}
         <div class="layout-main-header-title">
           {{title}}

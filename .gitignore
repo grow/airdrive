@@ -4,11 +4,11 @@
 .coverage
 bower_components
 build
-config.yaml
 dist
 env
 htmlcov
 lib
 node_modules
 config/
+config.*/
 scripts/deploy
