@@ -1,6 +1,7 @@
 {% extends "admin.html" %}
 
 {% block main %}
+  <h2>Root folder</h2>
   <div class="form">
     <div class="form-field">
       <label class="form-field-label">Root folder</label>
@@ -8,7 +9,26 @@
     </div>
     <div class="form-field">
       <a class="btn btn--sm" href="{{folder.edit_url}}">Open in Google Drive</a>
-      <a class="btn btn--sm" href="{{uri_for('sync')}}">Sync</a>
+      <a class="btn btn--sm" href="{{uri_for('sync')}}">Sync root folder</a>
     </div>
   </div>
+
+  <h2>Sub-folders</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Synced</th>
+        <th>Title</th>
+        <th>Order</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+  {% for folder in folders %}
+    <tr>
+      <td>{{folder.synced}}</td>
+      <td>{{folder.title}}</td>
+      <td>{{folder.weight}}</td>
+      <td><a href="{{folder.sync_url}}">Sync</a></td>
+    </tr>
+  {% endfor %}
 {% endblock %}

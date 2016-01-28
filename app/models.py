@@ -76,3 +76,6 @@ class Model(ndb.Model):
   def get_by_ident(cls, ident):
     key = ndb.Key(urlsafe=ident)
     return key.get()
+
+  def delete(self):
+    self.key.delete()

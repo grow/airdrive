@@ -21,6 +21,7 @@ class Asset(models.Model):
   ext = ndb.StringProperty()
   url = ndb.StringProperty()
   icon_url = ndb.StringProperty()
+  download_count = ndb.IntegerProperty()
 
   @classmethod
   def process(cls, resp):

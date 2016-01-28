@@ -30,7 +30,7 @@ class Folder(models.Model):
     if parent:
       parent_key = ndb.Key('Folder', parent)
       query = query.filter(Folder.parents == parent_key)
-      query = query.order(-Folder.weight)
+      query = query.order(Folder.weight)
     return query.fetch()
 
   def list_children(self):
@@ -64,6 +64,10 @@ class Folder(models.Model):
   @property
   def url(self):
     return '/{}/folders/{}/'.format(self.parent.slug, self.key.id())
+
+  @property
+  def sync_url(self):
+    return '/sync/{}/'.format(self.resource_id)
 
   @property
   def edit_url(self):

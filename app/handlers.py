@@ -195,3 +195,17 @@ class SyncHandler(Handler):
   def get(self, resource_id=MAIN_FOLDER_ID):
     resp = sync.download_resource(resource_id)
     self.response.out.write('done')
+
+
+class DeleteHandler(Handler):
+
+  def get(self, resource_id):
+    page = pages.Page.get(resource_id)
+    if page:
+      page.delete()
+      self.response.out.write('deleted')
+    else:
+      folder = folders.Folder.get(resource_id)
+      if folder:
+        folder.delete()
+        self.response.out.write('deleted')

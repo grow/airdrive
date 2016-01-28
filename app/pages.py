@@ -76,7 +76,7 @@ class Page(models.Model):
 
   @property
   def sync_url(self):
-    return '/sync/{}'.format(self.resource_id)
+    return '/sync/{}/'.format(self.resource_id)
 
   @property
   def pretty_html(self):

@@ -1,19 +1,18 @@
-import appengine_config
+from . import assets
+from . import folders
+from . import pages
+from google.appengine.api import memcache
 from googleapiclient import discovery
 from googleapiclient import errors
 from oauth2client import appengine
 from oauth2client import client
+import appengine_config
 import httplib2
 import logging
 import os
-from . import assets
-from . import folders
-from . import pages
 
 
 CONFIG = appengine_config.CONFIG
-
-SERVICE = None
 
 SCOPE = [
     'https://www.googleapis.com/auth/drive',
@@ -34,14 +33,14 @@ def get_credentials():
   return credentials
 
 
+http = httplib2.Http(memcache)
+credentials = get_credentials()
+credentials.authorize(http)
+service = discovery.build('drive', 'v2', http=http)
+
+
 def get_service():
-  global SERVICE
-  if SERVICE is None:
-    credentials = get_credentials()
-    http = httplib2.Http()
-    http = credentials.authorize(http)
-    SERVICE = discovery.build('drive', 'v2', http=http)
-  return SERVICE
+  return service
 
 
 def download_folder(resource_id):

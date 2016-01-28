@@ -54,7 +54,15 @@ $header-height: 70px
         font-weight: $bold
         padding: $pad-xs $pad-md
 
+        &:hover
+          background-color: $color-light-bg-hover
+
       ul
+        display: none
+
+        &.active
+          display: block
+
         a
           padding-left: $pad-md * 2
           font-weight: $semibold

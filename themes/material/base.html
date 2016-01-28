@@ -2,11 +2,11 @@
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
-{% macro render_menu(folder, indent=True) %}
+{% macro render_menu(folder, indent=True, active_folder=None) %}
   {% if indent %}
     <li><a href="{{folder.url}}">{{folder.title}}</a>
   {% endif %}
-  {% if indent %}<ul>{% endif %}
+  {% if indent %}<ul class="{{"active" if active_folder == folder}}">{% endif %}
     {% for sub_folder in folder.children['folders'] %}
     <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
     {% endfor %}
@@ -42,9 +42,15 @@
         </ul>
         <div class="layout-side-bordered">
           <ul>
-            {% for folder in folders %}
-              {% if folder.weight == -1 %}{% continue %}{% endif %}
-              {{render_menu(folder)}}
+            {% for each_folder in folders %}
+              {% if each_folder.weight == -1 %}{% continue %}{% endif %}
+              {% if page %}
+                {{render_menu(each_folder, active_folder=page.parent)}}
+              {% elif folder %}
+                {{render_menu(each_folder, active_folder=folder)}}
+              {% else %}
+                {{render_menu(each_folder)}}
+              {% endif %}
             {% endfor %}
           </ul>
         </div>

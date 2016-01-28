@@ -1,4 +1,4 @@
-{% set title = page.title %}
+{% set title = '{} › {}'.format(page.parent.title, page.title) %}
 {% extends "base.html" %}
 
 {% block main %}
@@ -8,7 +8,10 @@
       {{page.pretty_html|safe}}
     </div>
     <div class="page-meta">
-      Updated {{page.modified}} (<a href="{{page.edit_url}}">Edit</a> | <a href="{{page.sync_url}}">Sync</a>)
+      Updated {{page.modified}}
+      | <a href="{{page.edit_url}}">Edit</a>
+      | <a href="{{page.sync_url}}">Sync</a>
+      | <a href="{{uri_for('delete', resource_id=page.resource_id)}}">Delete</a>
     </div>
   </div>
   <script>
