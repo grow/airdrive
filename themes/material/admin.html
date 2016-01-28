@@ -1,0 +1,16 @@
+{% set title = "Admin" %}
+{% extends "base.html" %}
+
+{% block side %}
+<ul>
+  <li><a href="{{uri_for('admin')}}">Content</a></li>
+  <li><a href="{{uri_for('admin-page', template='approvals')}}">Approvals</a></li>
+  <li><a href="{{uri_for('admin-page', template='admins')}}">Administrators</a></li>
+</ul>
+{% endblock %}
+
+{% block main %}
+  <div class="contained">
+    <p>Admin.</p>
+  </div>
+{% endblock %}

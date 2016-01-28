@@ -33,33 +33,45 @@
         <a href="{{uri_for('home')}}"><img src="{{asset(config.CONFIG.logo)}}" class="layout-side-top-logo"></a>
         <div class="layout-side-top-subtitle">{{config.CONFIG.sidebar_title|safe}}</div>
       </div>
-      <ul>
-        {% for folder in folders %}
-          {% if folder.weight != -1 %}{% continue %}{% endif %}
-          {{render_menu(folder, indent=False)}}
-        {% endfor %}
-      </ul>
-      <div class="layout-side-bordered">
+      {% block side %}
         <ul>
           {% for folder in folders %}
-            {% if folder.weight == -1 %}{% continue %}{% endif %}
-            {{render_menu(folder)}}
+            {% if folder.weight != -1 %}{% continue %}{% endif %}
+            {{render_menu(folder, indent=False)}}
           {% endfor %}
         </ul>
-      </div>
-      <div class="layout-side-bottom">
-        {{config.CONFIG.sidebar|safe}}
-      </div>
+        <div class="layout-side-bordered">
+          <ul>
+            {% for folder in folders %}
+              {% if folder.weight == -1 %}{% continue %}{% endif %}
+              {{render_menu(folder)}}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="layout-side-bottom">
+          {{config.CONFIG.sidebar|safe}}
+        </div>
+      {% endblock %}
     </div>
     {% endif %}
     <div class="layout-main">
       <div class="layout-main-header">
+        {% if enable_sidebar is sameas false %}
+          <div class="contained">
+        {% endif %}
         <div class="layout-main-header-title">
           {{title}}
         </div>
         <div class="layout-main-header-side">
-          <a href="{{uri_for('settings')}}">{{user.email()}}</a>
+          {% if me.registered %}
+            <a href="{{uri_for('settings')}}">{{me.email}}</a>
+          {% else %}
+            <a href="{{urls.sign_in()}}" class="btn btn--sm btn--inverted">Sign in</a>
+          {% endif %}
         </div>
+        {% if enable_sidebar is sameas false %}
+          </div>
+        {% endif %}
       </div>
       <div class="layout-main-content">
         {% block main %}

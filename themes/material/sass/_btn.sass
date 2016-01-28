@@ -1,0 +1,38 @@
+.btn
+  -webkit-font-smoothing: antialiased;
+  -webkit-transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1)
+  background: $color-brand;
+  border: none
+  border-radius: 2px
+  box-sizing: border-box
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12);
+  color: $color-text-on-brand
+  cursor: pointer
+  display: inline-block
+  font-family: $font-family
+  font-size: $font-size
+  font-weight: $bold
+  height: auto;
+  letter-spacing: 0
+  outline: none
+  overflow: hidden
+  padding: 10px 20px
+  position: relative
+  text-align: center
+  text-decoration: none
+  text-transform: uppercase
+  transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1)
+  vertical-align: middle
+  will-change: box-shadow,transform
+
+  &:hover
+    box-shadow: 0 5px 5px 0 rgba(0,0,0,.14)
+
+  &--sm
+    font-size: $font-size-sm
+    line-height: $line-height-sm
+    padding: 5px 15px
+
+  &--inverted
+    background: $color-text-on-brand
+    color: $color-text

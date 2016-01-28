@@ -1,9 +1,9 @@
 #!/bin/sh -e
 
-EMAIL_ADDRESS="$(egrep -o "^service_account:.*" config.yaml | cut -d\" -f2)"
-KEY="$(egrep -o "^key:.*" config.yaml | cut -d\" -f2)"
+EMAIL_ADDRESS="$(egrep -o "^service_account:.*" config/config.yaml | cut -d\" -f2)"
+KEY="$(egrep -o "^key:.*" config/config.yaml | cut -d\" -f2)"
 
 dev_appserver.py \
   --appidentity_email_address $EMAIL_ADDRESS \
-  --appidentity_private_key_path $KEY \
+  --appidentity_private_key_path config/$KEY \
   $@ .

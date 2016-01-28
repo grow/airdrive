@@ -44,3 +44,11 @@ class ApprovalMessage(messages.Message):
 
 class ApprovalQueryMessage(messages.Message):
   cursor = messages.StringField(1)
+
+
+class AdminMessage(messages.Message):
+  email = messages.StringField(1)
+  created = message_types.DateTimeField(2)
+  created_by = messages.MessageField(UserMessage, 3)
+  receives_email = messages.BooleanField(4)
+  ident = messages.StringField(5)

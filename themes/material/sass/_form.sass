@@ -1,0 +1,25 @@
+.form
+  margin: $pad-lg 0
+
+  &-field
+    margin-bottom: $pad-md
+
+    &-label
+      display: block
+      font-weight: $bold
+      margin-bottom: 3px
+
+    &-control[type=text],
+    &-control
+      padding: 5px
+      font-family: $font-family
+      font-size: $font-size
+      display: block
+      min-width: 300px
+      border: 1px solid $color-border
+
+      &[readonly]
+        color: $color-grey
+
+    textarea.form-field-control
+      min-height: 50px

@@ -1,7 +1,11 @@
 {% set title = "Settings" %}
-{% set sidebar = false %}
+{% set enable_sidebar = false %}
 {% extends "base.html" %}
 
 {% block main %}
-  Settings
+  <div class="contained">
+    <p>
+      <a class="btn" href="{{urls.sign_out(uri_for('home'))}}">Sign out</a>
+    </p>
+  </div>
 {% endblock %}

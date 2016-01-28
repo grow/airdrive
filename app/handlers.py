@@ -1,3 +1,5 @@
+import airlock
+from . import admins
 from . import assets
 from . import common
 from . import folders
@@ -31,16 +33,27 @@ def get_config_content(name):
   return open(path).read()
 
 
-class Handler(webapp2.RequestHandler):
+class Handler(airlock.Handler):
 
-  def has_access(self):
-    pass
+  def is_admin(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    try:
+      self.require_admin(admins.Admin.is_admin)
+    except airlock.errors.ForbiddenError:
+      self.error(403)
+      html = 'Forbbiden. <a href="{}">Sign out</a>.'.format(self.urls.sign_out())
+      self.response.out.write(html)
+      return
+    return True
 
   def render_template(self, path, params=None):
     params = params or {}
     user = users.get_current_user()
     params['config'] = appengine_config
-    params['user'] = user
+    params['me'] = self.me
+    params['urls'] = self.urls
     params['uri_for'] = self.uri_for
 
     folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID)
@@ -103,6 +116,9 @@ class HomepageHandler(Handler):
     params = {
         'content': get_config_content('welcome.html')
     }
+    if self.me.registered and not self.me.has_access:
+      self.render_template('interstitial_access_request.html', params)
+      return
     self.render_template('interstitial.html', params)
 
 
@@ -121,3 +137,15 @@ class SettingsHandler(Handler):
 
   def get(self):
     self.render_template('settings.html')
+
+
+class AdminHandler(Handler):
+
+  def get(self, template='builds'):
+    if not self.is_admin():
+      return
+    try:
+      self.render_template('admin_{}.html'.format(template))
+    except jinja2.TemplateNotFound:
+      self.error(404)
+      return

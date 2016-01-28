@@ -1,0 +1,122 @@
+{% set title = config.CONFIG.title %}
+{% set enable_sidebar = false %}
+{% extends "base.html" %}
+
+{% block main %}
+  <div class="contained">
+
+    {% if me.status == "PENDING" %}
+      <p>Welcome, <b>{{me.email}}</b>! We are currently processing your request for access. You will receive an email when your request has been processed. Have questions? <a href="{{config.CONFIG.contact_url}}">Contact us</a>.
+    {% elif me.status == "REJECTED" %}
+      <p>
+      You are signed in as <b>{{me.email}}</b> and your request to access the toolkit has been rejected. Please <a href="{{config.CONFIG.contact_url}}">contact us</a> if you think this is in error.
+      </p>
+    {% else %}
+
+      <p>Please request access by filling out the form below.</p>
+
+      <form class="form">
+
+        <div class="form-field">
+          <label class="form-field-label">Your Google Account</label>
+          <input class="form-field-control" type="text" required value="{{me.email}}" readonly>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">First name</label>
+          <input class="form-field-control" type="text" required>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">Last name</label>
+          <input class="form-field-control" type="text" required>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">Company</label>
+          <input class="form-field-control" type="text" required>
+        </div>
+
+        {% if config.CONFIG.organization_types %}
+        <div class="form-field">
+          <label class="form-field-label">Organization type</label>
+          <div>
+            <select required class="form-field-control">
+              <option></option>
+              {% for option in config.CONFIG.organization_types %}
+                <option>{{option}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="form-field">
+          <label class="form-field-label">Corporate email address</label>
+          <input class="form-field-control" type="email" required>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">Job title</label>
+          <input class="form-field-control" type="text" required>
+        </div>
+
+        {% if config.CONFIG.regions %}
+        <div class="form-field">
+          <label class="form-field-label">Region</label>
+          <div>
+            <select required class="form-field-control">
+              <option></option>
+              {% for item in config.CONFIG.regions %}
+                <option value="{{item.key}}">{{item.value}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="form-field">
+          <label class="form-field-label">Country</label>
+          <div>
+            <select required class="form-field-control">
+              <option></option>
+              {% for item in config.CONFIG.countries %}
+                <option value="{{item.0}}">{{item.1}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">Which folders do you need to access?</label>
+          {% for folder in folders %}
+            {# Do not include "overview" folder. #}
+            {% if folder.weight == -1 %}{% continue %}{% endif %}
+            <div>
+              <label><input type="checkbox" value="{{folder.resource_id}}"> {{folder.title}}</label>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">Why do you need access to our partner toolkit?</label>
+          <textarea class="form-field-control" required></textarea>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field-label">Email preference</label>
+          <div>
+            <label><input type=checkbox> I would like to receive occasional email updates</label>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <button type="submit" class="btn">
+            Submit access request
+          </button>
+        </div>
+
+      </form>
+    {% endif %}
+
+{% endblock %}

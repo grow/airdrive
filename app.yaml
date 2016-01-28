@@ -12,9 +12,10 @@ handlers:
 - url: .*
   script: app.main.app
   secure: always
-  login: required
 
 libraries:
+- name: endpoints
+  version: latest
 - name: ssl
   version: latest
 - name: webapp2

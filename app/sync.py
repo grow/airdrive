@@ -23,9 +23,10 @@ SCOPE = [
 
 def get_credentials():
   if os.getenv('TESTING'):
+    path = os.path.join(appengine_config.CONFIG_PATH, CONFIG['key'])
     credentials = client.SignedJwtAssertionCredentials(
         CONFIG['service_account'],
-        open(CONFIG['key']).read(),
+        open(path).read(),
         scope=SCOPE,
     )
   else:
