@@ -2,16 +2,20 @@
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
-{% macro render_menu(folder, indent=True, active_folder=None) %}
+{% macro render_menu(folder, indent=True, active_folder=None, active_page=None) %}
   {% if indent %}
-    <li><a href="{{folder.url}}">{{folder.title}}</a>
+    <li class="{{"active" if (folder == active_folder or folder == active_folder.parent)}}">
+      <a href="{{folder.url}}">
+        {{folder.title}}
+        <i class="material-icons">expand_more</i>
+      </a>
   {% endif %}
-  {% if indent %}<ul class="{{"active" if active_folder == folder}}">{% endif %}
+  {% if indent %}<ul class="{{"active" if (folder == active_folder or folder == active_folder.parent)}}">{% endif %}
     {% for sub_folder in folder.children['folders'] %}
-    <li><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
+    <li class="{{"active-item" if sub_folder == active_folder}}"><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
     {% endfor %}
     {% for page in folder.children['pages'] %}
-    <li><a href="{{page.url}}">{{page.title}}</a></li>
+    <li class="{{"active-item" if page == active_page}}"><a href="{{page.url}}">{{page.title}}</a></li>
     {% endfor %}
   {% if indent %}</ul>{% endif %}
 {% endmacro %}
@@ -37,7 +41,7 @@
         <ul>
           {% for folder in folders %}
             {% if folder.weight != -1 %}{% continue %}{% endif %}
-            {{render_menu(folder, indent=False)}}
+            {{render_menu(folder, indent=False, active_page=page)}}
           {% endfor %}
         </ul>
         <div class="layout-side-bordered">
@@ -45,7 +49,7 @@
             {% for each_folder in folders %}
               {% if each_folder.weight == -1 %}{% continue %}{% endif %}
               {% if page %}
-                {{render_menu(each_folder, active_folder=page.parent)}}
+                {{render_menu(each_folder, active_folder=page.parent, active_page=page)}}
               {% elif folder %}
                 {{render_menu(each_folder, active_folder=folder)}}
               {% else %}

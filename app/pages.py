@@ -84,7 +84,7 @@ class Page(models.Model):
     TAGS = [
         'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
         'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',
-        'sup',
+        'sup', 'strong',
     ]
     html = self.unprocessed_html
     soup = bs4.BeautifulSoup(html)
@@ -102,4 +102,5 @@ class Page(models.Model):
     html = re.sub('\*{2}(.+)\*{2}', '<strong>\\1</strong>', html, re.MULTILINE)
     html = re.sub('\[COLOR:([^\]]*)\]', '<div class="page-component-color" style="background-color:\\1"></div>', html, re.MULTILINE)
     html = html.replace('[TOC]', '<div class="toc toc--auto"><ul></ul></div>')
+    html = re.sub('\[BUTTON:([^\]]*)\]([^\]]*)\[/\]', '<a class="btn" href="\\1">\\2</a>', html, re.MULTILINE)
     return html

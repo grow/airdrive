@@ -34,21 +34,42 @@
 
     <h1>{{folder.title}}</h1>
 
+    {% set is_asset_folder = not folder.children['pages'] and folder.children['folders'] %}
+
     <div class="toc">
       <ul>
         {% for f in folder.children['folders'] %}
-        <li><a href="#{{f.slug}}">{{f.title}}</a></li>
+          {% if is_asset_folder %}
+            <li><a href="#{{f.slug}}">{{f.title}}</a></li>
+          {% else %}
+            <li><a href="{{f.url}}">{{f.title}}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% for p in folder.children['pages'] %}
+        <li><a href="{{p.url}}">{{p.title}}</a></li>
         {% endfor %}
       </ul>
     </div>
 
-    {% for f in folder.children['folders'] %}
-    <hr>
-    <h3 id="{{f.slug}}">{{f.title}}</h3>
-    {{render_assets(f.children['assets'])}}
-    {% endfor %}
+    {% if is_asset_folder %}
 
-    {{render_assets(folder.children['assets'])}}
+      {% for f in folder.children['folders'] %}
+      <hr>
+      <h3 id="{{f.slug}}">{{f.title}}</h3>
+      {{render_assets(f.children['assets'])}}
+      {% endfor %}
+
+      {{render_assets(folder.children['assets'])}}
+
+    {% endif %}
+
+    <div class="page-meta">
+      Updated {{folder.modified}}
+      | <a href="{{uri_for('admin')}}">Admin</a>
+      | <a href="{{folder.edit_url}}">Edit</a>
+      | <a href="{{folder.sync_url}}">Sync</a>
+      | <a href="{{uri_for('delete', resource_id=folder.resource_id)}}">Delete</a>
+    </div>
 
   </div>
 {% endblock %}

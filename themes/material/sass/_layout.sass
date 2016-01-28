@@ -48,6 +48,15 @@ $header-height: 70px
       list-style: none
       font-size: $font-size-sm
 
+      .active-item
+        a
+          color: $color-brand
+          font-weight: $bold
+
+      .active
+        .material-icons
+          transform: rotate(180deg)
+
       a
         color: $color-text
         display: block
@@ -56,6 +65,11 @@ $header-height: 70px
 
         &:hover
           background-color: $color-light-bg-hover
+
+        .material-icons
+          float: right
+          font-size: 20px
+          opacity: .5
 
       ul
         display: none
