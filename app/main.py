@@ -6,11 +6,11 @@ import webapp2
 airlock.set_config(appengine_config.AIRLOCK_CONFIG)
 
 routes = [
-    webapp2.Route('/_api/request_access', handlers.RequestAccessHandler, name='api-request-access'),
-    webapp2.Route('/sync/<resource_id>', handlers.SyncHandler),
-    webapp2.Route('/sync', handlers.SyncHandler),
+    webapp2.Route('/sync/<resource_id>/', handlers.SyncHandler),
+    webapp2.Route('/sync/', handlers.SyncHandler, name='sync'),
     webapp2.Route('/assets/<resource_id>', handlers.AssetDownloadHandler, name='asset'),
     webapp2.Route('/settings/', handlers.SettingsHandler, name='settings'),
+    webapp2.Route('/admin/approvals/<ident>/', handlers.AdminApprovalsApprovalHandler, name='admin-approvals-approval'),
     webapp2.Route('/admin/<template>/', handlers.AdminHandler, name='admin-page'),
     webapp2.Route('/admin/', handlers.AdminHandler, name='admin'),
     webapp2.Route('/<folder_slug>/folders/<resource_id>/', handlers.FolderHandler),

@@ -11,3 +11,4 @@ htmlcov
 lib
 node_modules
 config/
+scripts/deploy

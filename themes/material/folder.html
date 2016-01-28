@@ -6,11 +6,17 @@
     {% for group in assets|groupby('basename') %}
       <div class="assets-asset">
         <div class="assets-asset-image">
-          <div class="assets-asset-image-thumbnail" style="background-image: url({{group.list[0].thumbnail_url}})"></div>
+          {% if group.list[0].title.endswith('.eps')
+              and not group.list[1].title.endswith('.eps') %}
+            {% set thumbnail_item = group.list[1] %}
+          {% else %}
+            {% set thumbnail_item = group.list[0] %}
+          {% endif %}
+          <div class="assets-asset-image-thumbnail" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
         </div>
         <div class="assets-asset-meta">
           <div class="assets-asset-meta-title">
-            {{group.list[0].title}}
+            {{thumbnail_item.title}}
           </div>
           {% for asset in group.list %}
             <div class="assets-asset-meta-link">

@@ -64,7 +64,7 @@
         </div>
         <div class="layout-main-header-side">
           {% if me.registered %}
-            <a href="{{uri_for('settings')}}">{{me.email}}</a>
+            <a href="{{uri_for('settings')}}">{{me.email}}</a> | <a href="{{urls.sign_out()}}">Sign out</a>
           {% else %}
             <a href="{{urls.sign_in()}}" class="btn btn--sm btn--inverted">Sign in</a>
           {% endif %}

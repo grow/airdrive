@@ -34,3 +34,6 @@ skip_files:
 - ^(.*/)?\.DS_Store$
 - ^(.*/)?\.gitignore$
 - ^\.git/.*
+- ^node_modules/.*
+- ^htmlcov/.*
+- ^env/.*

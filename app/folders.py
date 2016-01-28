@@ -5,6 +5,8 @@ from google.appengine.ext import ndb
 import datetime
 import webapp2
 
+EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
+
 
 class Folder(models.Model):
   updated = ndb.DateTimeProperty(auto_now=True)
@@ -62,3 +64,7 @@ class Folder(models.Model):
   @property
   def url(self):
     return '/{}/folders/{}/'.format(self.parent.slug, self.key.id())
+
+  @property
+  def edit_url(self):
+    return EDIT_URL_FORMAT.format(resource_id=self.resource_id)

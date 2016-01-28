@@ -11,6 +11,16 @@ class Model(ndb.Model):
   weight = ndb.FloatProperty(default=0.0)
   synced = ndb.DateTimeProperty()
 
+  def __getattr__(self, name):
+    # Allow dynamic lookups of references. For example, an entity with
+    # a property `category_key` will return the corresponding category
+    # when accessing `entity.category`.
+    reference_key_name = '{}_key'.format(name)
+    if hasattr(self, reference_key_name):
+      key = getattr(self, reference_key_name)
+      return key.get() if key is not None else None
+    return self.__getattribute__(name)
+
   @classmethod
   def get(cls, ident):
     key = ndb.Key(cls.__name__, ident)
@@ -57,3 +67,12 @@ class Model(ndb.Model):
       except ValueError:
         return (match[0][1], None)
     return (unprocessed_title, None)
+
+  @property
+  def ident(self):
+    return self.key.urlsafe()
+
+  @classmethod
+  def get_by_ident(cls, ident):
+    key = ndb.Key(urlsafe=ident)
+    return key.get()

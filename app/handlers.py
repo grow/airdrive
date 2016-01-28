@@ -1,8 +1,10 @@
 import airlock
+from . import approvals
 from . import admins
 from . import assets
 from . import common
 from . import folders
+from . import messages
 from . import pages
 from . import sync
 from google.appengine.api import users
@@ -55,6 +57,7 @@ class Handler(airlock.Handler):
     params['me'] = self.me
     params['urls'] = self.urls
     params['uri_for'] = self.uri_for
+    params['statuses'] = messages.Status
 
     folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID)
     params['folders'] = folder_ents
@@ -80,6 +83,9 @@ class FolderHandler(Handler):
 class PageHandler(Handler):
 
   def get(self, folder_slug, resource_id, page_slug):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
     page = pages.Page.get(resource_id)
     if page is None:
       self.error(404)
@@ -90,16 +96,12 @@ class PageHandler(Handler):
     self.render_template('page.html', params)
 
 
-class SyncHandler(Handler):
-
-  def get(self, resource_id=MAIN_FOLDER_ID):
-    resp = sync.download_resource(resource_id)
-    self.response.out.write('done')
-
-
 class MainFolderHandler(Handler):
 
   def get(self, folder_slug):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
     folder = folders.Folder.get_by_slug(folder_slug, parent=MAIN_FOLDER_ID)
     if folder is None:
       self.error(404)
@@ -112,9 +114,21 @@ class MainFolderHandler(Handler):
 
 class HomepageHandler(Handler):
 
+  def post(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in(webapp2.uri_for('home')))
+      return
+    form_dict = dict(self.request.POST)
+    if 'email_opt_in' in form_dict:
+      form_dict['email_opt_in'] = True
+    approval_form_message = approvals.Approval.decode_form(form_dict)
+    approvals.Approval.create(approval_form_message, self.me)
+    self.get()
+
   def get(self):
     params = {
-        'content': get_config_content('welcome.html')
+        'content': get_config_content('welcome.html'),
+        'statuses': messages.Status,
     }
     if self.me.registered and not self.me.has_access:
       self.render_template('interstitial_access_request.html', params)
@@ -125,6 +139,9 @@ class HomepageHandler(Handler):
 class AssetDownloadHandler(Handler):
 
   def get(self, resource_id):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
     asset = assets.Asset.get(resource_id)
     if asset is None:
       self.error(404)
@@ -136,24 +153,45 @@ class AssetDownloadHandler(Handler):
 class SettingsHandler(Handler):
 
   def get(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
     self.render_template('settings.html')
+
+
+class AdminApprovalsApprovalHandler(Handler):
+
+  def get(self, ident):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    if not self.is_admin():
+      return
+    params = {}
+    params['approval'] = approvals.Approval.get_by_ident(ident)
+    self.render_template('admin_approvals_approval.html', params)
 
 
 class AdminHandler(Handler):
 
   def get(self, template='builds'):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
     if not self.is_admin():
       return
+    params = {}
+    params['approvals'] = approvals.Approval.search()
+    params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
     try:
-      self.render_template('admin_{}.html'.format(template))
+      self.render_template('admin_{}.html'.format(template), params)
     except jinja2.TemplateNotFound:
       self.error(404)
       return
 
 
-class RequestAccessHandler(Handler):
+class SyncHandler(Handler):
 
-  def post(self):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
+  def get(self, resource_id=MAIN_FOLDER_ID):
+    resp = sync.download_resource(resource_id)
+    self.response.out.write('done')

@@ -1,5 +1,54 @@
+{% set title = "Approvals" %}
 {% extends "admin.html" %}
 
 {% block main %}
-Approvals
+
+<h3>Direct add users</h3>
+
+<form>
+  <div class="form-field">
+    <textarea class="form-field-control"></textarea>
+  </div>
+  <div class="form-field">
+    <button class="btn btn--sm">Add users</button>
+  </div>
+</form>
+
+<h3>Approvals</h3>
+
+<form>
+  <div class="form-field">
+    <button class="btn btn--sm">Download CSV</button>
+  </div>
+</form>
+
+<table class="table">
+  <thead>
+    <th>Status</th>
+    <th>Requested</th>
+    <th>Response by</th>
+  </thead>
+  <tbody>
+    {% set approvals_items = approvals[0] %}
+    {% set approvals_cursor = approvals[1] %}
+    {% set approvals_has_more = approvals[2] %}
+    {% for approval in approvals_items %}
+      <tr>
+        <td>
+          <select>
+            {% for status in statuses %}
+              <option {% if status == approval.status %}selected{% endif %}>{{status}}</option>
+            {% endfor %}
+            <option value="DELETED">Delete</option>
+          </select>
+        </td>
+        <td>
+          <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.created}} by {{approval.user.email}}</a>
+        </td>
+        <td>{{approval.updated_by}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 {% endblock %}
