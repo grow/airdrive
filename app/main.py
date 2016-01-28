@@ -6,6 +6,7 @@ import webapp2
 airlock.set_config(appengine_config.AIRLOCK_CONFIG)
 
 routes = [
+    webapp2.Route('/_api/request_access', handlers.RequestAccessHandler, name='api-request-access'),
     webapp2.Route('/sync/<resource_id>', handlers.SyncHandler),
     webapp2.Route('/sync', handlers.SyncHandler),
     webapp2.Route('/assets/<resource_id>', handlers.AssetDownloadHandler, name='asset'),

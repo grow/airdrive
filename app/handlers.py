@@ -149,3 +149,11 @@ class AdminHandler(Handler):
     except jinja2.TemplateNotFound:
       self.error(404)
       return
+
+
+class RequestAccessHandler(Handler):
+
+  def post(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
