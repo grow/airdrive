@@ -1,6 +1,7 @@
 from . import assets
 from . import folders
 from . import pages
+from google.appengine.api import channel
 from google.appengine.api import memcache
 from googleapiclient import discovery
 from googleapiclient import errors
@@ -8,6 +9,7 @@ from oauth2client import appengine
 from oauth2client import client
 import appengine_config
 import httplib2
+import json
 import logging
 import os
 
@@ -43,6 +45,13 @@ def get_service():
   return service
 
 
+def update_channel(user, message):
+  if user:
+    content = json.dumps({'message': message})
+    channel.send_message(user.ident, content)
+  logging.info(message)
+
+
 def download_folder(resource_id):
   service = get_service()
   page_token = None
@@ -65,40 +74,43 @@ def is_assets_folder(resp):
   return 'assets' in resp['title'].lower().strip()
 
 
-def download_resource(resource_id):
+def download_resource(resource_id, user=None):
   service = get_service()
   resp = service.files().get(fileId=resource_id).execute()
   if resp['mimeType'] == 'application/vnd.google-apps.folder':
     if is_assets_folder(resp):
       text = 'Processing assets: {} ({})'
-      logging.info(text.format(resp['title'], resource_id))
-      process_assets_folder_response(resp)
+      message = text.format(resp['title'], resource_id)
+      update_channel(user, message)
+      process_assets_folder_response(resp, user)
     else:
       text = 'Processing folder: {} ({})'
-      logging.info(text.format(resp['title'], resource_id))
-      process_folder_response(resp)
+      message = text.format(resp['title'], resource_id)
+      update_channel(user, message)
+      process_folder_response(resp, user)
   else:
     text = 'Processing file: {} ({})'
-    logging.info(text.format(resp['title'], resource_id))
+    message = text.format(resp['title'], resource_id)
+    update_channel(user, message)
     process_file_response(resp)
 
 
-def process_assets_folder_response(resp):
+def process_assets_folder_response(resp, user):
   folders.Folder.process(resp)
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   child_resource_ids = [child['id'] for child in child_resource_responses]
   set_resources_public(child_resource_ids)
   for child in child_resource_responses:
-    download_resource(child['id'])
+    download_resource(child['id'], user)
 
 
-def process_folder_response(resp):
+def process_folder_response(resp, user):
   folders.Folder.process(resp)
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   for child in child_resource_responses:
-    download_resource(child['id'])
+    download_resource(child['id'], user)
 
 
 def get_file_content(resp):

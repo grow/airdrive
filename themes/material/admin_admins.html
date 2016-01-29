@@ -3,30 +3,29 @@
 
 {% block main %}
 
+<form method="post" class="form">
+  <h2>Add another administrator</h2>
+  <div class="form-field">
+    <input class="form-field-control" type="text" placeholder="Email" name="email">
+  </div>
+  <div class="form-field">
+    <button class="btn--sm btn">Add aministrator</button>
+  </div>
+</form>
+
 <table class="table">
   <thead>
-    <th>Status</th>
-    <th>Requested</th>
-    <th>Response by</th>
+    <th>Administrator</th>
+    <th></th>
   </thead>
   <tbody>
-    {% set approvals_items = approvals[0] %}
-    {% set approvals_cursor = approvals[1] %}
-    {% set approvals_has_more = approvals[2] %}
-    {% for approval in approvals_items %}
+    {% for admin in admins %}
       <tr>
         <td>
-          <select>
-            {% for status in statuses %}
-              <option {% if status == approval.status %}selected{% endif %}>{{status}}</option>
-            {% endfor %}
-            <option value="DELETED">Delete</option>
-          </select>
+          {{admin.email}}
         </td>
         <td>
-          <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.created}} by {{approval.user.email}}</a>
         </td>
-        <td>{{approval.updated_by}}</td>
       </tr>
     {% endfor %}
   </tbody>

@@ -1,15 +1,18 @@
-import airlock
-from . import approvals
 from . import admins
+from . import approvals
 from . import assets
 from . import common
 from . import folders
 from . import messages
 from . import pages
 from . import sync
+from google.appengine.api import channel
 from google.appengine.api import users
+from google.appengine.ext import deferred
+import airlock
 import appengine_config
 import jinja2
+import json
 import os
 import webapp2
 
@@ -180,8 +183,14 @@ class AdminHandler(Handler):
       return
     if not self.is_admin():
       return
+    if self.request.GET.get('format') == 'csv':
+      content = approvals.Approval.to_csv()
+      self.response.headers['Content-Type'] = 'text/csv'
+      self.response.out.write(content)
+      return
     params = {}
     params['approvals'] = approvals.Approval.search()
+    params['admins'] = admins.Admin.list()
     params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
     try:
       self.render_template('admin_{}.html'.format(template), params)
@@ -193,8 +202,12 @@ class AdminHandler(Handler):
 class SyncHandler(Handler):
 
   def get(self, resource_id=MAIN_FOLDER_ID):
-    resp = sync.download_resource(resource_id)
-    self.response.out.write('done')
+    token = channel.create_channel(self.me.ident)
+    deferred.defer(sync.download_resource, resource_id, self.me)
+    content = json.dumps({
+        'token': token,
+    })
+    self.response.out.write(content)
 
 
 class DeleteHandler(Handler):

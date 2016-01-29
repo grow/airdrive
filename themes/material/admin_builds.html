@@ -1,10 +1,9 @@
 {% extends "admin.html" %}
 
 {% block main %}
-  <h2>Root folder</h2>
   <div class="form">
+    <h2>Root folder</h2>
     <div class="form-field">
-      <label class="form-field-label">Root folder</label>
       <input class="form-field-control" value="{{config.CONFIG.folder}}" readonly>
     </div>
     <div class="form-field">
@@ -26,9 +25,42 @@
   {% for folder in folders %}
     <tr>
       <td>{{folder.synced}}</td>
-      <td>{{folder.title}}</td>
+      <td><a href="{{folder.url}}">{{folder.title}}</a></td>
       <td>{{folder.weight}}</td>
-      <td><a href="{{folder.sync_url}}">Sync</a></td>
+      <td>
+        <a href="{{folder.edit_url}}">Edit</a>
+        | <a href="javascript:startSync('{{folder.sync_url}}')">Sync</a>
+      </td>
     </tr>
   {% endfor %}
+  </table>
+
+  <h2>Sync results</h2>
+
+  <blockquote class="logger"></blockquote>
+
+  <script src="/_ah/channel/jsapi"></script>
+  <script>
+    var startSync = function(syncUrl) {
+      $.get(syncUrl, null, function(resp) {
+        var resp = JSON.parse(resp);
+        sync(resp['token']);
+      });
+    };
+
+    var sync = function(token) {
+      var logEl = document.querySelector('blockquote');
+      var channel = new goog.appengine.Channel(token);
+      socket = channel.open();
+      socket.onmessage = function(message) {
+        var data = message['data'];
+        data = JSON.parse(data);
+        if (logEl.textContent) {
+          logEl.appendChild(document.createElement('br'));
+        }
+        logEl.appendChild(document.createTextNode(data['message']));
+      };
+      return socket;
+    };
+  </script>
 {% endblock %}
