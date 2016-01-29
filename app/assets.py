@@ -3,6 +3,7 @@ from google.appengine.ext import ndb
 import appengine_config
 import datetime
 import os
+import webapp2
 
 DOWNLOAD_URL_FORMAT = 'https://www.googleapis.com/drive/v3/files/{resource_id}?alt=media&key={key}'
 
@@ -21,7 +22,7 @@ class Asset(models.Model):
   ext = ndb.StringProperty()
   url = ndb.StringProperty()
   icon_url = ndb.StringProperty()
-  download_count = ndb.IntegerProperty()
+  num_downloads = ndb.IntegerProperty(default=0)
 
   @classmethod
   def process(cls, resp):
@@ -55,3 +56,13 @@ class Asset(models.Model):
   @property
   def download_url(self):
     return '/assets/{}'.format(self.resource_id)
+
+  @classmethod
+  def search_by_downloads(cls):
+    query = cls.query()
+    query = query.order(-cls.num_downloads)
+    return query.fetch()
+
+  @webapp2.cached_property
+  def parent(self):
+    return self.parents[0].get()

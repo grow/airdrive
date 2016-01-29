@@ -1,0 +1,31 @@
+{% extends "admin.html" %}
+
+{% block main %}
+  <h2>Downloads</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Downloads</th>
+        <th>Title</th>
+        <th>In folder</th>
+      </tr>
+    </thead>
+  {% for asset in assets %}
+    <tr>
+      <td>{{asset.num_downloads}}</td>
+      <td><img src="{{asset.icon_url}}"><a href="{{asset.thumbnail_url}}" target="_blank">{{asset.title}}</a></td>
+      <td>
+        {# TODO: Laziness. #}
+        {% if asset.parent.parent.parent
+          and asset.parent.parent.parent.resource_id != config.CONFIG.folder %}
+          {{asset.parent.parent.parent.title}} ›
+        {% endif %}
+        {% if asset.parent.parent %}
+          {{asset.parent.parent.title}} ›
+        {% endif %}
+        {{asset.parent.title}}
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+{% endblock %}

@@ -2,6 +2,7 @@ from . import admins
 from . import approvals
 from . import assets
 from . import common
+from . import downloads
 from . import folders
 from . import messages
 from . import pages
@@ -149,6 +150,7 @@ class AssetDownloadHandler(Handler):
     if asset is None:
       self.error(404)
       return
+    downloads.Download.create(self.me, asset)
     self.response.status = 302
     self.response.headers['Location'] = str(asset.url)
 
@@ -192,6 +194,7 @@ class AdminHandler(Handler):
     params['approvals'] = approvals.Approval.search()
     params['admins'] = admins.Admin.list()
     params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
+    params['assets'] = assets.Asset.search_by_downloads()
     try:
       self.render_template('admin_{}.html'.format(template), params)
     except jinja2.TemplateNotFound:
