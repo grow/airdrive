@@ -3,6 +3,7 @@ from . import folders
 from . import pages
 from google.appengine.api import channel
 from google.appengine.api import memcache
+from google.appengine.ext import deferred
 from googleapiclient import discovery
 from googleapiclient import errors
 from oauth2client import appengine
@@ -103,6 +104,7 @@ def process_assets_folder_response(resp, user):
   set_resources_public(child_resource_ids)
   for child in child_resource_responses:
     download_resource(child['id'], user)
+    deferred.defer(download_resource, child['id'], user)
 
 
 def process_folder_response(resp, user):
@@ -110,7 +112,7 @@ def process_folder_response(resp, user):
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   for child in child_resource_responses:
-    download_resource(child['id'], user)
+    deferred.defer(download_resource, child['id'], user)
 
 
 def get_file_content(resp):
