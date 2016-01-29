@@ -11,15 +11,21 @@
 
     &-control[type=text],
     &-control
-      padding: 5px
+      border: 1px solid $color-border
+      display: block
       font-family: $font-family
       font-size: $font-size
-      display: block
       min-width: 300px
-      border: 1px solid $color-border
+      padding: 5px
 
       &[readonly]
         color: $color-grey
+
+    &-control--wide
+      width: 100%
+
+    &-control--monospace
+      font-family: monospace
 
     textarea.form-field-control
       min-height: 50px

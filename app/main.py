@@ -12,6 +12,7 @@ routes = [
     webapp2.Route('/assets/<resource_id>', handlers.AssetDownloadHandler, name='asset'),
     webapp2.Route('/settings/', handlers.SettingsHandler, name='settings'),
     webapp2.Route('/admin/approvals/<ident>/', handlers.AdminApprovalsApprovalHandler, name='admin-approvals-approval'),
+    webapp2.Route('/admin/settings/', handlers.AdminSettingsHandler, name='admin-settings'),
     webapp2.Route('/admin/<template>/', handlers.AdminHandler, name='admin-page'),
     webapp2.Route('/admin/', handlers.AdminHandler, name='admin'),
     webapp2.Route('/<folder_slug>/folders/<resource_id>/', handlers.FolderHandler),

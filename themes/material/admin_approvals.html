@@ -25,7 +25,8 @@
 <table class="table">
   <thead>
     <th>Status</th>
-    <th>Requested</th>
+    <th>Requested by</th>
+    <th>Date</th>
     <th>Response by</th>
   </thead>
   <tbody>
@@ -43,7 +44,10 @@
           </select>
         </td>
         <td>
-          <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.created}} by {{approval.user.email}}</a>
+          <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.user.email}}</a>
+        </td>
+        <td>
+          {{approval.created}}
         </td>
         <td>{{approval.updated_by.email}}</td>
       </tr>

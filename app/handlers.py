@@ -6,6 +6,7 @@ from . import downloads
 from . import folders
 from . import messages
 from . import pages
+from . import settings
 from . import sync
 from google.appengine.api import channel
 from google.appengine.api import users
@@ -40,6 +41,10 @@ def get_config_content(name):
 
 
 class Handler(airlock.Handler):
+
+  @property
+  def settings(self):
+    return settings.Settings.singleton()
 
   def is_admin(self):
     if not self.me.is_registered:
@@ -175,6 +180,37 @@ class AdminApprovalsApprovalHandler(Handler):
     params = {}
     params['approval'] = approvals.Approval.get_by_ident(ident)
     self.render_template('admin_approvals_approval.html', params)
+
+
+class AdminSettingsHandler(Handler):
+
+  def post(self):
+    data = dict(self.request.POST)
+    for key, value in data.items():
+      if not value:
+        del data[key]
+      if key in settings.Settings.REPEATED_FIELDS:
+        if not value:
+          data[key] = []
+        else:
+          data[key] = value.split('\n')
+    self.settings.populate(**data)
+    self.settings.put()
+    self.get()
+
+  def get(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    if not self.is_admin():
+      return
+    params = {}
+    params['approvals'] = approvals.Approval.search()
+    params['admins'] = admins.Admin.list()
+    params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
+    params['assets'] = assets.Asset.search_by_downloads()
+    params['settings'] = self.settings
+    self.render_template('admin_settings.html', params)
 
 
 class AdminHandler(Handler):

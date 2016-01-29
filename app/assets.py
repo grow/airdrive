@@ -60,6 +60,7 @@ class Asset(models.Model):
   @classmethod
   def search_by_downloads(cls):
     query = cls.query()
+    query = query.filter(cls.num_downloads != 0)
     query = query.order(-cls.num_downloads)
     return query.fetch()
 
