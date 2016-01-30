@@ -10,7 +10,6 @@ from . import settings
 from . import sync
 from google.appengine.api import channel
 from google.appengine.api import users
-from google.appengine.ext import deferred
 import airlock
 import appengine_config
 import jinja2
@@ -182,6 +181,29 @@ class AdminApprovalsApprovalHandler(Handler):
     self.render_template('admin_approvals_approval.html', params)
 
 
+class AdminAdminsHandler(Handler):
+
+  def post(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    if not self.is_admin():
+      return
+    email = self.request.POST['admin.email']
+    admins.Admin.create(email, self.me)
+    self.get()
+
+  def get(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    if not self.is_admin():
+      return
+    params = {}
+    params['admins'] = admins.Admin.list()
+    self.render_template('admin_admins.html', params)
+
+
 class AdminSettingsHandler(Handler):
 
   def post(self):
@@ -241,8 +263,8 @@ class AdminHandler(Handler):
 class SyncHandler(Handler):
 
   def get(self, resource_id=MAIN_FOLDER_ID):
+    sync.download_resource(resource_id, self.me)
     token = channel.create_channel(self.me.ident)
-    deferred.defer(sync.download_resource, resource_id, self.me)
     content = json.dumps({
         'token': token,
     })

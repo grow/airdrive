@@ -6,7 +6,7 @@
 <form method="post" class="form">
   <h2>Add another administrator</h2>
   <div class="form-field">
-    <input class="form-field-control" type="text" placeholder="Email" name="email">
+    <input class="form-field-control" type="text" placeholder="Email" name="admin.email">
   </div>
   <div class="form-field">
     <button class="btn--sm btn">Add aministrator</button>
@@ -16,15 +16,22 @@
 <table class="table">
   <thead>
     <th>Administrator</th>
-    <th></th>
+    <th>Added by</th>
+    <th>Action</th>
   </thead>
   <tbody>
     {% for admin in admins %}
       <tr>
+        <td>{{admin.email}}</td>
+        <td>{{admin.created_by.email}}</td>
         <td>
-          {{admin.email}}
+          <a href="">Delete</a>
         </td>
-        <td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="10">
+          No administrators have been configured yet.
         </td>
       </tr>
     {% endfor %}

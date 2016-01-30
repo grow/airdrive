@@ -7,7 +7,7 @@ import json
 import mimetypes
 import yaml
 
-CONFIG = yaml.load(open('config/config.yaml'))
+CONFIG = yaml.load(open(os.getenv('AIRPRESS_CONFIG')))
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config')
 
 VERSION = os.getenv('CURRENT_VERSION_ID')

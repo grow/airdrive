@@ -12,3 +12,4 @@ node_modules
 config/
 config.*/
 scripts/deploy
+scripts/deploy_*
