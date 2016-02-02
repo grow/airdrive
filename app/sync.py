@@ -36,10 +36,13 @@ def get_credentials():
   return credentials
 
 
-http = httplib2.Http(memcache)
-credentials = get_credentials()
-credentials.authorize(http)
-service = discovery.build('drive', 'v2', http=http)
+if appengine_config.OFFLINE:
+  service = None
+else:
+  http = httplib2.Http(memcache)
+  credentials = get_credentials()
+  credentials.authorize(http)
+  service = discovery.build('drive', 'v2', http=http)
 
 
 def get_service():

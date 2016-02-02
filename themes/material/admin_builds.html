@@ -32,6 +32,11 @@
         | <a href="javascript:startSync('{{folder.sync_url}}')">Sync</a>
       </td>
     </tr>
+  {% else %}
+    <tr>
+      <td colspan="100">
+        No folders have been synced yet. Press <b>sync root folder</b> above to start.
+      </td>
   {% endfor %}
   </table>
 

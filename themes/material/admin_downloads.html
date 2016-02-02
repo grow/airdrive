@@ -26,6 +26,9 @@
         {{asset.parent.title}}
       </td>
     </tr>
+  {% else %}
+    <tr>
+      <td colspan="5">No assets have been downloaded yet.</td>
   {% endfor %}
   </table>
 {% endblock %}

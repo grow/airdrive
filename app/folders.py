@@ -72,3 +72,18 @@ class Folder(models.Model):
   @property
   def edit_url(self):
     return EDIT_URL_FORMAT.format(resource_id=self.resource_id)
+
+  @classmethod
+  def get_homepage(cls):
+    query = cls.query()
+    query = query.filter(cls.weight == -1)
+    folder = query.get()
+    if folder is None:
+      return
+    return folder.get_index()
+
+  def get_index(self):
+    query = pages.Page.query()
+    query = query.filter(pages.Page.weight == -1)
+    query = query.filter(pages.Page.parents == self.key)
+    return query.get()

@@ -32,6 +32,7 @@ JINJA = jinja2.Environment(
     ],
     autoescape=True)
 JINJA.filters['filesizeformat'] = common.do_filesizeformat
+JINJA.filters['markdown'] = common.do_markdown
 
 
 def get_config_content(name):
@@ -44,6 +45,15 @@ class Handler(airlock.Handler):
   @property
   def settings(self):
     return settings.Settings.singleton()
+
+  def require_admin(self):
+    if appengine_config.OFFLINE:
+      return
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    if not self.is_admin():
+      return
 
   def is_admin(self):
     if not self.me.is_registered:
@@ -238,11 +248,7 @@ class AdminSettingsHandler(Handler):
 class AdminHandler(Handler):
 
   def get(self, template='builds'):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
-    if not self.is_admin():
-      return
+    self.require_admin()
     if self.request.GET.get('format') == 'csv':
       content = approvals.Approval.to_csv()
       self.response.headers['Content-Type'] = 'text/csv'

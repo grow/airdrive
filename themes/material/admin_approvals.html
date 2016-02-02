@@ -51,6 +51,11 @@
         </td>
         <td>{{approval.updated_by.email}}</td>
       </tr>
+    {% else %}
+      <tr>
+        <td colspan="100">
+          No users have requested access to your site yet. Only domain users in {{config.CONFIG.domain}} can access your site. Once an external user requests access, administrators will receive an email notification and the access request will appear here.
+        </td>
     {% endfor %}
   </tbody>
 </table>
