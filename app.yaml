@@ -18,6 +18,9 @@ handlers:
 - url: /_app/[^/]*/assets/
   static_dir: dist/
   secure: always
+- url: /_api/.*
+  script: app.main.api_app
+  secure: always
 - url: .*
   script: app.main.app
   secure: always

@@ -11,6 +11,8 @@ var Path = {
     './themes/*/sass/**'
   ],
   CSS_OUT_DIR: './dist/css/',
+  JS_SOURCES: './themes/material/js/*.js',
+  JS_OUT_DIR: './dist/js/',
 };
 
 var onError = function() {
@@ -45,9 +47,22 @@ gulp.task('sass', function() {
     .pipe(gulp.dest(Path.CSS_OUT_DIR));
 });
 
-gulp.task('watch', function() {
-  gulp.watch(Path.CSS_SOURCES, ['buildcss']);
+gulp.task('minifyjs', function() {
+  return gulp.src([
+    Path.JS_SOURCES,
+  ])
+    .pipe(uglify({
+      mangle: false,
+      compress: true,
+    }))
+    .pipe(concat('main.min.js'))
+    .pipe(gulp.dest(Path.JS_OUT_DIR));
 });
 
-gulp.task('build', ['buildcss']);
-gulp.task('default', ['buildcss', 'watch']);
+gulp.task('watch', function() {
+  gulp.watch(Path.CSS_SOURCES, ['buildcss']);
+  gulp.watch(Path.JS_SOURCES, ['minifyjs']);
+});
+
+gulp.task('build', ['buildcss', 'minifyjs']);
+gulp.task('default', ['build', 'watch']);
