@@ -48,7 +48,8 @@ class Admin(models.Model):
     message = messages.AdminMessage()
     message.email = self.email
     message.created = self.created
-    message.created_by = self.created_by.to_message()
+    if self.created_by:
+        message.created_by = self.created_by.to_message()
     message.receives_email = self.receives_email
     message.ident = self.ident
     return message

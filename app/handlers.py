@@ -46,16 +46,9 @@ class Handler(airlock.Handler):
   def settings(self):
     return settings.Settings.singleton()
 
-  def require_admin(self):
-    if appengine_config.OFFLINE:
-      return
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
-    if not self.is_admin():
-      return
-
   def is_admin(self):
+    if appengine_config.OFFLINE:
+      return True
     if not self.me.is_registered:
       self.redirect(self.urls.sign_in())
       return
@@ -181,9 +174,6 @@ class SettingsHandler(Handler):
 class AdminApprovalsApprovalHandler(Handler):
 
   def get(self, ident):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
     if not self.is_admin():
       return
     params = {}
@@ -194,9 +184,6 @@ class AdminApprovalsApprovalHandler(Handler):
 class AdminAdminsHandler(Handler):
 
   def post(self):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
     if not self.is_admin():
       return
     email = self.request.POST['admin.email']
@@ -204,9 +191,6 @@ class AdminAdminsHandler(Handler):
     self.get()
 
   def get(self):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
     if not self.is_admin():
       return
     params = {}
@@ -231,9 +215,6 @@ class AdminSettingsHandler(Handler):
     self.get()
 
   def get(self):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
     if not self.is_admin():
       return
     params = {}
@@ -248,7 +229,8 @@ class AdminSettingsHandler(Handler):
 class AdminHandler(Handler):
 
   def get(self, template='builds'):
-    self.require_admin()
+    if not self.is_admin():
+      return
     if self.request.GET.get('format') == 'csv':
       content = approvals.Approval.to_csv()
       self.response.headers['Content-Type'] = 'text/csv'
@@ -269,6 +251,8 @@ class AdminHandler(Handler):
 class SyncHandler(Handler):
 
   def get(self, resource_id=MAIN_FOLDER_ID):
+    if not self.is_admin():
+      return
     sync.download_resource(resource_id, self.me)
     token = channel.create_channel(self.me.ident)
     content = json.dumps({
@@ -280,6 +264,8 @@ class SyncHandler(Handler):
 class DeleteHandler(Handler):
 
   def get(self, resource_id):
+    if not self.is_admin():
+      return
     page = pages.Page.get(resource_id)
     if page:
       page.delete()

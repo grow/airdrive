@@ -49,6 +49,7 @@ gulp.task('sass', function() {
 
 gulp.task('minifyjs', function() {
   return gulp.src([
+    './node_modules/jquery/dist/jquery.min.js',
     Path.JS_SOURCES,
   ])
     .pipe(uglify({

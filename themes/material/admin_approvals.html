@@ -5,12 +5,12 @@
 
 <h2>Direct add users</h2>
 
-<form>
+<form ng-controller="airpress.ng.DirectAddUsersController as ctrl" ng-submit="ctrl.submit(ctrl.emails)">
   <div class="form-field">
-    <textarea class="form-field-control"></textarea>
+    <textarea class="form-field-control" ng-model="ctrl.emails"></textarea>
   </div>
   <div class="form-field">
-    <button class="btn btn--sm">Add users</button>
+    <button class="btn btn--sm" type="submit">Add users</button>
   </div>
 </form>
 

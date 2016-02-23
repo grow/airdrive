@@ -79,3 +79,18 @@ class Model(ndb.Model):
 
   def delete(self):
     self.key.delete()
+
+  @classmethod
+  def get_multi(cls, messages):
+    keys = [ndb.Key(urlsafe=message.ident) for message in messages]
+    ents = ndb.get_multi(keys)
+    return [ent for ent in ents if ent is not None]
+
+  @classmethod
+  def to_message_multi(cls, ents, *args, **kwargs):
+    return [ent.to_message(*args, **kwargs) for ent in ents if ent is not None]
+
+  @classmethod
+  def delete_multi(self, messages):
+    keys = [ndb.Key(urlsafe=message.ident) for message in messages]
+    return ndb.delete_multi(keys)

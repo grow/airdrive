@@ -1,9 +1,12 @@
 from . import handlers
+from . import services
+from protorpc.wsgi import service
 import airlock
 import appengine_config
 import webapp2
 
 airlock.set_config(appengine_config.AIRLOCK_CONFIG)
+
 
 routes = [
     webapp2.Route('/sync/<resource_id>/', handlers.SyncHandler),
@@ -22,3 +25,8 @@ routes = [
     webapp2.Route('/', handlers.HomepageHandler, name='home'),
 ]
 app = airlock.WSGIApplication(routes)
+
+
+api_app = service.service_mappings((
+    ('/_api/admins.*', services.AdminService),
+))

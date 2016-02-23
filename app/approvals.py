@@ -63,12 +63,13 @@ class Approval(models.Model):
     return self
 
   @classmethod
-  def create(cls, approval_form_message, user):
+  def create(cls, approval_form_message, user, email=True):
     ent = cls(user_key=user.key, form=approval_form_message)
     ent.put()
-    emailer = emails.Emailer(ent)
-    emailer.send_created_to_user()
-    emailer.send_created_to_admins()
+    if email:
+      emailer = emails.Emailer(ent)
+      emailer.send_created_to_user()
+      emailer.send_created_to_admins()
     return ent
 
   @classmethod
@@ -188,4 +189,6 @@ class Approval(models.Model):
   @classmethod
   def decode_form(cls, form_dict):
     encoded_message = json.dumps(form_dict)
-    approval_form = protojson.decode_message(messages.ApprovalFormMessage, encoded_message)
+    return protojson.decode_message(
+        messages.ApprovalFormMessage,
+        encoded_message)

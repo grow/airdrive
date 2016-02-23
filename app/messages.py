@@ -52,3 +52,15 @@ class AdminMessage(messages.Message):
   created_by = messages.MessageField(UserMessage, 3)
   receives_email = messages.BooleanField(4)
   ident = messages.StringField(5)
+
+
+class ApprovalsMessage(messages.Message):
+  approvals = messages.MessageField(ApprovalMessage, 1, repeated=True)
+
+
+class AdminsMessage(messages.Message):
+  admins = messages.MessageField(AdminMessage, 1, repeated=True)
+
+
+class UsersMessage(messages.Message):
+  users = messages.MessageField(UserMessage, 1, repeated=True)

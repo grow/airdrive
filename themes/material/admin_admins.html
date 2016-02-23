@@ -25,7 +25,7 @@
         <td>{{admin.email}}</td>
         <td>{{admin.created_by.email}}</td>
         <td>
-          <a href="">Delete</a>
+          <a href="javascript:airpress.deleteAdmin('{{admin.ident}}')">Delete</a>
         </td>
       </tr>
     {% else %}
