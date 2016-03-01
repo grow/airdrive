@@ -38,6 +38,7 @@ class Folder(models.Model):
 
   def list_children(self):
     children = {
+        'items': [],
         'assets': [],
         'folders': [],
         'pages': [],
@@ -54,6 +55,13 @@ class Folder(models.Model):
     query = query.filter(Folder.parents == self.key)
     query = query.order(Folder.weight)
     children['folders'] = query.fetch()
+    if children['pages']:
+      children['items'] += children['pages']
+    if children['folders']:
+      children['items'] += children['folders']
+    if children['items']:
+      children['items'] = sorted(children['items'],
+                                 key=lambda item: item.weight)
     return children
 
   @property

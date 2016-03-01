@@ -65,11 +65,8 @@
 
     <div class="page-meta">
       Updated {{folder.modified}}
-      | <a href="{{uri_for('admin')}}">Admin</a>
-      | <a href="{{folder.edit_url}}">Edit</a>
-      | <a href="{{folder.sync_url}}">Sync</a>
-      | <a href="{{uri_for('delete', resource_id=folder.resource_id)}}">Delete</a>
     </div>
+    {{render_admin_bar(folder)}}
 
   </div>
 {% endblock %}
