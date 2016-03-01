@@ -4,7 +4,6 @@
   <h2>Settings</h2>
 
   <form class="form" method="post" ng-controller="SettingsController as ctrl">
-    //form//
     {% for field in settings.to_fields()|sort(attribute='name') %}
     <div class="form-field">
       <label class="form-field-label">{{field.name}}</label>
