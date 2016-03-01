@@ -144,6 +144,11 @@ class HomepageHandler(Handler):
     if self.me.registered and not self.me.has_access:
       self.render_template('interstitial_access_request.html', params)
       return
+    if self.me.registered and self.me.has_access:
+      page = folders.Folder.get_homepage()
+      if page is not None:
+        self.redirect(page.url)
+        return
     self.render_template('interstitial.html', params)
 
 

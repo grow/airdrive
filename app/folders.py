@@ -1,3 +1,4 @@
+import appengine_config
 from . import assets
 from . import models
 from . import pages
@@ -5,6 +6,8 @@ from google.appengine.ext import ndb
 import datetime
 import webapp2
 
+CONFIG = appengine_config.CONFIG
+MAIN_FOLDER_ID = CONFIG['folder']
 EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
 
 
@@ -77,6 +80,8 @@ class Folder(models.Model):
   def get_homepage(cls):
     query = cls.query()
     query = query.filter(cls.weight == -1)
+    parent_key = ndb.Key(cls.__name__, MAIN_FOLDER_ID)
+    query = query.filter(cls.parents == parent_key)
     folder = query.get()
     if folder is None:
       return

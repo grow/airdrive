@@ -8,7 +8,7 @@ import mimetypes
 import yaml
 
 DEV_SERVER = os.getenv('SERVER_SOFTWARE').startswith('Dev')
-OFFLINE = DEV_SERVER and True
+OFFLINE = False
 
 CONFIG = yaml.load(open(os.getenv('AIRPRESS_CONFIG')))
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config')

@@ -1,10 +1,12 @@
+from . import messages
+from google.appengine.ext import ndb
+from google.appengine.ext.ndb import msgprop
 import webapp2
 import yaml
-from google.appengine.ext import ndb
 
 
 class Settings(ndb.Model):
-  content = ndb.TextProperty()
+  form = msgprop.MessageProperty(messages.SettingsMessage)
 
   @classmethod
   def singleton(cls):
@@ -15,6 +17,12 @@ class Settings(ndb.Model):
       ent.put()
     return ent
 
-  @property
-  def fields(self):
-    return yaml.loads(self.content)
+  def to_fields(self):
+    fields = []
+    form = messages.SettingsFormMessage()
+    for _, field in form.all_fields():
+      fields.append({
+          'name': field.name,
+          'value': field.value,
+      })
+    return fields

@@ -1,6 +1,17 @@
 var airpress = airpress || {};
 
 
+airpress.main = function() {
+  angular.module('airpress', [])
+      .config(['$interpolateProvider', function($interpolateProvider) {
+         $interpolateProvider.startSymbol('//').endSymbol('//');
+      }])
+      .controller('SettingsController', airpress.ng.SettingsController);
+
+  angular.bootstrap(document, ['airpress'])
+};
+
+
 airpress.updateApprovalStatus = function(ident, approvalStatus) {
   var approvals = [];
   airpress.rpc('admins.update_approvals', {
@@ -26,6 +37,9 @@ airpress.deleteAdmin = function(ident) {
 };
 
 
+airpress.ng = airpress.ng || {};
+
+
 airpress.ng.DirectAddUsersController = function() {
 
 };
@@ -37,8 +51,12 @@ airpress.ng.DirectAddUsersController.prototype.submit = function(emailsInput) {
     emails.push(email.trim());
   });
   airpress.rpc('admins.direct_add_users', {
-      'users': [
-          {'email':
+  });
+};
 
+
+airpress.ng.SettingsController = function() {
+  airpress.rpc('admins.get_settings').done(function(resp) {
+    console.log(resp);
   });
 };

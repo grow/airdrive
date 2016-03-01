@@ -64,3 +64,23 @@ class AdminsMessage(messages.Message):
 
 class UsersMessage(messages.Message):
   users = messages.MessageField(UserMessage, 1, repeated=True)
+
+
+class SettingsFormMessage(messages.Message):
+  content = messages.StringField(1)
+  service_account = messages.StringField(2)
+  root_folder = messages.StringField(3)
+  api_key = messages.StringField(4)
+  allow_gmail_accounts = messages.BooleanField(5)
+  domain = messages.StringField(6)
+  title = messages.StringField(7)
+  sidebar_title = messages.StringField(8)
+  sidebar_text = messages.StringField(9)
+  email_footer = messages.StringField(10)
+  logo_url = messages.StringField(11)
+  email_logo_url = messages.StringField(12)
+  contact_url = messages.StringField(13)
+
+
+class SettingsMessage(messages.Message):
+  form = messages.MessageField(SettingsFormMessage, 1)

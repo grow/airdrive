@@ -3,17 +3,18 @@
 {% block main %}
   <h2>Settings</h2>
 
-  <form class="form" method="post">
-    {% for field in settings.to_form()|sort(attribute='name') %}
+  <form class="form" method="post" ng-controller="SettingsController as ctrl">
+    //form//
+    {% for field in settings.to_fields()|sort(attribute='name') %}
     <div class="form-field">
       <label class="form-field-label">{{field.name}}</label>
-      {% for inner_field in field.fields %}
-        {% if inner_field.indexed %}
-            <input class="form-field-control form-field-control--wide" type="text" name="{{field.name}}" value="{{inner_field.value or ''}}">
-        {% else %}
-          <textarea class="form-field-control form-field-control--wide" name="{{field.name}}">{{inner_field.value or ''}}</textarea>
-        {% endif %}
-      {% endfor %}
+      {% if field.type == 'text' %}
+        <input class="form-field-control form-field-control--wide" type="text" name="{{field.name}}" value="{{field.value or ''}}" ng-model="settings.{{field.name}}">
+      {% elif field.type == 'textarea' %}
+        <textarea class="form-field-control form-field-control--wide" name="{{field.name}}">{{field.value or ''}}</textarea>
+      {% elif field.type == 'boolean' %}
+
+      {% endif %}
     </div>
     {% endfor %}
     <div class="form-field">

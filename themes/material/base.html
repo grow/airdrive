@@ -20,14 +20,24 @@
 {% endmacro %}
 
 <!doctype html>
-<meta charset="utf-8">
-<meta content="IE=Edge" http-equiv="X-UA-Compatible">
-<meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic" rel="stylesheet">
-<link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
-<script src="/_app/{{config.VERSION}}/assets/js/main.min.js"></script>
-<title>{{config.CONFIG.title}}</title>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic" rel="stylesheet">
+  <link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
+  <script src="/_app/{{config.VERSION}}/assets/js/main.min.js"></script>
+  <title>{{config.CONFIG.title}}</title>
+  <style>
+    :root {
+      -webkit-var-brand-color: red;
+    }
+    body {
+      background-color: var(-webkit-var-brand-color);
+    }
+  </style>
+</head>
 <body>
   <div class="layout">
     {% if enable_sidebar is not sameas false %}
@@ -94,3 +104,4 @@
       </div>
     </div>
   </div>
+  {% block body_base %}{% endblock %}
