@@ -69,6 +69,7 @@ class Handler(airlock.Handler):
     params['urls'] = self.urls
     params['uri_for'] = self.uri_for
     params['statuses'] = messages.Status
+    params['get_resource'] = folders.Folder.get_resource
 
     folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID)
     params['folders'] = folder_ents

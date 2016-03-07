@@ -3,6 +3,7 @@ from google.appengine.ext import ndb
 from markdown.extensions import tables
 from markdown.extensions import toc
 import bleach
+import bbcode
 import bs4
 import datetime
 import html2text
@@ -94,6 +95,7 @@ class Page(models.Model):
         attributes=ATTRS,
         strip=True)
     html = self.markdownify(html)
+#    html = self.bbcodeify(html)
     return html
 
   @classmethod
@@ -104,3 +106,16 @@ class Page(models.Model):
     html = html.replace('[TOC]', '<div class="toc toc--auto"><ul></ul></div>')
     html = re.sub('\[BUTTON:([^\]]*)\]([^\]]*)\[/\]', '<a class="btn" href="\\1">\\2</a>', html, re.MULTILINE)
     return html
+
+  @classmethod
+  def bbcodeify(cls, html):
+    parser = bbcode.Parser(
+        escape_html=False,
+        normalize_newlines=False,
+        newline='')
+#    parser.add_formatter('FOLDER', render_folder)
+    return parser.format(html)
+
+
+def render_folder(tag_name, resource_id, *args, **kwargs):
+  return '{{render_mosaic({})}}'.format(resource_id)

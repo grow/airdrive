@@ -11,7 +11,7 @@
       Updated {{page.modified}}
     </div>
   </div>
-  {{render_admin_bar(page)}}
+  {{macros.render_admin_bar(page)}}
   <script>
     $('table').each(function(i, $table) {
       var numCols = $(this).find('tr:first-child > td').size();

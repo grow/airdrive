@@ -36,6 +36,10 @@ class Folder(models.Model):
       query = query.order(Folder.weight)
     return query.fetch()
 
+  @property
+  def is_asset_folder(self):
+    return not self.children['pages'] and self.children['folders']
+
   def list_children(self):
     children = {
         'items': [],
@@ -94,6 +98,10 @@ class Folder(models.Model):
     if folder is None:
       return
     return folder.get_index()
+
+  @classmethod
+  def get_resource(cls, resource_id):
+    return cls.get(resource_id)
 
   def get_index(self):
     query = pages.Page.query()

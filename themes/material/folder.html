@@ -1,45 +1,15 @@
 {% set title = folder.title %}
 {% extends "base.html" %}
 
-{% macro render_assets(assets) %}
-  <div class="assets">
-    {% for group in assets|groupby('basename') %}
-      <div class="assets-asset">
-        <div class="assets-asset-image">
-          {% if group.list[0].title.endswith('.eps')
-              and not group.list[1].title.endswith('.eps') %}
-            {% set thumbnail_item = group.list[1] %}
-          {% else %}
-            {% set thumbnail_item = group.list[0] %}
-          {% endif %}
-          <div class="assets-asset-image-thumbnail" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
-        </div>
-        <div class="assets-asset-meta">
-          <div class="assets-asset-meta-title">
-            {{thumbnail_item.title}}
-          </div>
-          {% for asset in group.list %}
-            <div class="assets-asset-meta-link">
-              <a href="{{asset.download_url}}">{{asset.ext[1:]|upper}}</a> {{asset.size|filesizeformat}}</li>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-{% endmacro %}
-
 {% block main %}
   <div class="contained">
 
     <h1>{{folder.title}}</h1>
 
-    {% set is_asset_folder = not folder.children['pages'] and folder.children['folders'] %}
-
     <div class="toc">
       <ul>
         {% for f in folder.children['folders'] %}
-          {% if is_asset_folder %}
+          {% if folder.is_asset_folder %}
             <li><a href="#{{f.slug}}">{{f.title}}</a></li>
           {% else %}
             <li><a href="{{f.url}}">{{f.title}}</a></li>
@@ -51,16 +21,16 @@
       </ul>
     </div>
 
-    {% if is_asset_folder %}
+    {% if folder.is_asset_folder %}
       {% for f in folder.children['folders'] %}
       <hr>
       <h3 id="{{f.slug}}">{{f.title}}</h3>
-      {{render_assets(f.children['assets'])}}
+      {{macros.render_assets(f.children['assets'])}}
       {% endfor %}
-      {{render_assets(folder.children['assets'])}}
+      {{macros.render_assets(folder.children['assets'])}}
     {% endif %}
 
-    {{render_admin_bar(folder)}}
+    {{macros.render_admin_bar(folder)}}
 
   </div>
 {% endblock %}
