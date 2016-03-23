@@ -35,8 +35,17 @@ class AdminService(airlock.Service):
 
   @remote.method(messages.ApprovalsMessage,
                  messages.ApprovalsMessage)
+  def search_approvals(self, request):
+    # self.require_admin()
+    ents, next_cursor, has_more = approvals.Approval.search()
+    resp = messages.ApprovalsMessage()
+    resp.approvals = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.ApprovalsMessage,
+                 messages.ApprovalsMessage)
   def delete_approvals(self, request):
-    self.require_admin()
+#    self.require_admin()
     ents = approvals.Approval.get_multi(request.approvals)
     approvals.Approval.delete_multi(request.approvals)
     resp = messages.ApprovalsMessage()
@@ -75,7 +84,7 @@ class AdminService(airlock.Service):
                  messages.ApprovalsMessage)
   def directly_add_users(self, request):
     emails = [user.email for user in request.users]
-    approval_ents = users.User.directly_create_approvals(emails)
+    approval_ents = users.User.direct_add_users(emails)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
     return resp

@@ -5,58 +5,56 @@
 
 <h2>Direct add users</h2>
 
-<form ng-controller="airpress.ng.DirectAddUsersController as ctrl" ng-submit="ctrl.submit(ctrl.emails)">
-  <div class="form-field">
-    <textarea class="form-field-control" ng-model="ctrl.emails"></textarea>
-  </div>
-  <div class="form-field">
-    <button class="btn btn--sm" type="submit">Add users</button>
-  </div>
-</form>
+<div ng-controller="ApprovalsController as ctrl">
+  <form ng-submit="ctrl.submit(ctrl.emails)">
+    <div class="form-field">
+      <textarea class="form-field-control" ng-model="ctrl.emails"></textarea>
+    </div>
+    <div class="form-field">
+      <button class="btn btn--sm" type="submit">Add users</button>
+    </div>
+  </form>
 
-<h2>Approvals</h2>
+  <h2>Approvals</h2>
 
-<form>
-  <div class="form-field">
-    <a href="?format=csv" class="btn btn--sm">Download CSV</a>
-  </div>
-</form>
+  <form>
+    <div class="form-field">
+      <a href="?format=csv" class="btn btn--sm">Download CSV</a>
+    </div>
+  </form>
 
-<table class="table">
-  <thead>
-    <th>Status</th>
-    <th>Requested by</th>
-    <th>Date</th>
-    <th>Response by</th>
-  </thead>
-  <tbody>
-    {% set approvals_items = approvals[0] %}
-    {% set approvals_cursor = approvals[1] %}
-    {% set approvals_has_more = approvals[2] %}
-    {% for approval in approvals_items %}
-      <tr>
-        <td>
-          <select onchange="airpress.updateApprovalStatus('{{approval.ident}}', this.options[this.selectedIndex].value)">
-            {% for status in statuses %}
-              <option {% if status == approval.status %}selected{% endif %}>{{status}}</option>
-            {% endfor %}
-            <option value="DELETED">Delete</option>
-          </select>
-        </td>
-        <td>
-          <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.user.email}}</a>
-        </td>
-        <td>
-          {{approval.created}}
-        </td>
-        <td>{{approval.updated_by.email}}</td>
-      </tr>
-    {% else %}
-      <tr>
-        <td colspan="100">
-          No users have requested access to your site yet. Only domain users in {{config.CONFIG.domain}} can access your site. Once an external user requests access, administrators will receive an email notification and the access request will appear here.
-        </td>
-    {% endfor %}
-  </tbody>
-</table>
+  <table class="table">
+    <thead>
+      <th>Status</th>
+      <th>Requested by</th>
+      <th>Date</th>
+      <th>Response by</th>
+    </thead>
+    <tbody>
+        <tr ng-repeat="approval in ctrl.approvals">
+          <td>
+            <select onchange="ctrl.updateApprovalStatus(approval.ident, this.options[this.selectedIndex].value)">
+              <option value="DELETED">Delete</option>
+            </select>
+          </td>
+          <td>
+            <a href="[[approval.url]]">[[approval.user.email]]</a>
+            {#            <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.user.email}}</a> #}
+          </td>
+          <td>
+            [[approval.created]]
+          </td>
+          <td>[[approval.updated_by.email]]</td>
+        </tr>
+        {#
+      {% else %}
+        <tr>
+          <td colspan="100">
+            No users have requested access to your site yet. Only domain users in {{config.CONFIG.domain}} can access your site. Once an external user requests access, administrators will receive an email notification and the access request will appear here.
+          </td>
+      {% endfor %}
+      #}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

@@ -62,7 +62,7 @@ class User(models.Model, airlock.User):
   def direct_add_users(cls, emails):
     approval_ents = []
     for email in emails:
-      user_ent = airlock.User.get_or_create_by_email(cls, email)
+      user_ent = cls.get_or_create_by_email(email)
       approval_form_message = messages.ApprovalFormMessage()
       approval_ent = approvals.Approval.create(
           approval_form_message,
