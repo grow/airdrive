@@ -2,6 +2,22 @@
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
+{% macro render_menu_tree(resource) %}
+  <li>{{resource.title}}</li>
+  {% if resource.resource_type == 'Folder' %}
+    {% if resource.children['pages'] or resource.children['folders'] %}
+      <ul>
+        {% for item in resource.children['folders'] %}
+          {{render_menu_tree(item)}}
+        {% endfor %}
+        {% for item in resource.children['pages'] %}
+          {{render_menu_tree(item)}}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endif %}
+{% endmacro %}
+
 {% macro render_admin_bar(resource) %}
 <div class="admin-bar">
   <a href="{{uri_for('admin')}}">Admin</a>

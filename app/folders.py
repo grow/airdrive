@@ -2,6 +2,7 @@ import appengine_config
 from . import assets
 from . import models
 from . import pages
+from . import messages
 from google.appengine.ext import ndb
 import datetime
 import webapp2
@@ -15,6 +16,7 @@ class Folder(models.Model):
   updated = ndb.DateTimeProperty(auto_now=True)
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
+  color = ndb.StringProperty()
 
   @classmethod
   def process(cls, resp):
@@ -24,7 +26,7 @@ class Folder(models.Model):
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
-    ent.title, ent.weight = cls.parse_title_and_weight(resp['title'])
+    ent.parse_title(resp['title'])
     ent.put()
 
   @classmethod
@@ -38,7 +40,7 @@ class Folder(models.Model):
 
   @property
   def is_asset_folder(self):
-    return not self.children['pages'] and self.children['folders']
+    return self.title.lower() == 'assets'
 
   def list_children(self):
     children = {
@@ -74,11 +76,13 @@ class Folder(models.Model):
 
   @webapp2.cached_property
   def parent(self):
-    return self.parents[0].get()
+    if self.parents:
+      return self.parents[0].get()
 
   @property
   def url(self):
-    return '/{}/folders/{}/'.format(self.parent.slug, self.key.id())
+    if self.parent:
+      return '/{}/folders/{}/'.format(self.parent.slug, self.key.id())
 
   @property
   def sync_url(self):
@@ -108,3 +112,19 @@ class Folder(models.Model):
     query = query.filter(pages.Page.weight == -1)
     query = query.filter(pages.Page.parents == self.key)
     return query.get()
+
+  def to_message(self):
+    message = messages.FolderMessage()
+    message.ident = self.ident
+    message.title = self.title
+    message.color = self.color
+    message.weight = self.weight
+    message.edit_url = self.edit_url
+    message.synced = self.synced
+    message.sync_url = self.sync_url
+    message.url = self.url
+    return message
+
+  def update(self, message):
+    self.color = message.color
+    self.put()

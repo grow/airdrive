@@ -8,9 +8,17 @@
   <link href="https://fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic" rel="stylesheet">
   <link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
   <script src="/_app/{{config.VERSION}}/assets/js/main.min.js"></script>
+  {% if config.CONFIG.favicon_url %}
+  <link rel="shortcut icon" href="{{config.CONFIG.favicon_url}}">
+  {% endif %}
   <title>{{config.CONFIG.title}}</title>
 </head>
 <body>
+  <ul style="display: none">
+    {% for folder in folders %}
+      {{macros.render_menu_tree(folder)}}
+    {% endfor %}
+  </ul>
   <div class="layout">
     {% if enable_sidebar is not sameas false %}
     <div class="layout-side">
@@ -31,8 +39,12 @@
           {% for folder in folders %}
             {% if folder.weight != -1 %}{% continue %}{% endif %}
             {{macros.render_menu(folder, indent=False, active_page=page, combined=true)}}
+            {#
+            {% set children = folder.list_children()['folders'] %}
+            #}
           {% endfor %}
         </ul>
+ 
         <div class="layout-side-bordered">
           <ul>
             {% for each_folder in folders %}

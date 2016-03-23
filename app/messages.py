@@ -18,6 +18,21 @@ class UserMessage(messages.Message):
   status = messages.EnumField(Status, 6)
 
 
+class FolderMessage(messages.Message):
+  ident = messages.StringField(1)
+  title = messages.StringField(2)
+  color = messages.StringField(3)
+  synced = message_types.DateTimeField(4)
+  weight = messages.FloatField(5)
+  edit_url = messages.StringField(6)
+  sync_url = messages.StringField(7)
+  url = messages.StringField(8)
+
+
+class FoldersMessage(messages.Message):
+  folders = messages.MessageField(FolderMessage, 1, repeated=True)
+
+
 class ApprovalFormMessage(messages.Message):
   folders = messages.StringField(1, repeated=True)
   first_name = messages.StringField(2)

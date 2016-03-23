@@ -2,6 +2,7 @@ from . import admins
 from . import approvals
 from . import messages
 from . import settings
+from . import folders
 from . import users
 from protorpc import remote
 import airlock
@@ -87,4 +88,23 @@ class AdminService(airlock.Service):
     approval_ents = users.User.direct_add_users(emails)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
+    return resp
+
+  @remote.method(messages.FoldersMessage,
+                 messages.FoldersMessage)
+  def update_folders(self, request):
+    ents = folders.Folder.get_multi(request.folders)
+    for i, folder in enumerate(request.folders):
+      ents[i].update(folder, updated_by=self.me)
+    resp = messages.FoldersMessage()
+    resp.approvals = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.FoldersMessage,
+                 messages.FoldersMessage)
+  def search_folders(self, request):
+#    self.require_admin()
+    ents = folders.Folder.search()
+    resp = messages.FoldersMessage()
+    resp.folders = [ent.to_message() for ent in ents]
     return resp

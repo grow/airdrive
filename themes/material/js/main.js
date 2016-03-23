@@ -6,6 +6,7 @@ airpress.main = function() {
       .config(['$interpolateProvider', function($interpolateProvider) {
          $interpolateProvider.startSymbol('[[').endSymbol(']]');
       }])
+      .controller('FoldersController', airpress.ng.FoldersController)
       .controller('AdminsController', airpress.ng.AdminsController)
       .controller('ApprovalsController', airpress.ng.ApprovalsController)
       .controller('SettingsController', airpress.ng.SettingsController)
@@ -106,5 +107,25 @@ airpress.ng.AdminsController.prototype.searchAdmins = function() {
 airpress.ng.AdminsController.prototype.deleteAdmin = function(ident) {
   airpress.rpc('admins.delete_admins', {
     'admins': [{'ident': ident}]
-  });
+  }).done(function(resp) {
+    this.admins = this.admins.filter(function(item) {
+      return item['ident'] != ident;
+    });
+    this.$scope.$apply();
+  }.bind(this));
+};
+
+
+airpress.ng.FoldersController = function($scope) {
+  this.$scope = $scope;
+  this.searchFolders();
+};
+
+
+airpress.ng.FoldersController.prototype.searchFolders = function() {
+  airpress.rpc('admins.search_folders', {}).done(
+      function(resp) {
+    this.folders = resp['folders'] || [];
+    this.$scope.$apply();
+  }.bind(this));
 };

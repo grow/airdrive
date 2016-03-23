@@ -1,6 +1,7 @@
 {% extends "admin.html" %}
 
 {% block main %}
+<div ng-controller="FoldersController as ctrl">
   <div class="form">
     <h2>Root folder</h2>
     <div class="form-field">
@@ -23,25 +24,24 @@
         <th>Action</th>
       </tr>
     </thead>
-  {% for folder in folders %}
-    <tr>
-      <td>{{folder.synced}}</td>
-      <td><a href="{{folder.url}}">{{folder.title}}</a></td>
-      <td>{{folder.weight}}</td>
+    <tr ng-repeat="folder in ctrl.folders" class="form">
+      <td>[[folder.synced]]</td>
+      <td><a href="[[folder.url]]">[[folder.title]]</a></td>
+      <td>[[folder.weight]]</td>
       <td>
-        <input type="text" ng-model="folder.color">
+        <input type="text" ng-model="folder.color" class="form-control form-control--sm">
       </td>
       <td>
-        <a href="{{folder.edit_url}}">Edit</a>
-        | <a href="javascript:startSync('{{folder.sync_url}}')">Sync</a>
+        <a href="[[folder.edit_url]]">Edit</a>
+        | <a href="javascript:startSync('[[folder.sync_url]]')">Sync</a>
       </td>
     </tr>
-  {% else %}
+    {#
     <tr>
       <td colspan="100">
         No folders have been synced yet. Press <b>sync root folder</b> above to start.
       </td>
-  {% endfor %}
+    #}
   </table>
 
   <h2>Sync results</h2>
@@ -72,4 +72,5 @@
       return socket;
     };
   </script>
+</div>
 {% endblock %}

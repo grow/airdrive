@@ -33,7 +33,7 @@ class Asset(models.Model):
     ent.size = int(resp['fileSize'])
     ent.url = resp['webContentLink']
     ent.icon_url = resp['iconLink']
-    ent.title, ent.weight = cls.parse_title_and_weight(resp['title'])
+    ent.parse_title(resp['title'])
     ent.md5 = resp['md5Checksum']
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.synced = datetime.datetime.now()

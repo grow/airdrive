@@ -2,6 +2,7 @@ from . import models
 from google.appengine.ext import ndb
 from markdown.extensions import tables
 from markdown.extensions import toc
+from lxml.html import clean
 import bleach
 import bbcode
 import bs4
@@ -29,7 +30,7 @@ class Page(models.Model):
     resource_id = resp['id']
     etag = resp['etag']
     ent = cls.get_or_instantiate(resource_id)
-    ent.title, ent.weight = cls.parse_title_and_weight(resp['title'])
+    ent.parse_title(resp['title'])
     ent.resource_id = resource_id
     ent.etag = etag
     ent.synced = datetime.datetime.now()
@@ -86,15 +87,19 @@ class Page(models.Model):
     TAGS = [
         'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
         'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',
-        'sup', 'strong',
+        'sup', 'strong', 'span', 'style',
     ]
     html = self.unprocessed_html
-    soup = bs4.BeautifulSoup(html)
-    html = soup.body.prettify()
+#    soup = bs4.BeautifulSoup(html)
+#    html = soup.body.prettify()
     html = bleach.clean(html,
         tags=TAGS,
         attributes=ATTRS,
         strip=True)
+    import logging
+    logging.info(html)
+    cleaner = clean.Cleaner(style=True)
+    html = cleaner.clean_html(html)
     html = self.markdownify(html)
 #    html = self.bbcodeify(html)
     return html

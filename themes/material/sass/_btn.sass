@@ -28,6 +28,17 @@
   &:hover
     box-shadow: 0 5px 5px 0 rgba(0,0,0,.14)
 
+  &:focus
+    &:before
+      border: 1px solid rgba(255, 255, 255, .5)
+      bottom: 1px
+      content: ''
+      display: block
+      left: 1px
+      position: absolute
+      right: 1px
+      top: 1px
+
   &--sm
     font-size: $font-size-sm
     line-height: $line-height-sm

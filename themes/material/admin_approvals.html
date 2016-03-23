@@ -6,12 +6,12 @@
 <h2>Direct add users</h2>
 
 <div ng-controller="ApprovalsController as ctrl">
-  <form ng-submit="ctrl.submit(ctrl.emails)">
+  <form ng-submit="ctrl.submit(ctrl.emails)" class="form">
     <div class="form-field">
-      <textarea class="form-field-control" ng-model="ctrl.emails"></textarea>
+      <textarea class="form-field-control" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
     </div>
     <div class="form-field">
-      <button class="btn btn--sm" type="submit">Add users</button>
+      <button class="btn btn--sm" type="submit" role="button">Add users</button>
     </div>
   </form>
 

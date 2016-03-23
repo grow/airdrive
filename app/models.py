@@ -10,6 +10,11 @@ class Model(ndb.Model):
   title = ndb.StringProperty()
   weight = ndb.FloatProperty(default=0.0)
   synced = ndb.DateTimeProperty()
+  draft = ndb.BooleanProperty()
+
+  @classmethod
+  def resource_type(self):
+    return self.__class__.__name__
 
   def __getattr__(self, name):
     # Allow dynamic lookups of references. For example, an entity with
@@ -59,14 +64,24 @@ class Model(ndb.Model):
     return query.get()
 
   @classmethod
-  def parse_title_and_weight(cls, unprocessed_title):
+  def _parse_title(cls, unprocessed_title):
     match = re.findall('\[([^\]]*)\] (.*)', unprocessed_title)
+    title = unprocessed_title
+    weight = None
+    draft = False
+    draft = title.endswith('DRAFT')
     if match:
+      title = match[0][1]
       try:
-        return (match[0][1], float(match[0][0]))
+        weight = float(match[0][0])
       except ValueError:
-        return (match[0][1], None)
-    return (unprocessed_title, None)
+        weight = None
+    title = title.replace('DRAFT', '') if draft else title
+    title = title.strip()
+    return (title, weight, draft)
+
+  def parse_title(self, unprocessed_title):
+    self.title, self.weight, self.draft = self._parse_title(unprocessed_title)
 
   @property
   def ident(self):
