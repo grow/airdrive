@@ -46,6 +46,9 @@ $header-height: 70px
       padding-top: $pad-md
       padding-bottom: $pad-md
 
+    .menu--hidden
+      display: none
+
     ul
       padding: 0
       margin: 0
@@ -65,7 +68,7 @@ $header-height: 70px
         color: $color-text
         display: block
         font-weight: $bold
-        padding: $pad-xs $pad-md
+        padding: $pad-xs $pad-xs $pad-xs $pad-md
 
         &:hover
           background-color: $color-light-bg-hover
@@ -75,15 +78,32 @@ $header-height: 70px
           font-size: 20px
           opacity: .5
 
+      .menu-item--active
+        font-weight: bold
+        color: $color-brand
+
       ul
-        display: none
+        &:not(.menu--active)
+          display: none
+
+        &.menu-item-child
+          display: none
+
+        &.menu-item-child--open
+          display: block
 
         &.active
           display: block
 
         a
-          padding-left: $pad-md * 2
+          padding-left: $pad-md * 1.5
           font-weight: $semibold
+
+        ul a
+          padding-left: $pad-md * 2
+
+        ul ul a
+          padding-left: $pad-md * 2.5
 
   &-side + &-main
     left: $side-width

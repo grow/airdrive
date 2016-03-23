@@ -12,7 +12,7 @@ class Model(ndb.Model):
   synced = ndb.DateTimeProperty()
   draft = ndb.BooleanProperty()
 
-  @classmethod
+  @property
   def resource_type(self):
     return self.__class__.__name__
 

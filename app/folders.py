@@ -42,6 +42,10 @@ class Folder(models.Model):
   def is_asset_folder(self):
     return self.title.lower() == 'assets'
 
+  @property
+  def is_overview_folder(self):
+    return self.title.lower() == 'overview' and self.weight == -1
+
   def list_children(self):
     children = {
         'items': [],
@@ -128,3 +132,17 @@ class Folder(models.Model):
   def update(self, message):
     self.color = message.color
     self.put()
+
+#  @classmethod
+#  def create_menu(cls):
+#    menu = {
+#        'top': [],
+#        'folders': [],
+#    }
+#
+#    def _handle(items, is_top=False):
+#      for item in items:
+#        if item.weight == -1 and is_top:
+#
+#    ents = cls.list(parent=MAIN_FOLDER_ID)
+#    _handle(ents, is_top=True)

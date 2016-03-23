@@ -14,11 +14,6 @@
   <title>{{config.CONFIG.title}}</title>
 </head>
 <body>
-  <ul style="display: none">
-    {% for folder in folders %}
-      {{macros.render_menu_tree(folder)}}
-    {% endfor %}
-  </ul>
   <div class="layout">
     {% if enable_sidebar is not sameas false %}
     <div class="layout-side">
@@ -35,30 +30,48 @@
         <div class="layout-side-top-subtitle">{{config.CONFIG.sidebar_title|safe}}</div>
       </div>
       {% block side %}
-        <ul>
-          {% for folder in folders %}
-            {% if folder.weight != -1 %}{% continue %}{% endif %}
-            {{macros.render_menu(folder, indent=False, active_page=page, combined=true)}}
-            {#
-            {% set children = folder.list_children()['folders'] %}
-            #}
+
+        <ul class="menu menu--hidden">
+          {% set items = folders[0]['children']['items'] %}
+          {% for item in items %}
+            {{macros.render_menu_tree(item, active_resource=(folder or page))}}
           {% endfor %}
         </ul>
- 
+
         <div class="layout-side-bordered">
-          <ul>
-            {% for each_folder in folders %}
-              {% if each_folder.weight == -1 %}{% continue %}{% endif %}
-              {% if page %}
-                {{macros.render_menu(each_folder, active_folder=page.parent, active_page=page)}}
-              {% elif folder %}
-                {{macros.render_menu(each_folder, active_folder=folder)}}
-              {% else %}
-                {{macros.render_menu(each_folder)}}
-              {% endif %}
-            {% endfor %}
+          <ul class="menu menu--hidden">
+          {% for item in folders[1:] %}
+            {{macros.render_menu_tree(item, active_resource=(folder or page))}}
+          {% endfor %}
           </ul>
         </div>
+
+        <script>
+          (function() {
+            var decorateMenu = function(el) {
+              var item = el.querySelector('.menu-item--active');
+              do {
+                if (item) {
+                  item.classList.add('menu--active');
+                  if (item.tagName == 'UL' && item.previousSibling && item.previousSibling.previousSibling.tagName == 'LI') {
+                    item.previousSibling.previousSibling.classList.add('menu--active');
+                  }
+                  item = item.parentNode;
+                }
+              } while (item && item != el);
+              if (item == el) {
+                item.classList.add('menu--active');
+              }
+              el.classList.remove('menu--hidden');
+            };
+
+            var items = document.querySelectorAll('ul.menu');
+            [].forEach.call(items, function(el) {
+              decorateMenu(el);
+            });
+          }())
+        </script>
+
         <div class="layout-side-bottom">
           {{config.CONFIG.sidebar|safe}}
         </div>

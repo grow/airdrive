@@ -2,19 +2,28 @@
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
-{% macro render_menu_tree(resource) %}
-  <li>{{resource.title}}</li>
-  {% if resource.resource_type == 'Folder' %}
-    {% if resource.children['pages'] or resource.children['folders'] %}
-      <ul>
-        {% for item in resource.children['folders'] %}
-          {{render_menu_tree(item)}}
-        {% endfor %}
-        {% for item in resource.children['pages'] %}
-          {{render_menu_tree(item)}}
-        {% endfor %}
-      </ul>
-    {% endif %}
+{% macro render_menu_tree(resource, active_resource=None) %}
+  {% if resource.resource_type == 'Folder'
+    and (resource.children['pages'] or resource.children['folders']) %}
+    {% set has_children = true %}
+  {% else %}
+    {% set has_children = false %}
+  {% endif %}
+  <li><a
+    href="{{resource.url}}"
+    class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource == active_resource}}"
+    >{{resource.title}}
+    {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
+    </a></li>
+  {% if has_children %}
+    <ul class="menu-item--child {{"menu-item-child--open" if resource in [folder, page]}}">
+      {% for item in resource.children['folders'] %}
+        {{render_menu_tree(item, active_resource=active_resource)}}
+      {% endfor %}
+      {% for item in resource.children['pages'] %}
+        {{render_menu_tree(item, active_resource=active_resource)}}
+      {% endfor %}
+    </ul>
   {% endif %}
 {% endmacro %}
 
@@ -25,29 +34,6 @@
   <a href="{{resource.sync_url}}">Sync</a>
   <a href="{{uri_for('delete', resource_id=resource.resource_id)}}">Delete</a>
 </div>
-{% endmacro %}
-
-{% macro render_menu(folder, indent=True, active_folder=None, active_page=None, combined=false) %}
-  {% if indent %}
-    <a href="{{folder.url}}" class="{{"active" if (folder == active_folder or folder == active_folder.parent)}}">
-      {{folder.title}}
-      <i class="material-icons">expand_more</i>
-    </a>
-  {% endif %}
-  {% if indent %}<ul class="{{"active" if (folder == active_folder or folder == active_folder.parent)}}">{% endif %}
-    {% if combined %}
-      {% for item in folder.children['items'] %}
-      <li class="{{"active-item" if item in [active_folder, active_page]}}"><a href="{{item.url}}">{{item.title}}</a></li>
-      {% endfor %}
-    {% else %}
-      {% for sub_folder in folder.children['folders'] %}
-      <li class="{{"active-item" if sub_folder == active_folder}}"><a href="{{sub_folder.url}}">{{sub_folder.title}}</a></li>
-      {% endfor %}
-      {% for page in folder.children['pages'] %}
-      <li class="{{"active-item" if page == active_page}}"><a href="{{page.url}}">{{page.title}}</a></li>
-      {% endfor %}
-    {% endif %}
-  {% if indent %}</ul>{% endif %}
 {% endmacro %}
 
 {% macro render_mosaic(resource_id) %}
