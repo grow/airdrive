@@ -24,6 +24,14 @@ class Admin(models.Model):
     return emails
 
   @classmethod
+  def create_multi(cls, messages, created_by):
+    created = []
+    for message in messages:
+      ent = cls.create(message.email, created_by=created_by)
+      created.append(ent)
+    return created
+
+  @classmethod
   def create(cls, email, created_by):
     existing = cls.get_by_email(email)
     if existing:

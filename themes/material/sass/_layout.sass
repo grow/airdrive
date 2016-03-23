@@ -17,7 +17,7 @@ $header-height: 70px
       border-bottom: 1px solid $color-border
       font-size: $font-size-sm
       margin-bottom: $pad-md
-      height: $header-height
+      // height: $header-height
       box-sizing: border-box
       padding: $pad-md
       line-height: $header-height - 2 * $pad-md
@@ -28,8 +28,8 @@ $header-height: 70px
 
       &-logo
         vertical-align: middle
-        max-width: 100px
-        opacity: .5
+        max-width: 100% 
+        // opacity: .5
 
       &-subtitle
         display: none
@@ -107,12 +107,14 @@ $header-height: 70px
 
     &-header
       background: $color-brand
-      color: $color-text-on-brand
       box-shadow: 0 2px 2px 0 rgba(0,0,0,.2)
-      padding: 0 $pad-xx
+      box-sizing: border-box
+      color: $color-text-on-brand
       height: $header-height
       line-height: $header-height
-      box-sizing: border-box
+      padding: 0 $pad-xx
+      position: relative
+      z-index: 1
 
       a:not(.btn)
         color: $color-text-on-brand

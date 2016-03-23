@@ -45,10 +45,28 @@ class AdminService(airlock.Service):
 
   @remote.method(messages.AdminsMessage,
                  messages.AdminsMessage)
+  def create_admins(self, request):
+#    self.require_admin()
+    ents = admins.Admin.create_multi(request.admins, created_by=self.me)
+    resp = messages.AdminsMessage()
+    resp.admins = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.AdminsMessage,
+                 messages.AdminsMessage)
   def delete_admins(self, request):
 #    self.require_admin()
     ents = admins.Admin.get_multi(request.admins)
     admins.Admin.delete_multi(request.admins)
+    resp = messages.AdminsMessage()
+    resp.admins = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.AdminsMessage,
+                 messages.AdminsMessage)
+  def search_admins(self, request):
+#    self.require_admin()
+    ents = admins.Admin.search()
     resp = messages.AdminsMessage()
     resp.admins = [ent.to_message() for ent in ents]
     return resp

@@ -12,9 +12,13 @@ from google.appengine.api import channel
 from google.appengine.api import users
 import airlock
 import appengine_config
+from datetime import datetime
 import jinja2
 import json
+import logging
+import mimetypes
 import os
+import time
 import webapp2
 
 
@@ -24,6 +28,7 @@ MAIN_FOLDER_ID = CONFIG['folder']
 
 _here = os.path.dirname(__file__)
 _theme_path = os.path.join(_here, '..', 'themes', CONFIG['theme'])
+_dist_path = os.path.join(_here, '..', 'dist')
 JINJA = jinja2.Environment(
     loader=jinja2.FileSystemLoader(_theme_path),
     extensions=[
@@ -259,7 +264,14 @@ class SyncHandler(Handler):
   def get(self, resource_id=MAIN_FOLDER_ID):
     if not self.is_admin():
       return
-    sync.download_resource(resource_id, self.me)
+    try:
+      sync.download_resource(resource_id, self.me)
+    except Exception as e:
+      logging.exception('Sync error.')
+      self.response.status = 500
+      self.response.headers['Content-Type'] = 'text/plain'
+      self.response.out.write(str(e))
+      return
     token = channel.create_channel(self.me.ident)
     content = json.dumps({
         'token': token,
@@ -281,3 +293,30 @@ class DeleteHandler(Handler):
       if folder:
         folder.delete()
         self.response.out.write('deleted')
+
+
+class DynamicAssetHandler(Handler):
+
+  def get(self, base):
+    raise
+    path = os.path.join(_dist_path, base)
+    logging.info(path)
+    try:
+      stat = os.stat(path)
+    except (OSError, IOError):
+      self.response.status_int = 404
+      self.response.out.write('Not found.')
+      return
+    time_obj = datetime.fromtimestamp(stat.st_ctime).timetuple()
+    mimetype = mimetypes.guess_type(path)[0]
+    headers = {'Content-Type': mimetype or ''}
+    datetime_format = '%a, %d %b %Y %H:%M:%S GMT'
+    headers['Last-Modified'] = time.strftime(datetime_format, time_obj)
+    headers['ETag'] = '"{}"'.format(headers['Last-Modified'])
+    request_etag = self.request.headers.get('If-None-Match')
+    if headers['ETag'] == request_etag:
+      self.response.status_int = 304
+      return
+    fp = open(path)
+    self.response.headers.update(headers)
+    self.response.out.write(fp.read())

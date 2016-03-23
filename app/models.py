@@ -94,3 +94,8 @@ class Model(ndb.Model):
   def delete_multi(self, messages):
     keys = [ndb.Key(urlsafe=message.ident) for message in messages]
     return ndb.delete_multi(keys)
+
+  @classmethod
+  def search(cls, message=None):
+    query = cls.query()
+    return query.fetch()

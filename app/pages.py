@@ -22,6 +22,7 @@ class Page(models.Model):
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
   unprocessed_html = ndb.TextProperty()
+  locale = ndb.StringProperty()
 
   @classmethod
   def process(cls, resp):

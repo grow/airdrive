@@ -3,39 +3,40 @@
 
 {% block main %}
 
-<form method="post" class="form">
-  <h2>Add another administrator</h2>
-  <div class="form-field">
-    <input class="form-field-control" type="text" placeholder="Email" name="admin.email">
-  </div>
-  <div class="form-field">
-    <button class="btn--sm btn">Add aministrator</button>
-  </div>
-</form>
+<div ng-controller="AdminsController as ctrl">
+  <form method="post" class="form" ng-submit="ctrl.createAdmin(admin.email)">
+    <h2>Add another administrator</h2>
+    <div class="form-field">
+      <input class="form-field-control" type="text" placeholder="Email" ng-model="admin.email">
+    </div>
+    <div class="form-field">
+      <button class="btn--sm btn">Add aministrator</button>
+    </div>
+  </form>
 
-<table class="table">
-  <thead>
-    <th>Administrator</th>
-    <th>Added by</th>
-    <th>Action</th>
-  </thead>
-  <tbody>
-    {% for admin in admins %}
-      <tr>
-        <td>{{admin.email}}</td>
-        <td>{{admin.created_by.email}}</td>
-        <td>
-          <a href="javascript:airpress.deleteAdmin('{{admin.ident}}')">Delete</a>
-        </td>
-      </tr>
-    {% else %}
-      <tr>
-        <td colspan="10">
-          No administrators have been configured yet.
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <table class="table">
+    <thead>
+      <th>Administrator</th>
+      <th>Added by</th>
+      <th>Action</th>
+    </thead>
+    <tbody>
+        <tr ng-repeat="admin in ctrl.admins">
+          <td>[[admin.email]]</td>
+          <td>[[admin.created_by.email]]</td>
+          <td>
+            <a ng-click="ctrl.deleteAdmin(admin.ident)">Delete</a>
+          </td>
+        </tr>
+        {#
+        <tr>
+          <td colspan="10">
+            No administrators have been configured yet.
+          </td>
+        </tr>
+        #}
+    </tbody>
+  </table>
+</div>
 
 {% endblock %}

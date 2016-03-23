@@ -22,6 +22,7 @@ routes = [
     webapp2.Route('/<folder_slug>/folders/<resource_id>/', handlers.FolderHandler),
     webapp2.Route('/<folder_slug>/<resource_id>/<page_slug>/', handlers.PageHandler),
     webapp2.Route('/<folder_slug>/', handlers.MainFolderHandler, name='main-folder'),
+    webapp2.Route('/_asset/css/(.*)', handlers.DynamicAssetHandler, name='asset'),
     webapp2.Route('/', handlers.HomepageHandler, name='home'),
 ]
 app = airlock.WSGIApplication(routes)

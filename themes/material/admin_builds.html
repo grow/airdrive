@@ -19,6 +19,7 @@
         <th>Synced</th>
         <th>Title</th>
         <th>Order</th>
+        <th>Color</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -27,6 +28,9 @@
       <td>{{folder.synced}}</td>
       <td><a href="{{folder.url}}">{{folder.title}}</a></td>
       <td>{{folder.weight}}</td>
+      <td>
+        <input type="text" ng-model="folder.color">
+      </td>
       <td>
         <a href="{{folder.edit_url}}">Edit</a>
         | <a href="javascript:startSync('{{folder.sync_url}}')">Sync</a>

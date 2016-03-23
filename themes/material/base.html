@@ -18,6 +18,8 @@
         <a href="{{uri_for('home')}}">
           {% if config.CONFIG.logo %}
             <img src="{{macros.asset(config.CONFIG.logo)}}" class="layout-side-top-logo">
+          {% elif config.CONFIG.logo_url %}
+            <img src="{{config.CONFIG.logo_url}}" class="layout-side-top-logo">
           {% else %}
             {{config.CONFIG.title or config.CONFIG.sidebar_title}}
           {% endif %}
