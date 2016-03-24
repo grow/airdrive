@@ -59,14 +59,15 @@ class User(models.Model, airlock.User):
     return folder in self.list_approved_folders()
 
   @classmethod
-  def direct_add_users(cls, emails):
+  def direct_add_users(cls, emails, created_by=None):
     approval_ents = []
     for email in emails:
       user_ent = cls.get_or_create_by_email(email)
-      approval_form_message = messages.ApprovalFormMessage()
-      approval_ent = approvals.Approval.create(
-          approval_form_message,
+      approval_message = messages.ApprovalMessage()
+      approval_message.form = messages.ApprovalFormMessage()
+      approval_ent = approvals.Approval.create_and_approve(
+          approval_message,
           user_ent,
-          email=False)
+          created_by=created_by)
       approval_ents.append(approval_ent)
     return approval_ents

@@ -83,7 +83,7 @@ class Page(models.Model):
 
   @property
   def pretty_html(self):
-    ATTRS = ['src', 'href', 'style', 'class']
+    ATTRS = ['src', 'href', 'style', 'class', 'width', 'height']
     TAGS = [
         'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
         'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',

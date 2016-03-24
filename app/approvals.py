@@ -75,7 +75,7 @@ class Approval(models.Model):
   @classmethod
   def create_and_approve(cls, message, user, created_by):
     ent = cls.get_or_create(message, user, send_email=False)
-    ent.approve(created_by)
+    ent.approve(created_by, email=False)
     return ent
 
   @classmethod
@@ -84,15 +84,17 @@ class Approval(models.Model):
               if query_message and query_message.cursor else None)
     query = cls.query()
     query = query.order(-cls.created)
-    results, next_cursor, has_more = query.fetch_page(PER_PAGE, start_cursor=cursor)
+    results, next_cursor, has_more = query.fetch_page(
+        PER_PAGE, start_cursor=cursor)
     return (results, next_cursor, has_more)
 
-  def approve(self, updated_by):
+  def approve(self, updated_by, email=True):
     self.status = messages.Status.APPROVED
     self.updated_by_key = updated_by.key
     self.put()
-    emailer = emails.Emailer(self)
-    emailer.send_approved_to_user()
+    if email:
+      emailer = emails.Emailer(self)
+      emailer.send_approved_to_user()
 
   def reject(self, updated_by):
     self.status = messages.Status.REJECTED

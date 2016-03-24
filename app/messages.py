@@ -57,6 +57,10 @@ class ApprovalMessage(messages.Message):
   ident = messages.StringField(7)
 
 
+class ApprovalRequest(messages.Message):
+  approval = messages.MessageField(ApprovalMessage, 1)
+
+
 class ApprovalQueryMessage(messages.Message):
   cursor = messages.StringField(1)
 

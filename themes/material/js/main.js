@@ -8,6 +8,7 @@ airpress.main = function() {
       }])
       .controller('FoldersController', airpress.ng.FoldersController)
       .controller('AdminsController', airpress.ng.AdminsController)
+      .controller('ApprovalController', airpress.ng.ApprovalController)
       .controller('ApprovalsController', airpress.ng.ApprovalsController)
       .controller('SettingsController', airpress.ng.SettingsController)
 
@@ -126,6 +127,26 @@ airpress.ng.FoldersController.prototype.searchFolders = function() {
   airpress.rpc('admins.search_folders', {}).done(
       function(resp) {
     this.folders = resp['folders'] || [];
+    this.$scope.$apply();
+  }.bind(this));
+};
+
+
+airpress.ng.ApprovalController = function($scope, $element) {
+  this.$scope = $scope;
+  var ident = $element[0].getAttribute('data-approval-ident');
+  this.getApproval(ident);
+};
+
+
+airpress.ng.ApprovalController.prototype.getApproval = function(ident) {
+  airpress.rpc('admins.get_approval', {
+    'approval': {
+      'ident': ident
+    }
+  }).done(
+      function(resp) {
+    this.approval = resp['approval'];
     this.$scope.$apply();
   }.bind(this));
 };

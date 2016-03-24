@@ -5,7 +5,7 @@
 
 <h2>Direct add users</h2>
 
-<div ng-controller="ApprovalsController as ctrl">
+<div ng-controller="ApprovalsController as ctrl" ng-cloak>
   <form ng-submit="ctrl.submit(ctrl.emails)" class="form">
     <div class="form-field">
       <textarea class="form-field-control" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
@@ -15,7 +15,7 @@
     </div>
   </form>
 
-  <h2>Approvals</h2>
+  <h2>Users</h2>
 
   <form>
     <div class="form-field">
@@ -26,9 +26,9 @@
   <table class="table">
     <thead>
       <th>Status</th>
-      <th>Requested by</th>
+      <th>Email</th>
       <th>Date</th>
-      <th>Response by</th>
+      <th>Approved by</th>
     </thead>
     <tbody>
         <tr ng-repeat="approval in ctrl.approvals">
@@ -38,8 +38,7 @@
             </select>
           </td>
           <td>
-            <a href="[[approval.url]]">[[approval.user.email]]</a>
-            {#            <a href="{{uri_for('admin-approvals-approval', ident=approval.ident)}}">{{approval.user.email}}</a> #}
+            <a ng-href="./[[approval.ident]]/">[[approval.user.email]]</a>
           </td>
           <td>
             [[approval.created]]

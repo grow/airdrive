@@ -23,6 +23,15 @@ class AdminService(airlock.Service):
     resp.form = ent.form
     return resp
 
+  @remote.method(messages.ApprovalRequest,
+                 messages.ApprovalRequest)
+  def get_approval(self, request):
+    self.require_admin()
+    ent = approvals.Approval.get_by_ident(request.approval.ident)
+    resp = messages.ApprovalRequest()
+    resp.approval = ent.to_message()
+    return resp
+
   @remote.method(messages.ApprovalsMessage,
                  messages.ApprovalsMessage)
   def update_approvals(self, request):
@@ -85,7 +94,7 @@ class AdminService(airlock.Service):
                  messages.ApprovalsMessage)
   def directly_add_users(self, request):
     emails = [user.email for user in request.users]
-    approval_ents = users.User.direct_add_users(emails)
+    approval_ents = users.User.direct_add_users(emails, created_by=self.me)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
     return resp

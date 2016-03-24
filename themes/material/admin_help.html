@@ -24,6 +24,25 @@ If you're here, you've already got Airpress deployed on App Engine. Airpress's f
 1. Copy the folder ID and make sure it matches the root folder ID **[Content Admin page]({{uri_for('admin')}})**.
 1. Share this folder with Airpress. You must provide **edit** access to the following account: <code class="text-code--block">{{config.CONFIG.service_account}}</code>
 
+## Access control
+
+### Administrators
+
+Administrators can view the `/admin/` section of the site, sync Airpress to Google Drive, review and approve access requests, and audit download counts. To add or remove administrators, visit the **[Administrators Admin page]({{uri_for('admin-admins')}})**.
+
+### Requesting access
+
+By default, members of your domain (**{{config.CONFIG.domain}}**) have access to all folders in your Airpress site. Users outside of {{config.CONFIG.domain}} will need to request access, and be approved by a site admin.
+
+Here's how it works:
+
+1. An external user lands on your homepage.
+1. The user must sign in with their Google Account.
+1. The user requests access by filling out a form.
+1. Once the user has submitted the form, administrators will receive an email notification containing the access request.
+1. The admin can review the access request and approve or deny access.
+1. Once the admin has approved or denied access, the requesting user will receive another email notification.
+
 ## Folder structure
 
 ### Naming guidelines
@@ -56,28 +75,19 @@ You can group assets in an asset folder by using subfolders. For example, you mi
 
 Lastly, you can provide assets in multiple file formats. Airpress will automatically group the same assets together as long as they have the same basename (the part of the filename, minus the file's extension).
 
-## Access control
+### Draft documents
 
-### Administrators
+To create a draft folder or a draft document, append the word DRAFT to the end of the document or folder's name. Documents that are marked with DRAFT will only appear to administrators.
 
-Administrators can view the `/admin/` section of the site, sync Airpress to Google Drive, review and approve access requests, and audit download counts. To add or remove administrators, visit the **[Administrators Admin page]({{uri_for('admin-admins')}})**.
+## Formatting
 
-### Requesting access
+### Tables
 
-By default, members of your domain (**{{config.CONFIG.domain}}**) have access to all folders in your Airpress site. Users outside of {{config.CONFIG.domain}} will need to request access, and be approved by a site admin.
+Airpress supports two types of tables. Standard columnal tables (two columns or three columns), and data tables. By default, tables are standard columnal tables.
 
-Here's how it works:
+To make a data table, the first row of your table should contain the following tag:
 
-1. An external user lands on your homepage.
-1. The user must sign in with their Google Account.
-1. The user requests access by filling out a form.
-1. Once the user has submitted the form, administrators will receive an email notification containing the access request.
-1. The admin can review the access request and approve or deny access.
-1. Once the admin has approved or denied access, the requesting user will receive another email notification.
-
-## Open source
-
-Airpress is an open source project released under the MIT License by the Grow SDK authors. You can [check out the open source project on GitHub](https://github.com/grow/airpress), where you can review the code or file issues. Thanks for using it!
+    [table=data]
 
 {% endfilter %}
 {% endblock %}

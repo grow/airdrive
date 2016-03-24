@@ -2,5 +2,30 @@
 {% extends "admin.html" %}
 
 {% block main %}
-  {{approval}}
+  <h2>{{approval.user.email}}</h2>
+
+  <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-cloak>
+    <ul>
+      <li><b>Name</b>: [[ctrl.approval.form.first_name]] [[ctrl.approval.form.last_name]]</li>
+      <li><b>Status</b>: [[ctrl.approval.status]]</li>
+      <li><b>Updated</b>: [[ctrl.approval.updated]] by [[ctrl.approval.updated_by.email]]</li>
+    </ul>
+    <form>
+      <label><b>Folder access</b></label>
+      <ul>
+        {#
+        {% for folder_name, folder_id  in folders %}
+        <li><label><input type="checkbox" ng-change="ctrl.update(ctrl.approval)" ng-model="ctrl.folder_choices.{{folder_id}}"> {{folder_name}}</label>
+        {% endfor %}
+        #}
+      </ul>
+    </form>
+    <table class="form">
+      <tr ng-repeat="(key, val) in ctrl.approval.form">
+        <td>[[key]]</td>
+        <td>[[val]]</td>
+      </tr>
+    </table>
+  </div>
+
 {% endblock %}

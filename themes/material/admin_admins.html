@@ -3,7 +3,7 @@
 
 {% block main %}
 
-<div ng-controller="AdminsController as ctrl">
+<div ng-controller="AdminsController as ctrl" ng-cloak>
   <form method="post" class="form" ng-submit="ctrl.createAdmin(admin.email)">
     <h2>Add another administrator</h2>
     <div class="form-field">
