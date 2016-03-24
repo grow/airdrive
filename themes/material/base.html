@@ -69,6 +69,23 @@
             [].forEach.call(items, function(el) {
               decorateMenu(el);
             });
+
+            document.body.addEventListener('click', function(e) {
+              if (!e.target.classList.contains('menu-item--folder')) {
+                return;
+              }
+              var el = e.target;
+              var parentEl = el.parentNode;
+              var sublistEl = parentEl.nextSibling && parentEl.nextSibling.nextSibling;
+              if (sublistEl) {
+                sublistEl.classList.toggle('menu-item-child--open');
+              }
+              var siblingListEl = sublistEl.previousSibling && sublistEl.previousSibling.previousSibling;
+              if (siblingListEl) {
+                siblingListEl.classList.toggle('menu-item-child--open');
+              }
+              e.preventDefault();
+            });
           }())
         </script>
 

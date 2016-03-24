@@ -55,14 +55,17 @@ $header-height: 70px
       list-style: none
       font-size: $font-size-sm
 
+      li.menu-item-child--open
+        .material-icons
+          transform: rotate(180deg)
+
       .active-item
         a
           color: $color-brand
           font-weight: $bold
 
-      .active
-        .material-icons
-          transform: rotate(180deg)
+      .material-icons
+        pointer-events: none
 
       a
         color: $color-text
@@ -77,6 +80,7 @@ $header-height: 70px
           float: right
           font-size: 20px
           opacity: .5
+          transition: all 300ms ease
 
       .menu-item--active
         font-weight: bold

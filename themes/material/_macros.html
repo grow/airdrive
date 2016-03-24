@@ -9,7 +9,7 @@
   {% else %}
     {% set has_children = false %}
   {% endif %}
-  <li><a
+  <li class="{{"menu-item-child--open" if resource == active_resource}}"><a
     href="{{resource.url}}"
     class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource == active_resource}}"
     >{{resource.title}}
