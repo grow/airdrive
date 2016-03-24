@@ -83,21 +83,26 @@ class Page(models.Model):
 
   @property
   def pretty_html(self):
-    ATTRS = ['src', 'href', 'style']
+    ATTRS = ['src', 'href', 'style', 'class']
     TAGS = [
         'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
         'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',
         'sup', 'strong', 'span', 'style',
     ]
     html = self.unprocessed_html
-#    soup = bs4.BeautifulSoup(html)
-#    html = soup.body.prettify()
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    tables = soup.findAll('table')
+    for table in tables:
+      if table.findParent('table') is None:
+        tr = table.find('tr')
+        if '[table=data]' in str(tr):
+          table['class'] = 'page-document-data-table'
+          tr.extract()
+    html = soup.body.prettify()
     html = bleach.clean(html,
         tags=TAGS,
         attributes=ATTRS,
         strip=True)
-    import logging
-    logging.info(html)
     cleaner = clean.Cleaner(style=True)
     html = cleaner.clean_html(html)
     html = self.markdownify(html)

@@ -14,8 +14,10 @@
   {{macros.render_admin_bar(page)}}
   <script>
     $('table').each(function(i, $table) {
-      var numCols = $(this).find('tr:first-child > td').size();
-      $(this).addClass('cols-' + numCols);
+      if ($table && !$table.hasClass('page-document-glossary-table')) {
+        var numCols = $(this).find('tr:first-child > td').size();
+        $(this).addClass('cols-' + numCols);
+      }
     });
 
     var buildToc = function() {
