@@ -1,11 +1,8 @@
 from . import models
+from . import process
 from google.appengine.ext import ndb
 from markdown.extensions import tables
 from markdown.extensions import toc
-from lxml.html import clean
-import bleach
-import bbcode
-import bs4
 import datetime
 import html2text
 import logging
@@ -83,49 +80,7 @@ class Page(models.Model):
 
   @property
   def pretty_html(self):
-    ATTRS = ['src', 'href', 'style', 'class', 'width', 'height']
-    TAGS = [
-        'p', 'b', 'i', 'em', 'br', 'table', 'tr', 'td', 'tbody',
-        'h2', 'h1', 'a', 'h3', 'ul', 'li', 'ol', 'img', 'u', 'hr',
-        'sup', 'strong', 'span', 'style',
-    ]
-    html = self.unprocessed_html
-    soup = bs4.BeautifulSoup(html, 'lxml')
-    tables = soup.findAll('table')
-    for table in tables:
-      if table.findParent('table') is None:
-        tr = table.find('tr')
-        if '[table=data]' in str(tr):
-          table['class'] = 'page-document-data-table'
-          tr.extract()
-    html = soup.body.prettify()
-    html = bleach.clean(html,
-        tags=TAGS,
-        attributes=ATTRS,
-        strip=True)
-    cleaner = clean.Cleaner(style=True)
-    html = cleaner.clean_html(html)
-    html = self.markdownify(html)
-#    html = self.bbcodeify(html)
-    return html
-
-  @classmethod
-  def markdownify(cls, html):
-    html = re.sub('\_{2}(.+)\_{2}', '<i>\\1</i>', html, re.MULTILINE)
-    html = re.sub('\*{2}(.+)\*{2}', '<strong>\\1</strong>', html, re.MULTILINE)
-    html = re.sub('\[COLOR:([^\]]*)\]', '<div class="page-component-color" style="background-color:\\1"></div>', html, re.MULTILINE)
-    html = html.replace('[TOC]', '<div class="toc toc--auto"><ul></ul></div>')
-    html = re.sub('\[BUTTON:([^\]]*)\]([^\]]*)\[/\]', '<a class="btn" href="\\1">\\2</a>', html, re.MULTILINE)
-    return html
-
-  @classmethod
-  def bbcodeify(cls, html):
-    parser = bbcode.Parser(
-        escape_html=False,
-        normalize_newlines=False,
-        newline='')
-#    parser.add_formatter('FOLDER', render_folder)
-    return parser.format(html)
+    return process.process_html(self.unprocessed_html)
 
 
 def render_folder(tag_name, resource_id, *args, **kwargs):
