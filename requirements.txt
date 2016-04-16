@@ -1,4 +1,6 @@
 Markdown==2.4
+requests
+Werkzeug==0.11
 bbcode==1.0.19
 bleach==1.4.2
 html5lib

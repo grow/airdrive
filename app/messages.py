@@ -103,3 +103,16 @@ class SettingsFormMessage(messages.Message):
 
 class SettingsMessage(messages.Message):
   form = messages.MessageField(SettingsFormMessage, 1)
+
+
+class ResourceMessage(messages.Message):
+  resource_id = messages.StringField(1)
+
+
+class ResourcesMessage(messages.Message):
+  resource = messages.MessageField(ResourceMessage, 1)
+
+
+class SyncMessage(messages.Message):
+  resources = messages.MessageField(ResourceMessage, 1, repeated=True)
+  token = messages.StringField(2)

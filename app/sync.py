@@ -78,7 +78,7 @@ def is_assets_folder(resp):
   return 'assets' in resp['title'].lower().strip()
 
 
-def download_resource(resource_id, user=None):
+def download_resource(resource_id, user=None, create_channel=False):
   service = get_service()
   resp = service.files().get(fileId=resource_id).execute()
   if resp['mimeType'] == 'application/vnd.google-apps.folder':
@@ -97,6 +97,10 @@ def download_resource(resource_id, user=None):
     message = text.format(resp['title'], resource_id)
     update_channel(user, message)
     process_file_response(resp)
+  memcache.delete('fragment:folders')
+  if create_channel:
+    token = channel.create_channel(user.ident)
+    return token
 
 
 def process_assets_folder_response(resp, user):

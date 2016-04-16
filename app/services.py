@@ -1,8 +1,9 @@
 from . import admins
 from . import approvals
+from . import folders
 from . import messages
 from . import settings
-from . import folders
+from . import sync
 from . import users
 from protorpc import remote
 import airlock
@@ -116,4 +117,15 @@ class AdminService(airlock.Service):
     ents = folders.Folder.search()
     resp = messages.FoldersMessage()
     resp.folders = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.SyncMessage,
+                 messages.SyncMessage)
+  def sync(self, request):
+    resp = messages.SyncMessage()
+    for resource in request.resources:
+      resource_id = resource.resource_id
+      token = sync.download_resource(
+          resource_id, self.me, create_channel=True)
+      resp.token = token
     return resp

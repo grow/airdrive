@@ -3,6 +3,7 @@ from . import assets
 from . import models
 from . import pages
 from . import messages
+from google.appengine.api import memcache
 from google.appengine.ext import ndb
 import datetime
 import webapp2
@@ -30,21 +31,33 @@ class Folder(models.Model):
     ent.put()
 
   @classmethod
-  def list(self, parent=None):
+  def list(self, parent=None, use_cache=True):
+    cache_key = 'Folder:List:{}'.format(MAIN_FOLDER_ID)
+    if use_cache and parent is None:
+      ents = memcache.get(cache_key)
+      if ents:
+        return ents
     query = Folder.query()
     if parent:
       parent_key = ndb.Key('Folder', parent)
       query = query.filter(Folder.parents == parent_key)
       query = query.order(Folder.weight)
-    return query.fetch()
+    ents = query.fetch()
+    memcache.set(cache_key, ents)
+    return ents
+
+  @classmethod
+  def clear_cache(cls):
+    cache_key = 'Folder:List:{}'.format(MAIN_FOLDER_ID)
+    memcache.delete(cache_key)
 
   @property
   def is_asset_folder(self):
-    return self.title.lower() == 'assets'
+    return 'assets' in self.title.lower()
 
   @property
   def is_overview_folder(self):
-    return self.title.lower() == 'overview' and self.weight == -1
+    return self.title.lower() in ['overview', 'welcome'] and self.weight == -1
 
   def list_children(self):
     children = {
@@ -74,7 +87,7 @@ class Folder(models.Model):
                                  key=lambda item: item.weight)
     return children
 
-  @property
+  @webapp2.cached_property
   def children(self):
     return self.list_children()
 

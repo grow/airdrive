@@ -11,6 +11,7 @@ class Model(ndb.Model):
   weight = ndb.FloatProperty(default=0.0)
   synced = ndb.DateTimeProperty()
   draft = ndb.BooleanProperty()
+  hidden = ndb.BooleanProperty()
 
   @property
   def resource_type(self):
@@ -68,8 +69,8 @@ class Model(ndb.Model):
     match = re.findall('\[([^\]]*)\] (.*)', unprocessed_title)
     title = unprocessed_title
     weight = None
-    draft = False
-    draft = title.endswith('DRAFT')
+    draft = 'DRAFT' in title
+    hidden = 'HIDDEN' in title
     if match:
       title = match[0][1]
       try:
@@ -78,10 +79,10 @@ class Model(ndb.Model):
         weight = None
     title = title.replace('DRAFT', '') if draft else title
     title = title.strip()
-    return (title, weight, draft)
+    return (title, weight, draft, hidden)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft = self._parse_title(unprocessed_title)
+    self.title, self.weight, self.draft, self.hidden = self._parse_title(unprocessed_title)
 
   @property
   def ident(self):

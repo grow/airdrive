@@ -3,16 +3,18 @@ from . import approvals
 from . import assets
 from . import common
 from . import downloads
+from . import extensions
 from . import folders
 from . import messages
 from . import pages
 from . import settings
 from . import sync
+from datetime import datetime
 from google.appengine.api import channel
 from google.appengine.api import users
+from werkzeug.contrib import cache
 import airlock
 import appengine_config
-from datetime import datetime
 import jinja2
 import json
 import logging
@@ -34,8 +36,10 @@ JINJA = jinja2.Environment(
     extensions=[
         'jinja2.ext.autoescape',
         'jinja2.ext.loopcontrols',
+        extensions.FragmentCacheExtension,
     ],
     autoescape=True)
+JINJA.fragment_cache = cache.MemcachedCache()
 JINJA.filters['filesizeformat'] = common.do_filesizeformat
 JINJA.filters['markdown'] = common.do_markdown
 
@@ -76,7 +80,8 @@ class Handler(airlock.Handler):
     params['statuses'] = messages.Status
     params['get_resource'] = folders.Folder.get_resource
 
-    folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID)
+    params['folders'] = []
+    folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID, use_cache=True)
     params['folders'] = folder_ents
 
     template = JINJA.get_template(path)
@@ -109,6 +114,7 @@ class PageHandler(Handler):
       return
     params = {
         'page': page,
+        'pretty_html': page.pretty_html,
     }
     self.render_template('page.html', params)
 
