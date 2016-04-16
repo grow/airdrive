@@ -1,12 +1,6 @@
 {% set title = title or "Admin" %}
 {% extends "base.html" %}
 
-{% block body_base %}
-  <script>
-    airpress.main();
-  </script>
-{% endblock %}
-
 {% block side %}
 <ul>
   <li><a href="{{uri_for('admin')}}">Content</a></li>

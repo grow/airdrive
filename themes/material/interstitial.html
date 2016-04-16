@@ -1,9 +1,16 @@
 {% set title = config.CONFIG.title %}
 {% set enable_sidebar = false %}
+{% set enable_header = false %}
 {% extends "base.html" %}
 
 {% block main %}
   <div class="contained contained--sm">
-    {{content|safe}}
+    <h1 class="text-header--xl">{{title}}</h1>
+    {{config.CONFIG.interstitial|safe}}
+    {% if not me.registered %}
+      <p class="push--top">
+        <a href="{{urls.sign_in()}}" class="btn">Sign in</a>
+      </p>
+    {% endif %}
   </div>
 {% endblock %}

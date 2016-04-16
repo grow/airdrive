@@ -1,22 +1,31 @@
-{% set title = '{} › {}'.format(page.parent.title, page.title) %}
+{% if page.parent and page.parent.is_overview_folder %}
+  {% set title = page.title %}
+{% else %}
+  {% set title = '{} › {}'.format(page.parent.title, page.title) %}
+{% endif %}
 {% extends "base.html" %}
 
 {% block main %}
   <div class="page contained">
     <h1>{{page.title}}</h1>
     <div class="page-document">
-      {{page.pretty_html|safe}}
+      {{pretty_html|safe}}
     </div>
+    {#
     <div class="page-meta">
       Updated {{page.modified}}
     </div>
+    #}
   </div>
   {{macros.render_admin_bar(page)}}
   <script>
-    $('table').each(function(i, $table) {
-      if ($table && !$table.hasClass('page-document-glossary-table')) {
-        var numCols = $(this).find('tr:first-child > td').size();
-        $(this).addClass('cols-' + numCols);
+    $('.page-document > table').each(function(i, table) {
+      var $table = $(table);
+      if ($table) {
+        var numCols = $(this).find('> tbody > tr:first-child > td').size();
+        if (!$table.attr('class')) {
+          $(this).addClass('cols-' + numCols);
+        }
       }
     });
 
@@ -28,11 +37,28 @@
           var elId = 'toc-' + i;
           el.setAttribute('id', elId);
           var title = el.textContent;
-          var listItemEl = $('<li><a href="#' + elId + '">' + title + '</a></li>');
+          var listItemEl = $('<li><a data-scroll href="#' + elId + '">' + title + '</a></li>');
           $(tocEl).append(listItemEl);
         });
       }
     };
     buildToc();
   </script>
+{% endblock %}
+
+{% block footer %}
+<div class="layout-main-footer">
+  <div class="layout-main-footer-part">
+    <a href="#">
+      <span class="layout-main-footer-part-caption">Previous</span>
+      <span><i class="material-icons arrow-R">arrow_backward</i> Title</span>
+    </a>
+  </div>
+  <div class="layout-main-footer-part">
+    <a href="#">
+      <span class="layout-main-footer-part-caption">Next</span>
+      <span>Title <i class="material-icons arrow-R">arrow_forward</i></span>
+    </a>
+  </div>
+</div>
 {% endblock %}

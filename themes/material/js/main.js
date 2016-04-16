@@ -11,8 +11,10 @@ airpress.main = function() {
       .controller('ApprovalController', airpress.ng.ApprovalController)
       .controller('ApprovalsController', airpress.ng.ApprovalsController)
       .controller('SettingsController', airpress.ng.SettingsController)
+      .controller('SyncController', airpress.ng.SyncController)
 
   angular.bootstrap(document, ['airpress'])
+  smoothScroll.init({offset: 40});
 };
 
 
@@ -149,4 +151,17 @@ airpress.ng.ApprovalController.prototype.getApproval = function(ident) {
     this.approval = resp['approval'];
     this.$scope.$apply();
   }.bind(this));
+
+  rpc('votes.vote_up').done(function(resp) {
+    console.log(resp);
+  });
+};
+
+
+airpress.ng.SyncController = function() {
+};
+
+
+airpress.ng.SyncController.prototype.sync = function(resourceId) {
+  airpress.sync.sync(resourceId);
 };

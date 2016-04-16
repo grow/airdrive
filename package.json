@@ -1,6 +1,9 @@
 {
   "name": "airpress",
   "private": true,
+  "dependencies": {
+    "smooth-scroll": "github:cferdinandi/smooth-scroll"
+  },
   "devDependencies": {
     "bower": "^1.3.12",
     "gulp": "^3.8.11",

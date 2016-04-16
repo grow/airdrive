@@ -1,3 +1,113 @@
+.caption
+  font-size: $font-size-sm
+  color: $color-grey
+
+.page-image--hero
+  max-width: 100%
+
+.page-image-container
+  background: $color-white
+  height: 360px
+  margin: 0 0 $pad-sm
+  position: relative
+  width: 100%
+
+  .page-image
+    background-position: center
+    background-repeat: no-repeat
+    height: 100%
+    position: absolute
+    width: 100%
+
+  &--singlecolumn
+    width: 360px
+
+  &--fullsize
+    .page-image
+      background-size: contain
+
+  &--hero
+    height: auto
+
+.page-intro
+  max-width: $max-width
+  font-size: $font-size-md
+  line-height: $line-height-md
+
+.page-info
+  background: $color-white
+  border: 1px solid $color-border
+  display: flex
+
+  .page-info-icon
+    background: $color-border
+    padding: $pad-sm $pad-lg
+    position: relative
+
+    i
+      left: calc(50% - 12px)
+      opacity: .25
+      position: absolute
+      top: calc(50% - 12px)
+
+  .page-info-content
+    padding: $pad-md
+
+    .page-info-content-label
+      font-weight: $bold
+      line-height: $line-height-sm
+
+    .page-info-content-filesize
+      color: $color-grey
+
+.caption
+  margin: 0 0 $pad-xs
+
+  &--do
+    .caption-bar
+      background-color: $color-do
+    .caption-label
+      color: $color-do
+
+  &--dont
+    .caption-bar
+      background-color: $color-dont
+    .caption-label
+      color: $color-dont
+
+  .caption-bar
+    height: 14px
+    margin-bottom: $pad-xs
+
+  .caption-label
+    font-weight: $bold
+
+.color-chip
+  background: $color-white
+  border: 1px solid $color-border
+  font-size: $font-size-sm
+  line-height: $line-height-sm
+  width: 150px
+
+  .color-chip-color
+    height: 70px
+    background: $color-border
+
+  .color-chip-name
+    border-top: 1px solid $color-border
+    padding: $pad-xs $pad-sm
+    font-weight: $bold
+    border-bottom: 1px solid $color-border
+
+  .color-chip-colors
+    color: $color-grey
+    padding: $pad-xs $pad-sm
+
+    span
+      display: inline-block
+      font-weight: $bold
+      padding-right: $pad-xs
+
 .page
 
   &-component-color
@@ -7,8 +117,6 @@
 
   &-document
     img
-      max-width: 100%
-
       + br + i,
       + i
         color: $color-grey
@@ -18,6 +126,14 @@
         line-height: $line-height-sm
         margin-bottom: $pad-lg
 
+    p
+      margin: 0 0 20px
+
+    p,
+    ol,
+    ul
+      max-width: $max-width
+
     table
       border-collapse: collapse
       width: 100%
@@ -25,8 +141,11 @@
       td
         vertical-align: top
 
+      &.cols-1
+        margin: $pad-md 0
+
       &.cols-2
-        td
+        & > tbody > tr > td
           width: 50%
 
           &:first-child
@@ -36,7 +155,7 @@
             padding-left: $pad-md
 
       &.cols-3
-        td
+        & > tbody > tr > td
           width: 33%
           padding: 0 $pad-md
 
@@ -52,10 +171,54 @@
     margin-top: $pad-xx
     padding-top: $pad-md
 
-  .page-document-data-table
+  [data-page-document-table--has-images]
+    & > tbody > tr > td
+      padding-bottom: $pad-lg !important
+
+  [data-page-document-table-size="2-col-wide"]
+    margin-bottom: $pad-lg
+
+    tr
+      td:first-child
+        width: 40%
+        padding-right: $pad-md
+
+      td:nth-child(2)
+        padding-left: $pad-md
+        width: 60%
+
+  .page-document-table-text
+    max-width: $max-width
+
+  .page-document-table--fixed
+    table-layout: fixed
+
+  .page-document-table--dodont
+    table-layout: fixed
+
+    tr
+      td
+        padding: 20px
+
+        &:first-child
+          padding-left: 0
+
+        &:last-child
+          padding-right: 0
+
+  table
+    .page-document-table--data
+      margin-bottom: $pad-xs
+
+  .page-document > .page-document-table--data
+      margin: 0 0 20px
+
+  .page-document-table--data
+    background: $color-white
     border: 1px solid $color-border
     font-size: $font-size-sm
     line-height: $line-height-sm
+    margin-top: 0 !important
 
     tr
       &:first-child

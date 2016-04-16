@@ -2,36 +2,43 @@
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
-{% macro render_menu_tree(resource, active_resource=None) %}
+{% macro render_menu_tree(resource, config, active_resource=None) %}
   {% if resource.resource_type == 'Folder'
-    and (resource.children['pages'] or resource.children['folders']) %}
+    and (resource.children['pages'] or resource.children['folders'])
+    and not resource.is_asset_folder %}
     {% set has_children = true %}
   {% else %}
     {% set has_children = false %}
   {% endif %}
-  <li class="{{"menu-item-child--open" if resource == active_resource}}"><a
-    href="{{resource.url}}"
+  {% set url = resource.url %}
+  {% if has_children %}
+    {% set url = "javascript:" %}
+  {% endif %}
+  <li class="{{"menu-item-child--open" if resource == active_resource or config.keep_folders_open}}"><a
+    href="{{url}}"
     class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource == active_resource}}"
     >{{resource.title}}
-    {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
+    {% if not config.keep_folders_open %}
+      {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
+    {% endif %}
     </a></li>
   {% if has_children %}
-    <ul class="menu-item--child {{"menu-item-child--open" if resource in [folder, page]}}">
+    <ul class="menu-item--child {{"menu-item-child--open" if resource in [folder, page] or config.keep_folders_open}}">
       {% for item in resource.children['folders'] %}
-        {{render_menu_tree(item, active_resource=active_resource)}}
+        {{render_menu_tree(item, config, active_resource=active_resource)}}
       {% endfor %}
       {% for item in resource.children['pages'] %}
-        {{render_menu_tree(item, active_resource=active_resource)}}
+        {{render_menu_tree(item, config, active_resource=active_resource)}}
       {% endfor %}
     </ul>
   {% endif %}
 {% endmacro %}
 
 {% macro render_admin_bar(resource) %}
-<div class="admin-bar">
+<div class="admin-bar" ng-controller="SyncController as ctrl">
   <a href="{{uri_for('admin')}}">Admin</a>
   <a href="{{resource.edit_url}}">Edit</a>
-  <a href="{{resource.sync_url}}">Sync</a>
+  <a href="javascript:" ng-click="ctrl.sync('{{resource.resource_id}}')">Sync</a>
   <a href="{{uri_for('delete', resource_id=resource.resource_id)}}">Delete</a>
 </div>
 {% endmacro %}

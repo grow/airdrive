@@ -3,15 +3,17 @@ $header-height: 70px
 
 .layout
   &-side
-    background: $color-light-bg
+    background: $color-side
     border-right: 1px solid $color-border
     bottom: 0
     box-sizing: border-box
     left: 0
-    position: fixed
     overflow-y: auto
+    position: fixed
     top: 0
+    transition: 250ms ease
     width: $side-width
+    z-index: 3
 
     &-top
       border-bottom: 1px solid $color-border
@@ -19,7 +21,7 @@ $header-height: 70px
       margin-bottom: $pad-md
       // height: $header-height
       box-sizing: border-box
-      padding: $pad-md
+      padding: $pad-md * .75 $pad-md
       line-height: $header-height - 2 * $pad-md
 
       a
@@ -32,7 +34,7 @@ $header-height: 70px
         // opacity: .5
 
       &-subtitle
-        display: none
+        margin-top: 5px
 
     &-bottom
       font-size: $font-size-sm
@@ -108,25 +110,82 @@ $header-height: 70px
         ul ul a
           padding-left: $pad-md * 2.5
 
+        ul ul ul a
+          padding-left: $pad-md * 3
+
+        ul ul ul ul a
+          padding-left: $pad-md * 3.5
+
   &-side + &-main
     left: $side-width
 
   &-main
-    position: fixed
     left: 0
     right: 0
     bottom: 0
     top: 0
+    transition: 250ms ease
 
     &-content
       bottom: 0
       box-sizing: border-box
-      left: 0
+      margin-left: 270px
       overflow: auto
-      padding: $pad-lg $pad-xx
-      position: absolute
+      padding: $header-height + $pad-lg $pad-xx
       right: 0
-      top: $header-height
+      transition: 250ms ease
+
+    &-footer
+      background: $color-brand
+      box-shadow: 0 2px 2px 0 rgba(0,0,0,.2)
+      margin-left: 270px
+      transition: 250ms ease
+
+      &:after
+        content: ' '
+        clear: both
+        display: table
+
+      .layout-main-footer-part
+        box-sizing: border-box
+        color: $color-text-on-brand
+        display: inline-block
+        float: left
+        font-size: 20px
+        font-weight: 500
+        line-height: 24px
+        position: relative
+        width: 50%
+
+        .layout-main-footer-part-caption
+          display: block
+          font-size: 15px
+          line-height: 18px
+          margin: 5px 0
+          opacity: .55
+
+        a
+          box-sizing: border-box
+          display: inline-block
+          padding: $pad-md $pad-lg $pad-lg * .75
+          color: $color-text-on-brand
+          width: 100%
+
+          i
+            position: absolute
+
+        &:first-child
+          padding-left: $pad-xx
+
+          i
+            margin-left: -40px
+
+        &:last-child
+          text-align: right
+          padding-right: $pad-xx
+
+          i
+            margin-left: 15px
 
     &-header
       background: $color-brand
@@ -134,17 +193,23 @@ $header-height: 70px
       box-sizing: border-box
       color: $color-text-on-brand
       height: $header-height
+      left: 270px
+      right: 0
       line-height: $header-height
+      transition: 250ms ease
       padding: 0 $pad-xx
-      position: relative
+      position: fixed
       z-index: 1
+
+      .layout-main-header-menu
+        display: none
 
       a:not(.btn)
         color: $color-text-on-brand
 
       &-title
         font-weight: $semibold
-        font-size: $font-size-lg
+        font-size: $font-size-title
         float: left
       
       &-side
@@ -152,3 +217,37 @@ $header-height: 70px
         font-size: $font-size-sm
         font-weight: $semibold
         text-align: right
+
+.body--drawer-enabled
+  .layout-side
+    left: -270px
+
+  .layout-main,
+  .layout-main-content,
+  .layout-main-footer
+    margin-left: 0
+
+  .layout-main-header
+    left: 0
+    padding: 0 $pad-lg 0 0
+
+    .layout-main-header-menu
+      cursor: pointer
+      display: inline-block
+      float: left
+      padding: 23px
+      vertical-align: middle
+
+.body--drawer-open
+  .layout-side
+    left: 0
+
+  .layout-main-mask
+    background: rgba(0,0,0,0.5)
+    bottom: 0
+    height: 100%
+    left: 0
+    position: fixed
+    top: 0;
+    width: 100%
+    z-index: 2

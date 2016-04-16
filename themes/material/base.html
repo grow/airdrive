@@ -14,37 +14,55 @@
   <title>{{config.CONFIG.title}}</title>
 </head>
 <body>
+  <script>
+    airpress.menu.updateSidebar();
+  </script>
   <div class="layout">
     {% if enable_sidebar is not sameas false %}
     <div class="layout-side">
       <div class="layout-side-top">
         <a href="{{uri_for('home')}}">
           {% if config.CONFIG.logo %}
-            <img src="{{macros.asset(config.CONFIG.logo)}}" class="layout-side-top-logo">
+          <img src="{{macros.asset(config.CONFIG.logo)}}" class="layout-side-top-logo" {% if config.CONFIG.sidebar_logo_style %}style="{{config.CONFIG.sidebar_logo_style}}"{% endif %}>
           {% elif config.CONFIG.logo_url %}
-            <img src="{{config.CONFIG.logo_url}}" class="layout-side-top-logo">
-          {% else %}
-            {{config.CONFIG.title or config.CONFIG.sidebar_title}}
+            <img src="{{config.CONFIG.logo_url}}" class="layout-side-top-logo" {% if config.CONFIG.sidebar_logo_style %}style="{{config.CONFIG.sidebar_logo_style}}"{% endif %}>
+          {% endif %}
+          {% if not config.CONFIG.logo_url or config.CONFIG.sidebar_subtitle %}
+            <div class="layout-side-top-subtitle"
+              {% if config.CONFIG.sidebar_subtitle_style %}
+              style="{{config.CONFIG.sidebar_subtitle_style}}"
+              {% endif %}
+              >
+              {% if config.CONFIG.sidebar_subtitle
+                  and (config.CONFIG.logo or config.CONFIG.logo_url) %}
+                {{config.CONFIG.sidebar_subtitle}}
+              {% else %}
+                {{config.CONFIG.title or config.CONFIG.sidebar_title}}
+              {% endif %}
+            </div>
           {% endif %}
         </a>
-        <div class="layout-side-top-subtitle">{{config.CONFIG.sidebar_title|safe}}</div>
       </div>
       {% block side %}
 
-        <ul class="menu menu--hidden">
-          {% set items = folders[0]['children']['items'] %}
-          {% for item in items %}
-            {{macros.render_menu_tree(item, active_resource=(folder or page))}}
-          {% endfor %}
-        </ul>
-
-        <div class="layout-side-bordered">
           <ul class="menu menu--hidden">
-          {% for item in folders[1:] %}
-            {{macros.render_menu_tree(item, active_resource=(folder or page))}}
-          {% endfor %}
+            {% if folders %}
+              {% set items = folders[0]['children']['items'] %}
+              {% for item in items %}
+                {{macros.render_menu_tree(item, config.CONFIG, active_resource=(folder or page))}}
+              {% endfor %}
+            {% endif %}
           </ul>
-        </div>
+
+          <div class="layout-side-bordered">
+            <ul class="menu menu--hidden">
+            {% if folders %}
+              {% for item in folders[1:] %}
+                {{macros.render_menu_tree(item, config.CONFIG, active_resource=(folder or page))}}
+              {% endfor %}
+            {% endif %}
+            </ul>
+          </div>
 
         <script>
           airpress.menu.init();
@@ -57,28 +75,39 @@
     </div>
     {% endif %}
     <div class="layout-main">
-      <div class="layout-main-header">
-        {% if enable_sidebar is sameas false %}
-          <div class="contained contained--sm">
-        {% endif %}
-        <div class="layout-main-header-title">
-          {{title}}
-        </div>
-        <div class="layout-main-header-side">
-          {% if me.registered %}
-            <a href="{{uri_for('settings')}}">{{me.email}}</a> | <a href="{{urls.sign_out()}}">Sign out</a>
-          {% else %}
-            <a href="{{urls.sign_in()}}" class="btn btn--sm btn--inverted">Sign in</a>
+      <div class="layout-main-mask"></div>
+      {% if enable_header is not sameas false %}
+        <div class="layout-main-header" data-scroll-header>
+          {% if enable_sidebar is not sameas false %}
+          <i class="material-icons layout-main-header-menu">menu</i>
+          {% endif %}
+          {% if enable_sidebar is sameas false %}
+            <div class="contained contained--sm">
+          {% endif %}
+          <div class="layout-main-header-title">
+            {{title}}
+          </div>
+          <div class="layout-main-header-side">
+            {% if me.registered %}
+              <a href="{{uri_for('settings')}}">{{me.email}}</a> | <a href="{{urls.sign_out()}}">Sign out</a>
+            {% else %}
+              <a href="{{urls.sign_in()}}" class="btn btn--sm btn--inverted">Sign in</a>
+            {% endif %}
+          </div>
+          {% if enable_sidebar is sameas false %}
+            </div>
           {% endif %}
         </div>
-        {% if enable_sidebar is sameas false %}
-          </div>
-        {% endif %}
-      </div>
+      {% endif %}
       <div class="layout-main-content">
         {% block main %}
         {% endblock %}
       </div>
+      {% block footer %}
+      {% endblock %}
     </div>
   </div>
   {% block body_base %}{% endblock %}
+  <script>
+    airpress.main();
+  </script>
