@@ -1,5 +1,6 @@
 from . import assets
 from . import folders
+from . import models
 from . import pages
 from google.appengine.api import channel
 from google.appengine.api import memcache
@@ -56,10 +57,14 @@ def update_channel(user, message):
   logging.info(message)
 
 
-def download_folder(resource_id):
+def download_folder(resource_id, process_deletes=True):
   service = get_service()
   page_token = None
   child_resource_responses = []
+  current_folder = folders.Folder.get(resource_id)
+  current_children = []
+  if current_folder:
+    current_children = current_folder.list_children()
   while True:
     params = {}
     if page_token:
@@ -71,6 +76,15 @@ def download_folder(resource_id):
     page_token = children.get('nextPageToken')
     if not page_token:
       break
+  final_children = child_resource_responses
+  final_children_ids = [child['id'] for child in child_resource_responses]
+  resources_to_delete = []
+  for child_ent in current_children['items']:
+    if child_ent.resource_id not in final_children_ids:
+      resources_to_delete.append(child_ent)
+  if resources_to_delete:
+    logging.info('Deleting: {}'.format(resources_to_delete))
+    models.Model.delete_multi(resources_to_delete)
   return child_resource_responses
 
 

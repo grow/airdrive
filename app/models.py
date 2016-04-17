@@ -12,6 +12,7 @@ class Model(ndb.Model):
   synced = ndb.DateTimeProperty()
   draft = ndb.BooleanProperty()
   hidden = ndb.BooleanProperty()
+  color = ndb.StringProperty()
 
   @property
   def resource_type(self):
@@ -66,23 +67,18 @@ class Model(ndb.Model):
 
   @classmethod
   def _parse_title(cls, unprocessed_title):
-    match = re.findall('\[([^\]]*)\] (.*)', unprocessed_title)
     title = unprocessed_title
-    weight = None
-    draft = 'DRAFT' in title
-    hidden = 'HIDDEN' in title
-    if match:
-      title = match[0][1]
-      try:
-        weight = float(match[0][0])
-      except ValueError:
-        weight = None
-    title = title.replace('DRAFT', '') if draft else title
-    title = title.strip()
-    return (title, weight, draft, hidden)
+    order_matches = re.findall('^\[([-+]?\d*\.?\d+?|\d+?)\]', unprocessed_title)
+    draft = '[draft]' in title
+    hidden = '[hidden]' in title
+    weight = float(order_matches[0]) if order_matches else None
+    color_matches = re.findall('\[color\|([^\]]*)\]', title)
+    color = color_matches[0] if color_matches else None
+    title = re.sub('\[[^\]]*\]', '', title).strip()
+    return (title, weight, draft, hidden, color)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden = self._parse_title(unprocessed_title)
+    self.title, self.weight, self.draft, self.hidden, self.color = self._parse_title(unprocessed_title)
 
   @property
   def ident(self):
@@ -95,6 +91,10 @@ class Model(ndb.Model):
 
   def delete(self):
     self.key.delete()
+
+  @classmethod
+  def delete_multi(cls, ents):
+    return ndb.Key.delete_multi([ent.key for ent in ents])
 
   @classmethod
   def get_multi(cls, messages):

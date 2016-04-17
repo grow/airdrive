@@ -22,6 +22,9 @@ class Page(models.Model):
   unprocessed_html = ndb.TextProperty()
   locale = ndb.StringProperty()
 
+  def __repr__(self):
+    return '[Page: {} ({})]'.format(self.title, self.resource_id)
+
   @classmethod
   def process(cls, resp):
     resource_id = resp['id']

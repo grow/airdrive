@@ -38,6 +38,7 @@
 <div class="admin-bar" ng-controller="SyncController as ctrl">
   <a href="{{uri_for('admin')}}">Admin</a>
   <a href="{{resource.edit_url}}">Edit</a>
+  <a href="javascript:" ng-click="ctrl.sync('{{resource.parent.resource_id}}')">Sync Folder</a>
   <a href="javascript:" ng-click="ctrl.sync('{{resource.resource_id}}')">Sync</a>
   <a href="{{uri_for('delete', resource_id=resource.resource_id)}}">Delete</a>
 </div>

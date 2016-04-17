@@ -11,7 +11,16 @@
   {% if config.CONFIG.favicon_url %}
   <link rel="shortcut icon" href="{{config.CONFIG.favicon_url}}">
   {% endif %}
-  <title>{{config.CONFIG.title}}</title>
+  <title>{{title}} – {{config.CONFIG.title}}</title>
+  <style>
+    * {
+      {% if page %}
+        --color-brand: {{page.color or page.parent.color or "#039BE5"}};
+      {% else %}
+        --color-brand: #039BE5;
+      {% endif %}
+    }
+  </style>
 </head>
 <body>
   <script>
