@@ -25,6 +25,11 @@ class Page(models.Model):
   def __repr__(self):
     return '[Page: {} ({})]'.format(self.title, self.resource_id)
 
+  def __eq__(self, other):
+    return (
+        isinstance(other, Page)
+        and self.key.id() == other.key.id())
+
   @classmethod
   def process(cls, resp):
     resource_id = resp['id']

@@ -42,7 +42,7 @@ def update_nav(folder):
 def get_sibling(page, next=True):
   nav = get_nav()
   for n, folder in enumerate(nav):
-    page_items = folder['children'].get('pages', [])
+    page_items = folder['children']['pages']
     for i, page_item in enumerate(page_items):
       if page == page_item:
         if next:
