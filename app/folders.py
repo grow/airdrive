@@ -13,6 +13,51 @@ MAIN_FOLDER_ID = CONFIG['folder']
 EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
 
 
+def get_nav():
+  nav = memcache.get('nav')
+  if nav is None:
+    nav = create_nav()
+  return nav
+
+
+def create_nav():
+  nav = []
+  root_folders = Folder.list(parent=MAIN_FOLDER_ID, use_cache=True)
+  for root_folder in root_folders:
+    nav.append(update_nav(root_folder))
+  memcache.set('nav', nav)
+  return nav
+
+
+def update_nav(folder):
+  root = {}
+  children = folder.list_children()
+  root['folder'] = folder
+  root['children'] = children
+  for i, sub_folder in enumerate(children['folders']):
+    children['folders'][i] = update_nav(sub_folder)
+  return root
+
+
+def get_sibling(page, next=True):
+  nav = get_nav()
+  for n, folder in enumerate(nav):
+    page_items = folder['children'].get('pages', [])
+    for i, page_item in enumerate(page_items):
+      if page == page_item:
+        if next:
+          if i + 1 == len(page_items):
+            if n + 1 == len(nav):
+              return None
+            return nav[n + 1]['children']['pages'][0]
+          return page_items[i + 1]
+        if i - 1 < 0:
+          if n - 1 < 0:
+            return None
+          return nav[n - 1]['children']['pages'][-1]
+        return page_items[i - 1]
+
+
 class Folder(models.Model):
   updated = ndb.DateTimeProperty(auto_now=True)
   build = ndb.IntegerProperty()
@@ -145,17 +190,3 @@ class Folder(models.Model):
   def update(self, message):
     self.color = message.color
     self.put()
-
-#  @classmethod
-#  def create_menu(cls):
-#    menu = {
-#        'top': [],
-#        'folders': [],
-#    }
-#
-#    def _handle(items, is_top=False):
-#      for item in items:
-#        if item.weight == -1 and is_top:
-#
-#    ents = cls.list(parent=MAIN_FOLDER_ID)
-#    _handle(ents, is_top=True)

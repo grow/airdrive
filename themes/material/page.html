@@ -49,16 +49,22 @@
 {% block footer %}
 <div class="layout-main-footer">
   <div class="layout-main-footer-part">
-    <a href="#">
-      <span class="layout-main-footer-part-caption">Previous</span>
-      <span><i class="material-icons arrow-R">arrow_backward</i> Title</span>
-    </a>
+    {% set prev = get_sibling(page, next=false) %}
+    {% if prev %}
+      <a href="{{prev.url}}">
+        <span class="layout-main-footer-part-caption">Previous</span>
+        <span><i class="material-icons arrow-R">arrow_backward</i> {{prev.title}}</span>
+      </a>
+    {% endif %}
   </div>
-  <div class="layout-main-footer-part">
-    <a href="#">
-      <span class="layout-main-footer-part-caption">Next</span>
-      <span>Title <i class="material-icons arrow-R">arrow_forward</i></span>
-    </a>
+  <div class="layout-main-footer-part layout-main-footer-part--next">
+    {% set next = get_sibling(page, next=true) %}
+    {% if next %}
+      <a href="{{next.url}}">
+        <span class="layout-main-footer-part-caption">Next</span>
+        <span>{{next.title}} <i class="material-icons arrow-R">arrow_forward</i></span>
+      </a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

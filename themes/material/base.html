@@ -55,8 +55,8 @@
       {% block side %}
 
           <ul class="menu menu--hidden">
-            {% if folders %}
-              {% set items = folders[0]['children']['items'] %}
+            {% if nav %}
+              {% set items = nav[0]['children']['items'] %}
               {% for item in items %}
                 {{macros.render_menu_tree(item, config.CONFIG, active_resource=(folder or page))}}
               {% endfor %}
@@ -65,8 +65,8 @@
 
           <div class="layout-side-bordered">
             <ul class="menu menu--hidden">
-            {% if folders %}
-              {% for item in folders[1:] %}
+            {% if nav %}
+              {% for item in nav[1:] %}
                 {{macros.render_menu_tree(item, config.CONFIG, active_resource=(folder or page))}}
               {% endfor %}
             {% endif %}

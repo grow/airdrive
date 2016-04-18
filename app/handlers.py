@@ -79,11 +79,8 @@ class Handler(airlock.Handler):
     params['uri_for'] = self.uri_for
     params['statuses'] = messages.Status
     params['get_resource'] = folders.Folder.get_resource
-
-    params['folders'] = []
-    folder_ents = folders.Folder.list(parent=MAIN_FOLDER_ID, use_cache=True)
-    params['folders'] = folder_ents
-
+    params['nav'] = folders.get_nav()
+    params['get_sibling'] = folders.get_sibling
     template = JINJA.get_template(path)
     html = template.render(params)
     self.response.out.write(html)
