@@ -55,20 +55,21 @@ class Handler(airlock.Handler):
   def settings(self):
     return settings.Settings.singleton()
 
-  def is_admin(self):
-    if appengine_config.OFFLINE:
-      return True
+  def is_admin(self, redirect=True):
     if not self.me.is_registered:
-      self.redirect(self.urls.sign_in())
-      return
-    try:
-      self.require_admin(admins.Admin.is_admin)
-    except airlock.errors.ForbiddenError:
-      self.error(403)
-      html = 'Forbbiden. <a href="{}">Sign out</a>.'.format(self.urls.sign_out())
-      self.response.out.write(html)
-      return
-    return True
+      if redirect:
+        self.redirect(self.urls.sign_in())
+      return False
+    return admins.Admin.is_admin(self.me.email)
+#    try:
+#      self.require_admin(admins.Admin.is_admin)
+#    except airlock.errors.ForbiddenError:
+#      if redirect:
+#        self.error(403)
+#        html = 'Forbbiden. <a href="{}">Sign out</a>.'.format(self.urls.sign_out())
+#        self.response.out.write(html)
+#      return False
+#    return True
 
   def render_template(self, path, params=None):
     params = params or {}
@@ -81,6 +82,7 @@ class Handler(airlock.Handler):
     params['get_resource'] = folders.Folder.get_resource
     params['nav'] = folders.get_nav()
     params['get_sibling'] = folders.get_sibling
+    params['is_admin'] = self.is_admin(redirect=False)
     template = JINJA.get_template(path)
     html = template.render(params)
     self.response.out.write(html)
@@ -89,6 +91,9 @@ class Handler(airlock.Handler):
 class FolderHandler(Handler):
 
   def get(self, folder_slug, resource_id):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
     folder = folders.Folder.get(resource_id)
     if folder is None:
       self.error(404)
@@ -111,7 +116,7 @@ class PageHandler(Handler):
       return
     params = {
         'page': page,
-        'pretty_html': page.pretty_html,
+        'pretty_html': page.get_processed_html(),
     }
     self.render_template('page.html', params)
 
@@ -134,17 +139,6 @@ class MainFolderHandler(Handler):
 
 class HomepageHandler(Handler):
 
-  def post(self):
-    if not self.me.is_registered:
-      self.redirect(self.urls.sign_in(webapp2.uri_for('home')))
-      return
-    form_dict = dict(self.request.POST)
-    if 'email_opt_in' in form_dict:
-      form_dict['email_opt_in'] = True
-    approval_form_message = approvals.Approval.decode_form(form_dict)
-    approvals.Approval.create(approval_form_message, self.me)
-    self.get()
-
   def get(self):
     params = {
         'content': get_config_content('welcome.html'),
@@ -161,6 +155,21 @@ class HomepageHandler(Handler):
     self.render_template('interstitial.html', params)
 
 
+class ThumbnailDownloadHandler(Handler):
+
+  def get(self, resource_id):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in())
+      return
+    asset = assets.Asset.get(resource_id)
+    if asset is None or asset.gcs_thumbnail_path is None:
+      self.error(404)
+      return
+    blob_key = asset.create_blob_key(thumbnail=True)
+    self.response.headers['Content-Type'] = 'image/png'
+    self.response.headers['X-AppEngine-BlobKey'] = blob_key
+
+
 class AssetDownloadHandler(Handler):
 
   def get(self, resource_id):
@@ -168,12 +177,14 @@ class AssetDownloadHandler(Handler):
       self.redirect(self.urls.sign_in())
       return
     asset = assets.Asset.get(resource_id)
-    if asset is None:
+    if asset is None or asset.gcs_path is None:
       self.error(404)
       return
     downloads.Download.create(self.me, asset)
-    self.response.status = 302
-    self.response.headers['Location'] = str(asset.url)
+    blob_key = asset.create_blob_key()
+    self.response.headers['X-AppEngine-BlobKey'] = blob_key
+    self.response.headers['Content-Type'] = str(asset.mimetype)
+    self.response.headers['Content-Disposition'] = 'attachment; filename={}'.format(asset.title)
 
 
 class SettingsHandler(Handler):
@@ -296,30 +307,3 @@ class DeleteHandler(Handler):
       if folder:
         folder.delete()
         self.response.out.write('deleted')
-
-
-class DynamicAssetHandler(Handler):
-
-  def get(self, base):
-    raise
-    path = os.path.join(_dist_path, base)
-    logging.info(path)
-    try:
-      stat = os.stat(path)
-    except (OSError, IOError):
-      self.response.status_int = 404
-      self.response.out.write('Not found.')
-      return
-    time_obj = datetime.fromtimestamp(stat.st_ctime).timetuple()
-    mimetype = mimetypes.guess_type(path)[0]
-    headers = {'Content-Type': mimetype or ''}
-    datetime_format = '%a, %d %b %Y %H:%M:%S GMT'
-    headers['Last-Modified'] = time.strftime(datetime_format, time_obj)
-    headers['ETag'] = '"{}"'.format(headers['Last-Modified'])
-    request_etag = self.request.headers.get('If-None-Match')
-    if headers['ETag'] == request_etag:
-      self.response.status_int = 304
-      return
-    fp = open(path)
-    self.response.headers.update(headers)
-    self.response.out.write(fp.read())

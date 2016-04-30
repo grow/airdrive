@@ -45,15 +45,45 @@ airpress.ng.ApprovalsController = function($scope) {
 };
 
 
-airpress.ng.ApprovalsController.prototype.createApprovals = function(users) {
+airpress.ng.ApprovalsController.prototype.createApprovals =
+    function(users, sendEmail) {
   airpress.rpc('admins.directly_add_users', {
-    'users': users
+    'users': users,
+    'send_email': sendEmail
   }).done(
       function(resp) {
-    this.approvals = resp['approvals'].concat(this.approvals);
+    var approvalsToSet = resp['approvals'];
+    this.approvals.forEach(function(approval) {
+      var addApproval = true;
+      approvalsToSet.forEach(function(approvalToSet) {
+        if (approval['ident'] == approvalToSet['ident']) {
+          addApproval = false;
+        }
+      });
+      if (addApproval) {
+        approvalsToSet.push(approval);
+      }
+    });
+    this.approvals = approvalsToSet;
     this.$scope.$apply();
   }.bind(this));
 
+};
+
+
+airpress.ng.ApprovalsController.prototype.deleteApproval = function(ident) {
+  var approvals = [{
+    'ident': ident
+  }];
+  airpress.rpc('admins.delete_approvals', {
+    'approvals': approvals
+  }).done(
+      function(resp) {
+    this.approvals = this.approvals.filter(function(item) {
+      return item['ident'] != ident;
+    });
+    this.$scope.$apply();
+  }.bind(this));
 };
 
 
@@ -66,12 +96,13 @@ airpress.ng.ApprovalsController.prototype.searchApprovals = function() {
 };
 
 
-airpress.ng.ApprovalsController.prototype.submit = function(emailsInput) {
+airpress.ng.ApprovalsController.prototype.submit =
+    function(emailsInput, sendEmail) {
   var users = [];
   emailsInput.split(',').forEach(function(email) {
     users.push({'email': email.trim()});
   });
-  this.createApprovals(users);
+  this.createApprovals(users, sendEmail);
 };
 
 
@@ -134,6 +165,47 @@ airpress.ng.FoldersController.prototype.searchFolders = function() {
 };
 
 
+airpress.ng.FoldersController.prototype.sync = function(resourceId) {
+  this.addToLog('Syncing...');
+  airpress.rpc('admins.sync', {
+    'resources': [{'resource_id': resourceId}]
+  }).done(function(resp) {
+    this.updateChannel(resp['token']);
+  }.bind(this));
+};
+
+
+airpress.ng.FoldersController.prototype.syncAll = function() {
+  this.addToLog('Syncing...');
+  airpress.rpc('admins.sync_all', {}).done(function(resp) {
+    this.updateChannel(resp['token']);
+  }.bind(this));
+};
+
+
+airpress.ng.FoldersController.prototype.addToLog = function(message) {
+  var logEl = document.getElementById('sync-log');
+  if (logEl.textContent) {
+    logEl.appendChild(document.createElement('br'));
+  }
+  logEl.appendChild(document.createTextNode(message));
+};
+
+
+airpress.ng.FoldersController.prototype.updateChannel = function(token) {
+  var channel = new goog.appengine.Channel(token);
+  socket = channel.open();
+  socket.onmessage = function(message) {
+    if (message['data']) {
+      var data = message['data'];
+      data = JSON.parse(data);
+      this.addToLog(data['message']);
+    }
+  }.bind(this);
+  return socket;
+};
+
+
 airpress.ng.ApprovalController = function($scope, $element) {
   this.$scope = $scope;
   var ident = $element[0].getAttribute('data-approval-ident');
@@ -151,17 +223,28 @@ airpress.ng.ApprovalController.prototype.getApproval = function(ident) {
     this.approval = resp['approval'];
     this.$scope.$apply();
   }.bind(this));
-
-  rpc('votes.vote_up').done(function(resp) {
-    console.log(resp);
-  });
 };
 
 
-airpress.ng.SyncController = function() {
+airpress.ng.SyncController = function($scope) {
+  this.success = false;
+  this.error = false;
+  this.loading = false;
+  this.$scope = $scope;
 };
 
 
 airpress.ng.SyncController.prototype.sync = function(resourceId) {
-  airpress.sync.sync(resourceId);
+  this.loading = true;
+  this.success = false;
+  this.error = false;
+  airpress.sync.sync(resourceId).done(function(resp) {
+    this.loading = false;
+    this.success = true;
+    this.$scope.$apply();
+  }.bind(this)).fail(function(resp) {
+    this.error = true;
+    this.loading = false;
+    this.success = false;
+  }.bind(this));
 };

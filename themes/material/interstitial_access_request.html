@@ -91,7 +91,11 @@
 
         <div class="form-field">
           <label class="form-field-label">Which folders do you need to access?</label>
-          {% for folder in folders %}
+          {% for item in nav[1:] %}
+            {% if 'folder' not in item %}
+            {% continue %}
+            {% endif %}
+            {% set folder = item['folder'] %}
             {# Do not include "overview" folder. #}
             {% if folder.weight == -1 %}{% continue %}{% endif %}
             <div>

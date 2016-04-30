@@ -3,10 +3,9 @@
   color: $color-grey
 
 .page-image--hero
-  max-width: 100%
+  width: 100%
 
 .page-image-container
-  background: $color-white
   height: 360px
   margin: 0 0 $pad-sm
   position: relative
@@ -15,6 +14,7 @@
   .page-image
     background-position: center
     background-repeat: no-repeat
+    background-size: contain
     height: 100%
     position: absolute
     width: 100%
@@ -22,12 +22,20 @@
   &--singlecolumn
     width: 360px
 
+  &--fullwidth
+    background: clear
+    height: auto
+
+    img
+      width: 100%
+
   &--fullsize
     .page-image
       background-size: contain
 
   &--hero
-    height: auto
+    background: transparent
+    height: inherit
 
 .page-intro
   max-width: $max-width
@@ -112,6 +120,23 @@
 
 .page
 
+  ol[class$="-1"],
+  ol[class$="-1 start"]
+    box-sizing: border-box
+    padding-left: 80px
+    list-style-type: lower-alpha
+
+  ol[class$="-2"],
+  ol[class$="-2 start"]
+    box-sizing: border-box
+    padding-left: 120px
+    list-style-type: upper-roman
+
+  ol[class$="-3"],
+  ol[class$="-3 start"]
+    box-sizing: border-box
+    padding-left: 160px
+
   &-component-color
     border-radius: 3px
     display: block
@@ -132,6 +157,8 @@
       margin: 0 0 20px
 
     .page-info,
+    h2,
+    h3,
     p,
     ol,
     ul
@@ -158,15 +185,12 @@
             padding-left: $pad-md
 
       &.cols-3
+        width: calc(100% + 40px);
+        margin-left: -$pad-md;
+
         & > tbody > tr > td
           width: 33%
           padding: 0 $pad-md
-
-          &:first-child
-            padding-left: 0
-
-          &:last-child
-            padding-right: 0
 
   &-meta
     color: $color-grey
@@ -223,19 +247,20 @@
     line-height: $line-height-sm
     margin-top: 0 !important
 
-    tr
-      &:first-child
-        td
-          background-color: $color-light-bg
-          color: $color-grey-alt
-          font-weight: $bold
-
-      td
-        border: 1px solid $color-border
-        padding: 6px 12px
-
+    &:not(.page-document-table--no-header)
+      tr
         &:first-child
-          width: 150px
+          td
+            background-color: $color-light-bg
+            color: $color-grey-alt
+            font-weight: $bold
 
-        p
-          margin: 0
+    td
+      border: 1px solid $color-border
+      padding: 6px 12px
+
+      &:first-child
+        width: 150px
+
+      p
+        margin: 0

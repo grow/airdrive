@@ -1,3 +1,4 @@
+import appengine_config
 from . import admins
 from . import approvals
 from . import folders
@@ -47,7 +48,7 @@ class AdminService(airlock.Service):
   @remote.method(messages.ApprovalsMessage,
                  messages.ApprovalsMessage)
   def search_approvals(self, request):
-    # self.require_admin()
+    self.require_admin()
     ents, next_cursor, has_more = approvals.Approval.search()
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in ents]
@@ -56,7 +57,7 @@ class AdminService(airlock.Service):
   @remote.method(messages.ApprovalsMessage,
                  messages.ApprovalsMessage)
   def delete_approvals(self, request):
-#    self.require_admin()
+    self.require_admin()
     ents = approvals.Approval.get_multi(request.approvals)
     approvals.Approval.delete_multi(request.approvals)
     resp = messages.ApprovalsMessage()
@@ -66,7 +67,7 @@ class AdminService(airlock.Service):
   @remote.method(messages.AdminsMessage,
                  messages.AdminsMessage)
   def create_admins(self, request):
-#    self.require_admin()
+    self.require_admin()
     ents = admins.Admin.create_multi(request.admins, created_by=self.me)
     resp = messages.AdminsMessage()
     resp.admins = [ent.to_message() for ent in ents]
@@ -75,7 +76,7 @@ class AdminService(airlock.Service):
   @remote.method(messages.AdminsMessage,
                  messages.AdminsMessage)
   def delete_admins(self, request):
-#    self.require_admin()
+    self.require_admin()
     ents = admins.Admin.get_multi(request.admins)
     admins.Admin.delete_multi(request.admins)
     resp = messages.AdminsMessage()
@@ -85,17 +86,20 @@ class AdminService(airlock.Service):
   @remote.method(messages.AdminsMessage,
                  messages.AdminsMessage)
   def search_admins(self, request):
-#    self.require_admin()
+    self.require_admin()
     ents = admins.Admin.search()
     resp = messages.AdminsMessage()
     resp.admins = [ent.to_message() for ent in ents]
     return resp
 
-  @remote.method(messages.UsersMessage,
+  @remote.method(messages.DirectlyAddUsersMessage,
                  messages.ApprovalsMessage)
   def directly_add_users(self, request):
+    self.require_admin()
     emails = [user.email for user in request.users]
-    approval_ents = users.User.direct_add_users(emails, created_by=self.me)
+    send_email = request.send_email
+    approval_ents = users.User.direct_add_users(
+        emails, created_by=self.me, send_email=send_email)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
     return resp
@@ -103,6 +107,7 @@ class AdminService(airlock.Service):
   @remote.method(messages.FoldersMessage,
                  messages.FoldersMessage)
   def update_folders(self, request):
+    self.require_admin()
     ents = folders.Folder.get_multi(request.folders)
     for i, folder in enumerate(request.folders):
       ents[i].update(folder, updated_by=self.me)
@@ -113,7 +118,7 @@ class AdminService(airlock.Service):
   @remote.method(messages.FoldersMessage,
                  messages.FoldersMessage)
   def search_folders(self, request):
-#    self.require_admin()
+    self.require_admin()
     ents = folders.Folder.search()
     resp = messages.FoldersMessage()
     resp.folders = [ent.to_message() for ent in ents]
@@ -122,10 +127,22 @@ class AdminService(airlock.Service):
   @remote.method(messages.SyncMessage,
                  messages.SyncMessage)
   def sync(self, request):
+    self.require_admin()
     resp = messages.SyncMessage()
     for resource in request.resources:
       resource_id = resource.resource_id
       token = sync.download_resource(
           resource_id, self.me, create_channel=True)
       resp.token = token
+    return resp
+
+  @remote.method(messages.SyncMessage,
+                 messages.SyncMessage)
+  def sync_all(self, request):
+    self.require_admin()
+    resp = messages.SyncMessage()
+    CONFIG = appengine_config.CONFIG
+    MAIN_FOLDER_ID = CONFIG['folder']
+    token = sync.download_resource(MAIN_FOLDER_ID, self.me)
+    resp.token = token
     return resp

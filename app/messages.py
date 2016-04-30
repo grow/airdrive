@@ -27,6 +27,8 @@ class FolderMessage(messages.Message):
   edit_url = messages.StringField(6)
   sync_url = messages.StringField(7)
   url = messages.StringField(8)
+  resource_id = messages.StringField(9)
+  draft = messages.BooleanField(10)
 
 
 class FoldersMessage(messages.Message):
@@ -83,6 +85,11 @@ class AdminsMessage(messages.Message):
 
 class UsersMessage(messages.Message):
   users = messages.MessageField(UserMessage, 1, repeated=True)
+
+
+class DirectlyAddUsersMessage(messages.Message):
+  users = messages.MessageField(UserMessage, 1, repeated=True)
+  send_email = messages.BooleanField(2)
 
 
 class SettingsFormMessage(messages.Message):

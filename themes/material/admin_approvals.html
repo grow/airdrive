@@ -6,9 +6,12 @@
 <h2>Direct add users</h2>
 
 <div ng-controller="ApprovalsController as ctrl" ng-cloak>
-  <form ng-submit="ctrl.submit(ctrl.emails)" class="form">
+  <form ng-submit="ctrl.submit(ctrl.emails, ctrl.sendEmail)" class="form">
     <div class="form-field">
-      <textarea class="form-field-control" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
+      <textarea class="form-field-control form-field-control--wide" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
+    </div>
+    <div class="form-field">
+      <label><input type="checkbox" ng-model="ctrl.sendEmail">Send email notification to added users</label>
     </div>
     <div class="form-field">
       <button class="btn btn--sm" type="submit" role="button">Add users</button>
@@ -25,17 +28,16 @@
 
   <table class="table">
     <thead>
-      <th>Status</th>
+      <th></th>
       <th>Email</th>
       <th>Date</th>
       <th>Approved by</th>
+      <th>Action</th>
     </thead>
     <tbody>
         <tr ng-repeat="approval in ctrl.approvals">
           <td>
-            <select onchange="ctrl.updateApprovalStatus(approval.ident, this.options[this.selectedIndex].value)">
-              <option value="DELETED">Delete</option>
-            </select>
+            <input type="checkbox">
           </td>
           <td>
             <a ng-href="./[[approval.ident]]/">[[approval.user.email]]</a>
@@ -44,6 +46,9 @@
             [[approval.created]]
           </td>
           <td>[[approval.updated_by.email]]</td>
+          <td>
+            <a href="javascript:" ng-click="ctrl.deleteApproval(approval.ident)">Delete</a>
+          </td>
         </tr>
         {#
       {% else %}

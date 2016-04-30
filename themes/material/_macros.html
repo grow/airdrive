@@ -2,48 +2,58 @@
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
-{% macro render_menu_tree(resource, config, active_resource=None) %}
-  {% if resource['folder'] %}
+{% macro render_menu_tree(resource, config, active_resource_id=None) %}
+  {% if 'folder' in resource and resource['folder'] %}
     {% set resource = resource['folder'] %}
   {% endif %}
-  {% if resource.resource_type == 'Folder'
-    and (resource.children['pages'] or resource.children['folders'])
-    and not resource.is_asset_folder %}
+  {% if 'children' in resource and not resource['is_asset_folder'] %}
     {% set has_children = true %}
+    {% set url = "javascript:" %}
   {% else %}
     {% set has_children = false %}
+    {% set url = resource['url'] %}
   {% endif %}
-  {% set url = resource.url %}
-  {% if has_children %}
-    {% set url = "javascript:" %}
-  {% endif %}
-  <li class="{{"menu-item-child--open" if resource == active_resource or config.keep_folders_open}}"><a
+  <li class="{{"menu-item-child--open" if resource['resource_id'] == active_resource_id or config.keep_folders_open}}"><a
     href="{{url}}"
-    class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource == active_resource}}"
-    >{{resource.title}}
+    class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource['resource_id'] == active_resource_id and not has_children}}"
+    >{{resource['title']}}
     {% if not config.keep_folders_open %}
       {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
     {% endif %}
     </a></li>
   {% if has_children %}
-    <ul class="menu-item--child {{"menu-item-child--open" if resource in [folder, page] or config.keep_folders_open}}">
-      {% for item in resource.children['folders'] %}
-        {{render_menu_tree(item, config, active_resource=active_resource)}}
-      {% endfor %}
-      {% for item in resource.children['pages'] %}
-        {{render_menu_tree(item, config, active_resource=active_resource)}}
+    <ul class="menu-item--child {{"menu-item-child--open"
+      if (folder and resource['resource_id'] in folder.resource_id
+            or page and resource['resource_id'] in page.resource_id)
+          or config.keep_folders_open}}">
+      {% for item in resource['children']['items']|sort(attribute='weight') %}
+        {{render_menu_tree(item, config, active_resource_id=active_resource_id)}}
       {% endfor %}
     </ul>
   {% endif %}
 {% endmacro %}
 
 {% macro render_admin_bar(resource) %}
-<div class="admin-bar" ng-controller="SyncController as ctrl">
-  <a href="{{uri_for('admin')}}">Admin</a>
-  <a href="{{resource.edit_url}}">Edit</a>
-  <a href="javascript:" ng-click="ctrl.sync('{{resource.parent.resource_id}}')">Sync Folder</a>
-  <a href="javascript:" ng-click="ctrl.sync('{{resource.resource_id}}')">Sync Page</a>
-  <a href="{{uri_for('delete', resource_id=resource.resource_id)}}">Delete</a>
+<div ng-controller="SyncController as ctrl" ng-cloak>
+  <div class="snackbar" ng-if="ctrl.error">
+    An error occured.
+  </div>
+  <div class="snackbar" ng-if="ctrl.loading">
+    Syncing...
+  </div>
+  <div class="snackbar" ng-if="ctrl.success">
+    Done syncing. <a href=".">Refresh</a> or <a ng-click="ctrl.success = false; ctrl.loading == false" href="javascript:">dismiss</a>.
+  </div>
+  <div class="admin-bar">
+    <a href="{{uri_for('admin')}}">Site Admin</a>
+    <a href="{{resource.edit_url}}">Edit Page</a>
+    {% if resource.parent.edit_url %}
+    <a href="{{resource.parent.edit_url}}">Edit Folder</a>
+    {% endif %}
+    <a href="javascript:" ng-click="ctrl.sync('{{resource.parent.resource_id}}')">Sync Folder</a>
+    <a href="javascript:" ng-click="ctrl.sync('{{resource.resource_id}}')">Sync Page</a>
+    <a href="{{uri_for('delete', resource_id=resource.resource_id)}}">Delete</a>
+  </div>
 </div>
 {% endmacro %}
 
@@ -63,7 +73,9 @@
           {% else %}
             {% set thumbnail_item = group.list[0] %}
           {% endif %}
-          <div class="assets-asset-image-thumbnail" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
+          <div class="assets-asset-image-thumbnail">
+            <div class="assets-asset-image-thumbnail-image" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
+          </div>
         </div>
         <div class="assets-asset-meta">
           <div class="assets-asset-meta-title">

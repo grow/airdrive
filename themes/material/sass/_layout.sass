@@ -30,8 +30,8 @@ $header-height: 70px
 
       &-logo
         vertical-align: middle
+        max-height: 40px
         max-width: 100% 
-        // opacity: .5
 
       &-subtitle
         margin-top: 5px
@@ -220,6 +220,12 @@ $header-height: 70px
         font-size: $font-size-sm
         font-weight: $semibold
         text-align: right
+
+  &--wide
+    .layout-main-header,
+    .layout-main-content
+      left: 0
+      margin-left: 0
 
 .body--drawer-enabled
   .layout-side

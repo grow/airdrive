@@ -1,6 +1,7 @@
 from . import messages
 from . import models
 from . import approvals
+from . import emails as emails_lib
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
 import airlock
@@ -59,7 +60,7 @@ class User(models.Model, airlock.User):
     return folder in self.list_approved_folders()
 
   @classmethod
-  def direct_add_users(cls, emails, created_by=None):
+  def direct_add_users(cls, emails, created_by=None, send_email=False):
     approval_ents = []
     for email in emails:
       user_ent = cls.get_or_create_by_email(email)
@@ -70,4 +71,7 @@ class User(models.Model, airlock.User):
           user_ent,
           created_by=created_by)
       approval_ents.append(approval_ent)
+      if send_email:
+        emailer = emails_lib.Emailer(approval_ent)
+        emailer.send_approved_to_user()
     return approval_ents

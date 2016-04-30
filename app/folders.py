@@ -6,15 +6,25 @@ from . import messages
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
 import datetime
+import re
+import pickle
 import webapp2
 
 CONFIG = appengine_config.CONFIG
 MAIN_FOLDER_ID = CONFIG['folder']
 EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
+NAV_CACHE_KEY = 'nav-2345'
+
+
+class Cache(ndb.Model):
+  content = ndb.TextProperty()
 
 
 def get_nav():
-  nav = memcache.get('nav')
+#  nav_cache = Cache(id='nav').key.get()
+#  if nav_cache and nav_cache.content:
+#    return pickle.loads(nav_cache.content)
+  nav = memcache.get(NAV_CACHE_KEY)
   if nav is None:
     nav = create_nav()
   return nav
@@ -25,40 +35,84 @@ def create_nav():
   root_folders = Folder.list(parent=MAIN_FOLDER_ID, use_cache=True)
   for root_folder in root_folders:
     nav.append(update_nav(root_folder))
-  memcache.set('nav', nav)
+  memcache.set(NAV_CACHE_KEY, nav)
+#  nav_cache = Cache(id='nav')
+#  nav_cache.content = pickle.dumps(nav)
+#  nav_cache.put()
   return nav
+
+
+def update_nav_item(page):
+  item = {}
+  item['resource_type'] = page.resource_type
+  item['resource_id'] = page.resource_id
+  item['url'] = page.url
+  item['is_asset_folder'] = (
+      page.resource_type == 'Folder'
+      and page.is_asset_folder)
+  item['title'] = page.title
+  item['weight'] = page.weight
+  return item
+
+
+def update_nav_pages(pages):
+  return [update_nav_item(item) for item in pages
+          if not item.draft]
 
 
 def update_nav(folder):
   root = {}
+  if folder.draft or folder.internal:
+    root['folder'] = {}
+    return root['folder']
   children = folder.list_children()
-  root['folder'] = folder
-  root['children'] = children
-  for i, sub_folder in enumerate(children['folders']):
-    children['folders'][i] = update_nav(sub_folder)
+  root['weight'] = folder.weight
+  root['folder'] = update_nav_item(folder)
+  root['folder']['children'] = {}
+  root['folder']['children']['folders'] = [
+      update_nav(sub_folder)
+      for sub_folder in children['folders']
+      if not sub_folder.draft]
+  root['folder']['children']['pages'] = [
+      update_nav_item(page)
+      for page in children['pages']
+      if not page.draft]
+  root['folder']['children']['items'] = (
+      root['folder']['children']['folders']
+      + root['folder']['children']['pages'])
   return root
 
 
 def get_sibling(page, next=True):
   nav = get_nav()
   for n, folder in enumerate(nav):
-    page_items = folder['children']['pages']
+    if 'folder' not in folder:
+        continue
+    page_items = folder['folder']['children']['items']
     for i, page_item in enumerate(page_items):
-      if page == page_item:
+      if page.resource_id == page_item.get('resource_id'):
         if next:
           if i + 1 == len(page_items):
             if n + 1 == len(nav):
               return None
-            return nav[n + 1]['children']['pages'][0]
+            if 'folder' in nav[n + 1]:
+              sibling = nav[n + 1]['folder']['children']
+              if sibling['items']:
+                return sibling['items'][0]
+            return None
           return page_items[i + 1]
         if i - 1 < 0:
           if n - 1 < 0:
             return None
-          return nav[n - 1]['children']['pages'][-1]
+          if 'folder' in nav[n - 1]:
+            sibling = nav[n - 1]['folder']['children']
+            if sibling['items']:
+              return sibling['items'][-1]
+          return None
         return page_items[i - 1]
 
 
-class Folder(models.Model):
+class Folder(models.BaseResourceModel):
   updated = ndb.DateTimeProperty(auto_now=True)
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
@@ -98,7 +152,7 @@ class Folder(models.Model):
 
   @property
   def is_asset_folder(self):
-    return 'assets' in self.title.lower()
+    return bool(re.match('^assets', self.title.lower()))
 
   @property
   def is_overview_folder(self):
@@ -185,6 +239,8 @@ class Folder(models.Model):
     message.synced = self.synced
     message.sync_url = self.sync_url
     message.url = self.url
+    message.resource_id = self.resource_id
+    message.draft = self.draft
     return message
 
   def update(self, message):

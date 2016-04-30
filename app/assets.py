@@ -1,5 +1,6 @@
 from . import models
 from google.appengine.ext import ndb
+from google.appengine.ext import blobstore
 import appengine_config
 import datetime
 import os
@@ -12,7 +13,7 @@ THUMBNAIL_URL_FORMAT = 'https://drive.google.com/thumbnail?sz=w{size}&id={resour
 CONFIG = appengine_config.CONFIG
 
 
-class Asset(models.Model):
+class Asset(models.BaseResourceModel):
   size = ndb.IntegerProperty()
   build = ndb.IntegerProperty()
   mimetype = ndb.StringProperty()
@@ -23,9 +24,11 @@ class Asset(models.Model):
   url = ndb.StringProperty()
   icon_url = ndb.StringProperty()
   num_downloads = ndb.IntegerProperty(default=0)
+  gcs_path = ndb.StringProperty()
+  gcs_thumbnail_path = ndb.StringProperty()
 
   @classmethod
-  def process(cls, resp):
+  def process(cls, resp, gcs_path=None, gcs_thumbnail_path=None):
     resource_id = resp['id']
     ent = cls.get_or_instantiate(resource_id)
     ent.resource_id = resource_id
@@ -35,6 +38,8 @@ class Asset(models.Model):
     ent.icon_url = resp['iconLink']
     ent.parse_title(resp['title'])
     ent.md5 = resp['md5Checksum']
+    ent.gcs_path = gcs_path
+    ent.gcs_thumbnail_path = gcs_thumbnail_path
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
@@ -49,8 +54,18 @@ class Asset(models.Model):
 
   @property
   def thumbnail_url(self):
+    return '/thumbnails/{}'.format(self.resource_id)
+
+  @classmethod
+  def create_thumbnail_url(cls, resource_id):
     return THUMBNAIL_URL_FORMAT.format(
-        resource_id=self.resource_id,
+        resource_id=resource_id,
+        size=250)
+
+  @classmethod
+  def create_thumbnail_url(cls, resource_id):
+    return THUMBNAIL_URL_FORMAT.format(
+        resource_id=resource_id,
         size=250)
 
   @property
@@ -67,3 +82,8 @@ class Asset(models.Model):
   @webapp2.cached_property
   def parent(self):
     return self.parents[0].get()
+
+  def create_blob_key(self, thumbnail=False):
+    if thumbnail:
+      return blobstore.create_gs_key('/gs{}'.format(self.gcs_thumbnail_path))
+    return blobstore.create_gs_key('/gs{}'.format(self.gcs_path))

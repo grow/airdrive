@@ -1,3 +1,5 @@
+GoogleAppEngineCloudStorageClient
+
 Markdown==2.4
 requests
 Werkzeug==0.11

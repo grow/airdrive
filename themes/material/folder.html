@@ -6,22 +6,34 @@
 
     <h1>{{folder.title}}</h1>
 
+    {% if folder.children['folders'] %}
     <div class="toc">
       <ul>
         {% for f in folder.children['folders'] %}
           {% if folder.is_asset_folder %}
-            <li><a href="#{{f.slug}}">{{f.title}}</a></li>
+            <li><a data-scroll href="#{{f.slug}}">{{f.title}}</a></li>
           {% else %}
             <li><a href="{{f.url}}">{{f.title}}</a></li>
           {% endif %}
         {% endfor %}
-        {% for p in folder.children['pages'] %}
-        <li><a href="{{p.url}}">{{p.title}}</a></li>
-        {% endfor %}
+        {% if not folder.is_asset_folder %}
+          {% for p in folder.children['pages'] %}
+          <li><a href="{{p.url}}">{{p.title}}</a></li>
+          {% endfor %}
+        {% endif %}
       </ul>
     </div>
+    {% endif %}
 
     {% if folder.is_asset_folder %}
+
+      {% if folder.children['pages'] %}
+        {% for p in folder.children['pages'] %}
+          {{p.get_processed_html()|safe}}
+        {% endfor %}
+        <hr>
+      {% endif %}
+
       {% for f in folder.children['folders'] %}
       <hr>
       <h3 id="{{f.slug}}">{{f.title}}</h3>
@@ -30,7 +42,9 @@
       {{macros.render_assets(folder.children['assets'])}}
     {% endif %}
 
-    {{macros.render_admin_bar(folder)}}
+    {% if is_admin %}
+      {{macros.render_admin_bar(folder)}}
+    {% endif %}
 
   </div>
 {% endblock %}

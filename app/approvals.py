@@ -12,7 +12,7 @@ import json
 PER_PAGE = 100
 
 
-class Approval(models.Model):
+class Approval(models.BaseResourceModel):
   _message_class = messages.ApprovalMessage
   created = ndb.DateTimeProperty(auto_now_add=True)
   form = msgprop.MessageProperty(messages.ApprovalFormMessage, indexed_fields=['folders'])

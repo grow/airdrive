@@ -15,3 +15,7 @@ the most frequently downloaded.
 # Generate service account key
 openssl pkcs12 -in *.p12 -out key.pem -nocerts -nodes
 ```
+
+## Enable Drive API
+
+https://cloud.console.google.com/apis/api/drive/overview
