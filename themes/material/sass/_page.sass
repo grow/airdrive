@@ -248,19 +248,19 @@
     margin-top: 0 !important
 
     &:not(.page-document-table--no-header)
-      tr
-        &:first-child
-          td
-            background-color: $color-light-bg
-            color: $color-grey-alt
-            font-weight: $bold
+      tr:first-child
+        td
+          background-color: $color-light-bg
+          color: $color-grey-alt
+          font-weight: $bold
 
     td
       border: 1px solid $color-border
       padding: 6px 12px
 
-      &:first-child
-        width: 150px
-
       p
         margin: 0
+
+    &:not(.page-document-table--save-widths)
+      td:first-child
+        width: 150px

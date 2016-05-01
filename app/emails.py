@@ -1,5 +1,6 @@
 from google.appengine.api import mail
 from . import admins
+from . import settings
 import appengine_config
 import jinja2
 import os
@@ -46,9 +47,11 @@ class Emailer(object):
     self._send(subject, to, html)
 
   def _render(self, template_path):
+    settings_obj = settings.Settings.singleton()
     template = _env.get_template(template_path)
     html = template.render({
         'config': appengine_config,
+        'settings': settings_obj,
         'approval': self.approval,
     })
     return premailer.transform(html)

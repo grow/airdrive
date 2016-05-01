@@ -1,1 +1,10 @@
 {% extends "email_base.html" %}
+
+{% block main %}
+  {% if settings.form.email_to_user_rejected %}
+    {{settings.form.email_to_user_rejected|safe}}
+  {% else %}
+    <p>Hello {{approval.form.first_name}},</p>
+    <p>Unfortunately, your request to access {{config.CONFIG.title}} was declined.</p>
+  {% endif %}
+{% endblock %}

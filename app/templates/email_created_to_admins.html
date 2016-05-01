@@ -1,0 +1,20 @@
+{% extends "email_base.html" %}
+
+{% block main %}
+  <p>Dear {{config.SITE_NAME}} administrators,</p>
+  <p>The following user has requested access to the {{config.SITE_NAME}}:</p>
+  <blockquote>
+    <b>{{approval.user.email}}</b>
+  </blockquote>
+  <p class="centered"><a class="btn" href="{{config.BASE_URL}}/admin/">Review access requests</a></p>
+  <p>
+    <table style="margin-bottom: 20px">
+      {% for key, val in approval.serialized_form.iteritems() %}
+      <tr>
+        <td style="width: 140px"><b>{{key}}</b></td>
+        <td>{{val}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </p>
+{% endblock %}

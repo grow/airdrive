@@ -5,26 +5,45 @@
   <h2>{{approval.user.email}}</h2>
 
   <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-cloak>
+    <h3>Updates</h3>
     <ul>
       <li><b>Name</b>: [[ctrl.approval.form.first_name]] [[ctrl.approval.form.last_name]]</li>
       <li><b>Status</b>: [[ctrl.approval.status]]</li>
-      <li><b>Updated</b>: [[ctrl.approval.updated]] by [[ctrl.approval.updated_by.email]]</li>
+      <li><b>Updated</b>:
+        [[ctrl.approval.updated]]
+        <span ng-if="ctrl.approval.updated_by">
+          by [[ctrl.approval.updated_by.email]]
+        </span>
+      </li>
     </ul>
+    <h3>Folder access</h3>
     <form>
-      <label><b>Folder access</b></label>
       <ul>
-        {#
-        {% for folder_name, folder_id  in folders %}
-        <li><label><input type="checkbox" ng-change="ctrl.update(ctrl.approval)" ng-model="ctrl.folder_choices.{{folder_id}}"> {{folder_name}}</label>
+        {% for item in nav[1:] %}
+          {% if 'folder' not in item %}
+            {% continue %}
+          {% endif %}
+          {% set folder = item['folder'] %}
+          {# Do not include "overview" folder. #}
+          {% if folder.weight == -1 %}{% continue %}{% endif %}
+          <li><label><input type="checkbox" foo-ng-change="ctrl.update(ctrl.approval)" foo-ng-model="ctrl.folder_choices.{{folder.resource_id}}"> {{folder.title}}</label></li>
         {% endfor %}
-        #}
       </ul>
     </form>
-    <table class="form">
-      <tr ng-repeat="(key, val) in ctrl.approval.form">
-        <td>[[key]]</td>
-        <td>[[val]]</td>
-      </tr>
+    <h3>Form response</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Response</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="(key, val) in ctrl.approval.form">
+          <td>[[key]]</td>
+          <td>[[val]]</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 

@@ -14,15 +14,11 @@ class Settings(ndb.Model):
     ent = key.get()
     if ent is None:
       ent = cls(key=key)
+      ent.form = messages.SettingsMessage()
       ent.put()
     return ent
 
-  def to_fields(self):
-    fields = []
-    form = messages.SettingsFormMessage()
-    for _, field in form.all_fields():
-      fields.append({
-          'name': field.name,
-          'value': field.value,
-      })
-    return fields
+  def update(self, message):
+    self.form = message
+    self.put()
+    return self

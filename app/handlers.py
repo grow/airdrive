@@ -37,7 +37,7 @@ JINJA = jinja2.Environment(
         'jinja2.ext.autoescape',
         'jinja2.ext.loopcontrols',
         extensions.FragmentCacheExtension,
-    ],
+],
     autoescape=True)
 JINJA.fragment_cache = cache.MemcachedCache()
 JINJA.filters['filesizeformat'] = common.do_filesizeformat
@@ -81,6 +81,7 @@ class Handler(airlock.Handler):
     params['statuses'] = messages.Status
     params['get_resource'] = folders.Folder.get_resource
     params['nav'] = folders.get_nav()
+    params['settings'] = self.settings
     params['get_sibling'] = folders.get_sibling
     params['is_admin'] = self.is_admin(redirect=False)
     template = JINJA.get_template(path)
@@ -93,6 +94,9 @@ class FolderHandler(Handler):
   def get(self, folder_slug, resource_id):
     if not self.me.is_registered:
       self.redirect(self.urls.sign_in())
+      return
+    if not self.me.has_access:
+      self.redirect('/')
       return
     folder = folders.Folder.get(resource_id)
     if folder is None:
@@ -109,6 +113,9 @@ class PageHandler(Handler):
   def get(self, folder_slug, resource_id, page_slug):
     if not self.me.is_registered:
       self.redirect(self.urls.sign_in())
+      return
+    if not self.me.has_access:
+      self.redirect('/')
       return
     page = pages.Page.get(resource_id)
     if page is None:
@@ -127,6 +134,9 @@ class MainFolderHandler(Handler):
     if not self.me.is_registered:
       self.redirect(self.urls.sign_in())
       return
+    if not self.me.has_access:
+      self.redirect('/')
+      return
     folder = folders.Folder.get_by_slug(folder_slug, parent=MAIN_FOLDER_ID)
     if folder is None:
       self.error(404)
@@ -138,6 +148,18 @@ class MainFolderHandler(Handler):
 
 
 class HomepageHandler(Handler):
+
+  def post(self):
+    if not self.me.is_registered:
+      self.redirect(self.urls.sign_in(webapp2.uri_for('home')))
+      return
+    form_dict = dict(self.request.POST)
+    if 'email_opt_in' in form_dict:
+      form_dict['email_opt_in'] = True
+    approval_form_message = approvals.Approval.decode_form(form_dict)
+    approvals.Approval.create(approval_form_message, self.me)
+    self.get()
+
 
   def get(self):
     params = {
@@ -224,20 +246,6 @@ class AdminAdminsHandler(Handler):
 
 
 class AdminSettingsHandler(Handler):
-
-  def post(self):
-    data = dict(self.request.POST)
-    for key, value in data.items():
-      if not value:
-        del data[key]
-      if key in settings.Settings.REPEATED_FIELDS:
-        if not value:
-          data[key] = []
-        else:
-          data[key] = value.split('\n')
-    self.settings.populate(**data)
-    self.settings.put()
-    self.get()
 
   def get(self):
     if not self.is_admin():

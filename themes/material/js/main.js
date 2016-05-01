@@ -106,10 +106,21 @@ airpress.ng.ApprovalsController.prototype.submit =
 };
 
 
-airpress.ng.SettingsController = function() {
+airpress.ng.SettingsController = function($scope) {
+  this.$scope = $scope;
   airpress.rpc('admins.get_settings').done(function(resp) {
-    console.log(resp);
-  });
+    this.settings = resp;
+    this.$scope.$apply();
+  }.bind(this));
+};
+
+
+airpress.ng.SettingsController.prototype.updateSettings = function(form) {
+  console.log(form);
+  airpress.rpc('admins.update_settings', form).done(function(resp) {
+    this.settings = resp;
+    this.$scope.$apply();
+  }.bind(this));
 };
 
 

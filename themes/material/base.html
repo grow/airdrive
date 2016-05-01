@@ -23,9 +23,11 @@
   </style>
 </head>
 <body>
-  <script>
-    airpress.menu.updateSidebar();
-  </script>
+  {% if enable_sidebar is not sameas false %}
+    <script>
+      airpress.menu.updateSidebar();
+    </script>
+  {% endif %}
   <div class="layout {{"layout--wide" if enable_sidebar is sameas false}}">
     {% if enable_sidebar is not sameas false %}
     <div class="layout-side">
