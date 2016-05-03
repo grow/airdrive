@@ -8,7 +8,7 @@ class Admin(models.Model):
   email = ndb.StringProperty()
   created = ndb.DateTimeProperty(auto_now_add=True)
   created_by_key = ndb.KeyProperty()
-  receives_email = ndb.BooleanProperty(default=True)
+  receives_email = ndb.BooleanProperty(default=False)
 
   @classmethod
   def is_admin(cls, email):
@@ -20,7 +20,8 @@ class Admin(models.Model):
   def list_emails(cls):
     emails = []
     for admin in cls.list():
-      emails.append(admin.email)
+      if admin.receives_email:
+        emails.append(admin.email)
     return emails
 
   @classmethod
@@ -41,6 +42,10 @@ class Admin(models.Model):
     ent.created_by_key = created_by.key
     ent.put()
     return ent
+
+  def update(self, message):
+    self.receives_email = message.receives_email
+    self.put()
 
   @classmethod
   def list(cls):

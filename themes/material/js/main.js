@@ -71,6 +71,33 @@ airpress.ng.ApprovalsController.prototype.createApprovals =
 };
 
 
+airpress.ng.ApprovalsController.prototype.updateSelected =
+    function(approve, sendEmail) {
+  var approvals = [];
+  this.approvals.forEach(function(approval) {
+    if (approval.selected) {
+      approvals.push(approval);
+    }
+  });
+  var method = approve ? 'admins.approve_approvals' : 'admins.reject_approvals';
+  airpress.rpc(method, {
+    'approvals': approvals,
+    'send_email': sendEmail
+  }).done(
+      function(resp) {
+    this.approvals.forEach(function(approval, i) {
+      resp['approvals'].forEach(function(updatedApproval) {
+        if (approval['ident'] == updatedApproval['ident']) {
+          updatedApproval.selected = true;
+          this.approvals[i] = updatedApproval;
+        }
+      }.bind(this));
+    }.bind(this));
+    this.$scope.$apply();
+  }.bind(this));
+};
+
+
 airpress.ng.ApprovalsController.prototype.deleteApproval = function(ident) {
   var approvals = [{
     'ident': ident
@@ -149,6 +176,15 @@ airpress.ng.AdminsController.prototype.searchAdmins = function() {
 };
 
 
+airpress.ng.AdminsController.prototype.updateAdmin = function(admin) {
+  airpress.rpc('admins.update_admins', {
+    'admins': [admin]
+  }).done(function(resp) {
+    this.$scope.$apply();
+  }.bind(this));
+};
+
+
 airpress.ng.AdminsController.prototype.deleteAdmin = function(ident) {
   airpress.rpc('admins.delete_admins', {
     'admins': [{'ident': ident}]
@@ -172,6 +208,16 @@ airpress.ng.FoldersController.prototype.searchFolders = function() {
       function(resp) {
     this.folders = resp['folders'] || [];
     this.$scope.$apply();
+  }.bind(this));
+};
+
+
+airpress.ng.FoldersController.prototype.deleteFolder = function(folder) {
+  this.addToLog('Deleting...');
+  airpress.rpc('admins.delete_folders', {
+    'folders': [folder]
+  }).done(function() {
+    this.addToLog('Deleted: ' + folder.title);
   }.bind(this));
 };
 

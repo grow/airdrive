@@ -4,7 +4,7 @@
 <div ng-controller="FoldersController as ctrl" ng-cloak>
   <div class="form">
     <h2>Root folder</h2>
-    <p>Ensure <b>{{config.CONFIG.service_account}}</b> has <b>edit access</b> to this folder.</p>
+    <p>Ensure <b>{{config.CONFIG.service_account}}</b> and <b>{{config.APP_SERVICE_ACCOUNT}}</b> has <b>edit access</b> to this folder.</p>
     <div class="form-field">
       <input class="form-field-control" value="{{config.CONFIG.folder}}" readonly>
     </div>
@@ -33,6 +33,7 @@
       <td>[[folder.weight]]</td>
       <td>
         <a href="[[folder.edit_url]]">Edit</a>
+        | <a href="javascript:" ng-click="ctrl.delete(folder.resource_id)">Delete</a>
         | <a href="javascript:" ng-click="ctrl.sync(folder.resource_id)">Sync</a>
       </td>
     </tr>

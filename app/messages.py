@@ -77,6 +77,7 @@ class AdminMessage(messages.Message):
 
 class ApprovalsMessage(messages.Message):
   approvals = messages.MessageField(ApprovalMessage, 1, repeated=True)
+  send_email = messages.BooleanField(2)
 
 
 class AdminsMessage(messages.Message):
@@ -94,7 +95,6 @@ class DirectlyAddUsersMessage(messages.Message):
 
 class SettingsMessage(messages.Message):
   title = messages.StringField(7)
-  sidebar_title = messages.StringField(8)
   sidebar_text = messages.StringField(9)
   email_footer = messages.StringField(10)
   logo_url = messages.StringField(11)
@@ -104,6 +104,8 @@ class SettingsMessage(messages.Message):
   email_to_user_submitted = messages.StringField(15)
   email_to_user_rejected = messages.StringField(16)
   interstitial = messages.StringField(17)
+  color = messages.StringField(18)
+  favicon_url = messages.StringField(19)
 
 
 class ResourceMessage(messages.Message):

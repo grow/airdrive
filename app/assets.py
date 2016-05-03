@@ -26,6 +26,7 @@ class Asset(models.BaseResourceModel):
   num_downloads = ndb.IntegerProperty(default=0)
   gcs_path = ndb.StringProperty()
   gcs_thumbnail_path = ndb.StringProperty()
+  etag = ndb.StringProperty()
 
   @classmethod
   def process(cls, resp, gcs_path=None, gcs_thumbnail_path=None):
@@ -38,6 +39,7 @@ class Asset(models.BaseResourceModel):
     ent.icon_url = resp['iconLink']
     ent.parse_title(resp['title'])
     ent.md5 = resp['md5Checksum']
+    ent.etag = resp['etag']
     ent.gcs_path = gcs_path
     ent.gcs_thumbnail_path = gcs_thumbnail_path
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])

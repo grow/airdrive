@@ -5,18 +5,17 @@
   <h2>{{approval.user.email}}</h2>
 
   <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-cloak>
-    <h3>Updates</h3>
     <ul>
       <li><b>Name</b>: [[ctrl.approval.form.first_name]] [[ctrl.approval.form.last_name]]</li>
       <li><b>Status</b>: [[ctrl.approval.status]]</li>
       <li><b>Updated</b>:
-        [[ctrl.approval.updated]]
+        [[ctrl.approval.updated|date:"short"]]
         <span ng-if="ctrl.approval.updated_by">
           by [[ctrl.approval.updated_by.email]]
         </span>
       </li>
     </ul>
-    <h3>Folder access</h3>
+    <h3>Access to folders</h3>
     <form>
       <ul>
         {% for item in nav[1:] %}

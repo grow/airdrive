@@ -44,6 +44,28 @@ class AdminService(airlock.Service):
 
   @remote.method(messages.ApprovalsMessage,
                  messages.ApprovalsMessage)
+  def approve_approvals(self, request):
+    self.require_admin()
+    ents = approvals.Approval.approve_multi(
+        request.approvals, updated_by=self.me,
+        send_email=request.send_email)
+    resp = messages.ApprovalsMessage()
+    resp.approvals = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.ApprovalsMessage,
+                 messages.ApprovalsMessage)
+  def reject_approvals(self, request):
+    self.require_admin()
+    ents = approvals.Approval.reject_multi(
+        request.approvals, updated_by=self.me,
+        send_email=request.send_email)
+    resp = messages.ApprovalsMessage()
+    resp.approvals = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.ApprovalsMessage,
+                 messages.ApprovalsMessage)
   def update_approvals(self, request):
     self.require_admin()
     ents = approvals.Approval.get_multi(request.approvals)
@@ -83,6 +105,15 @@ class AdminService(airlock.Service):
 
   @remote.method(messages.AdminsMessage,
                  messages.AdminsMessage)
+  def update_admins(self, request):
+    self.require_admin()
+    ents = admins.Admin.update_multi(request.admins)
+    resp = messages.AdminsMessage()
+    resp.admins = [ent.to_message() for ent in ents]
+    return resp
+
+  @remote.method(messages.AdminsMessage,
+                 messages.AdminsMessage)
   def delete_admins(self, request):
     self.require_admin()
     ents = admins.Admin.get_multi(request.admins)
@@ -110,6 +141,15 @@ class AdminService(airlock.Service):
         emails, created_by=self.me, send_email=send_email)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
+    return resp
+
+  @remote.method(messages.FoldersMessage,
+                 messages.FoldersMessage)
+  def delete_folders(self, request):
+    self.require_admin()
+    ents = folders.Folder.get_multi(request.folders)
+    folders.Folder.delete_multi(ents)
+    resp = messages.FoldersMessage()
     return resp
 
   @remote.method(messages.FoldersMessage,

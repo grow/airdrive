@@ -51,6 +51,13 @@ class Model(ndb.Model):
     return [ent for ent in ents if ent is not None]
 
   @classmethod
+  def update_multi(cls, messages):
+    ents = cls.get_multi(messages)
+    for i, ent in enumerate(ents):
+      ent.update(messages[i])
+    return ents
+
+  @classmethod
   def to_message_multi(cls, ents, *args, **kwargs):
     return [ent.to_message(*args, **kwargs) for ent in ents if ent is not None]
 

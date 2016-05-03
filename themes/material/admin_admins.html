@@ -17,12 +17,16 @@
   <table class="table">
     <thead>
       <th>Administrator</th>
+      <th>Receive notifications?</th>
       <th>Added by</th>
       <th>Action</th>
     </thead>
     <tbody>
         <tr ng-repeat="admin in ctrl.admins">
           <td>[[admin.email]]</td>
+          <td>
+            <input type="checkbox" ng-model="admin.receives_email" ng-change="ctrl.updateAdmin(admin)">
+          </td>
           <td>[[admin.created_by.email]]</td>
           <td>
             <a href="javascript:" ng-click="ctrl.deleteAdmin(admin.ident)">Delete</a>

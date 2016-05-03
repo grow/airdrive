@@ -1,5 +1,6 @@
 <style>
   .logo {
+    height: 40px;
     margin: 15px auto;
     max-width: 540px;
   }
@@ -64,7 +65,7 @@
   }
 </style>
 <div class="pad">
-  <div class="logo"><a href="{{config.BASE_URL}}"><img src="{{config.CONFIG.email_logo_url}}" alt="{{config.CONFIG.title}}"></a></div>
+  <div class="logo"><a href="{{config.BASE_URL}}"><img height="40" src="{{settings.form.logo_url}}" alt="{{settings.form.title}}"></a></div>
   <div class="main">
     {% block main %}{% endblock %}
   </div>

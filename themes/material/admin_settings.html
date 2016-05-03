@@ -4,7 +4,7 @@
   <h2>Settings</h2>
 
   <form class="form" method="post" ng-controller="SettingsController as ctrl" ng-submit="ctrl.updateSettings(ctrl.settings)">
-    {% for field in settings.form.all_fields()|sort(attribute="name") %}
+    {% for field in settings.fields|sort(attribute="name") %}
     <div class="form-field">
       <label class="form-field-label">{{field.name}}</label>
       <textarea class="form-field-control form-field-control--wide" name="{{field.name}}" ng-model="ctrl.settings.{{field.name}}">{{field.value or ''}}</textarea>

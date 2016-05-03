@@ -7,7 +7,7 @@
 
     {% if me.status == statuses.PENDING %}
       <p>
-        Welcome, <b>{{me.email}}</b>! We are currently processing your request for access. You will receive an email when your request has been processed. Have questions? <a href="{{config.CONFIG.contact_url}}">Contact us</a>.
+        We are currently processing your request for access. You will receive an email when your request has been processed. Have questions? <a href="{{config.CONFIG.contact_url}}">Contact us</a>.
       </p>
     {% elif me.status == statuses.REJECTED %}
       <p>

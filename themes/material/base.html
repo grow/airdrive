@@ -8,16 +8,16 @@
   <link href="https://fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic" rel="stylesheet">
   <link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/main.css">
   <script src="/_app/{{config.VERSION}}/assets/js/main.min.js"></script>
-  {% if config.CONFIG.favicon_url %}
-  <link rel="shortcut icon" href="{{config.CONFIG.favicon_url}}">
+  {% if settings.form.favicon_url %}
+  <link rel="shortcut icon" href="{{settings.form.favicon_url}}">
   {% endif %}
-  <title>{{title}} – {{config.CONFIG.title}}</title>
+  <title>{{title}} – {{settings.form.title}}</title>
   <style>
     * {
       {% if page %}
-        --color-brand: {{page.color or page.parent.color or "#039BE5"}};
+        --color-brand: {{page.color or page.parent.color or settings.form.color or "#039BE5"}};
       {% else %}
-        --color-brand: #039BE5;
+        --color-brand: {{settings.form.color or "#039BE5"}};
       {% endif %}
     }
   </style>
@@ -33,7 +33,9 @@
     <div class="layout-side">
       <div class="layout-side-top">
         <a href="{{uri_for('home')}}">
-          {% if config.CONFIG.logo %}
+          {% if settings.form.logo_url %}
+          <img src="{{settings.form.logo_url}}" class="layout-side-top-logo">
+          {% elif config.CONFIG.logo %}
           <img src="{{macros.asset(config.CONFIG.logo)}}" class="layout-side-top-logo" {% if config.CONFIG.sidebar_logo_style %}style="{{config.CONFIG.sidebar_logo_style}}"{% endif %}>
           {% elif config.CONFIG.logo_url %}
             <img src="{{config.CONFIG.logo_url}}" class="layout-side-top-logo" {% if config.CONFIG.sidebar_logo_style %}style="{{config.CONFIG.sidebar_logo_style}}"{% endif %}>

@@ -15,6 +15,9 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config')
 
 VERSION = os.getenv('CURRENT_VERSION_ID')
 
+from google.appengine.api import app_identity
+APP_SERVICE_ACCOUNT = app_identity.get_service_account_name()
+
 _appid = os.getenv('APPLICATION_ID').replace('s~', '')
 EMAIL_SENDER = 'noreply@{}.appspotmail.com'.format(_appid)
 BASE_URL = '{}://{}'.format(os.getenv('wsgi.url_scheme'), os.getenv('SERVER_NAME'))

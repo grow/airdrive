@@ -96,25 +96,26 @@ class Approval(models.BaseResourceModel):
       emailer = emails.Emailer(self)
       emailer.send_approved_to_user()
 
-  def reject(self, updated_by):
+  def reject(self, updated_by, email=True):
     self.status = messages.Status.REJECTED
     self.updated_by_key = updated_by.key
-    emailer = emails.Emailer(self)
-    emailer.send_rejected_to_user()
     self.put()
+    if email:
+      emailer = emails.Emailer(self)
+      emailer.send_rejected_to_user()
 
   @classmethod
-  def approve_multi(cls, approval_messages, updated_by):
+  def approve_multi(cls, approval_messages, updated_by, send_email=False):
     ents = cls.get_multi(approval_messages)
     for ent in ents:
-      ent.approve(updated_by)
+      ent.approve(updated_by, email=send_email)
     return ents
 
   @classmethod
-  def reject_multi(cls, approval_messages, updated_by):
+  def reject_multi(cls, approval_messages, updated_by, send_email=False):
     ents = cls.get_multi(approval_messages)
     for ent in ents:
-      ent.reject(updated_by)
+      ent.reject(updated_by, email=send_email)
     return ents
 
   @classmethod

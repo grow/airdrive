@@ -6,7 +6,7 @@ import yaml
 
 
 class Settings(ndb.Model):
-  form = msgprop.MessageProperty(messages.SettingsMessage)
+  form = msgprop.MessageProperty(messages.SettingsMessage, default=messages.SettingsMessage())
 
   @classmethod
   def singleton(cls):
@@ -22,3 +22,10 @@ class Settings(ndb.Model):
     self.form = message
     self.put()
     return self
+
+  @property
+  def fields(self):
+    if self.form:
+      return self.form.all_fields()
+    form = messages.SettingsMessage()
+    return form.all_fields()

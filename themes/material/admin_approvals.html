@@ -8,10 +8,10 @@
 <div ng-controller="ApprovalsController as ctrl" ng-cloak>
   <form ng-submit="ctrl.submit(ctrl.emails, ctrl.sendEmail)" class="form">
     <div class="form-field">
-      <textarea class="form-field-control form-field-control--wide" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
+      <label><input type="checkbox" ng-model="ctrl.sendEmail">Send email notification to added users</label>
     </div>
     <div class="form-field">
-      <label><input type="checkbox" ng-model="ctrl.sendEmail">Send email notification to added users</label>
+      <textarea class="form-field-control form-field-control--wide" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
     </div>
     <div class="form-field">
       <button class="btn btn--sm" type="submit" role="button">Add users</button>
@@ -20,30 +20,43 @@
 
   <h2>Users</h2>
 
+  <div class="push-sm--bottom">
+    <label>
+      <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
+      Send email notification to users upon response
+    </label>
+  </div>
+
   <form>
     <div class="form-field">
-      <a href="?format=csv" class="btn btn--sm">Download CSV</a>
+      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(true, ctrl.sendEmailToApprovals)">Approve selected</a>
+      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(false, ctrl.sendEmailToApprovals)">Reject selected</a>
+      <a style="float: right" href="?format=csv" class="btn btn--inverted btn--sm">Download CSV</a>
     </div>
   </form>
 
   <table class="table">
     <thead>
       <th></th>
+      <th>Status</th>
       <th>Email</th>
       <th>Date</th>
-      <th>Approved by</th>
+      <th>Response by</th>
       <th>Action</th>
     </thead>
     <tbody>
         <tr ng-repeat="approval in ctrl.approvals">
           <td>
-            <input type="checkbox">
+            <input type="checkbox" ng-model="approval.selected">
+          </td>
+          <td>
+            [[approval.status]]
           </td>
           <td>
             <a ng-href="./[[approval.ident]]/">[[approval.user.email]]</a>
           </td>
           <td>
-            [[approval.created]]
+            [[approval.created|date:"short"]]
           </td>
           <td>[[approval.updated_by.email]]</td>
           <td>

@@ -1,8 +1,8 @@
 {% extends "email_base.html" %}
 
 {% block main %}
-  <p>Dear {{config.SITE_NAME}} administrators,</p>
-  <p>The following user has requested access to the {{config.SITE_NAME}}:</p>
+  <p>Dear {{settings.form.title}} administrators,</p>
+  <p>The following user has requested access:</p>
   <blockquote>
     <b>{{approval.user.email}}</b>
   </blockquote>
