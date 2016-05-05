@@ -73,13 +73,18 @@
               {% for nav_item in nav[1:] %}
                 {% if not nav_item.folder %}{% continue %}{% endif %}
                 {% set each_folder = nav_item['folder'] %}
+                {% if not has_access(each_folder['resource_id']) %}
+                  {% continue %}
+                {% endif %}
                 {{macros.render_menu_tree(each_folder, config.CONFIG, active_resource_id=(page or folder).resource_id)}}
               {% endfor %}
             {% endif %}
             </ul>
           </div>
         <div class="layout-side-bottom">
-          {{config.CONFIG.sidebar|safe}}
+          {% if settings.form.sidebar_text %}
+            {{settings.form.sidebar_text|safe}}
+          {% endif %}
         </div>
       {% endblock %}
     </div>

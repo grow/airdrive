@@ -265,8 +265,37 @@ airpress.ng.FoldersController.prototype.updateChannel = function(token) {
 
 airpress.ng.ApprovalController = function($scope, $element) {
   this.$scope = $scope;
+  this.folderChoices = {};
   var ident = $element[0].getAttribute('data-approval-ident');
   this.getApproval(ident);
+};
+
+
+airpress.ng.ApprovalController.prototype.updateStatus =
+    function(approve, sendEmail) {
+  var method = approve ? 'admins.approve_approvals' : 'admins.reject_approvals';
+  airpress.rpc(method, {
+    'approvals': [this.approval],
+    'send_email': sendEmail
+  }).done(
+      function(resp) {
+    this.getApproval(this.approval['ident']);
+  }.bind(this));
+};
+
+
+airpress.ng.ApprovalController.prototype.update =
+    function(approval, formChoices) {
+  var folders = [];
+  for (var choice in formChoices) {
+    if (formChoices[choice]) {
+      folders.push(choice);
+    }
+  }
+  approval.form.folders = folders;
+  airpress.rpc('admins.update_approvals', {
+    'approvals': [approval]
+  });
 };
 
 
@@ -277,6 +306,11 @@ airpress.ng.ApprovalController.prototype.getApproval = function(ident) {
     }
   }).done(
       function(resp) {
+    if (resp['approval']['form']['folders']) {
+      resp['approval']['form']['folders'].forEach(function(folderId) {
+        this.folderChoices[folderId] = true;
+      }.bind(this));
+    }
     this.approval = resp['approval'];
     this.$scope.$apply();
   }.bind(this));

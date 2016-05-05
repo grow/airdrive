@@ -1,10 +1,17 @@
-{% set title = "Review approval" %}
 {% extends "admin.html" %}
 
 {% block main %}
   <h2>{{approval.user.email}}</h2>
 
   <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-cloak>
+    <div class="form-field">
+      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateStatus(true, ctrl.sendEmailToApprovals)">Approve</a>
+      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateStatus(false, ctrl.sendEmailToApprovals)">Reject</a>
+      <label>
+        <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
+        Send email notification to users upon response
+      </label>
+    </div>
     <ul>
       <li><b>Name</b>: [[ctrl.approval.form.first_name]] [[ctrl.approval.form.last_name]]</li>
       <li><b>Status</b>: [[ctrl.approval.status]]</li>
@@ -25,12 +32,12 @@
           {% set folder = item['folder'] %}
           {# Do not include "overview" folder. #}
           {% if folder.weight == -1 %}{% continue %}{% endif %}
-          <li><label><input type="checkbox" foo-ng-change="ctrl.update(ctrl.approval)" foo-ng-model="ctrl.folder_choices.{{folder.resource_id}}"> {{folder.title}}</label></li>
+          <li><label><input type="checkbox" ng-change="ctrl.update(ctrl.approval, ctrl.folderChoices)" ng-model="ctrl.folderChoices['{{folder.resource_id}}']"> {{folder.title}}</label></li>
         {% endfor %}
       </ul>
     </form>
     <h3>Form response</h3>
-    <table class="table">
+    <table class="table" ng-show="ctrl.approval.form">
       <thead>
         <tr>
           <th>Question</th>
@@ -38,7 +45,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="(key, val) in ctrl.approval.form">
+        <tr ng-repeat="(key, val) in ctrl.approval.form" ng-if="key != 'folders'">
           <td>[[key]]</td>
           <td>[[val]]</td>
         </tr>

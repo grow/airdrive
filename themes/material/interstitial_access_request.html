@@ -99,7 +99,7 @@
             {# Do not include "overview" folder. #}
             {% if folder.weight == -1 %}{% continue %}{% endif %}
             <div>
-              <label><input type="checkbox" name="folder" value="{{folder.slug}}"> {{folder.title}}</label>
+              <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.title}}</label>
             </div>
           {% endfor %}
         </div>

@@ -6,6 +6,7 @@ from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
 import airlock
 import appengine_config
+import webapp2
 
 
 class User(models.Model, airlock.User):
@@ -33,6 +34,7 @@ class User(models.Model, airlock.User):
     message.status = self.status
     return message
 
+  @webapp2.cached_property
   def list_approved_folders(self):
     return approvals.Approval.list_approved_folders_for_user(self)
 
@@ -54,10 +56,11 @@ class User(models.Model, airlock.User):
   def is_domain_user(self):
     return self.domain == appengine_config.CONFIG['domain']
 
-  def has_access_to_folder(self, folder):
+  def has_access_to_folder(self, resource_id):
     if self.is_domain_user:
       return True
-    return folder in self.list_approved_folders()
+    approved_folder_ids = self.list_approved_folders
+    return not approved_folder_ids or resource_id in approved_folder_ids
 
   @classmethod
   def direct_add_users(cls, emails, created_by=None, send_email=False):

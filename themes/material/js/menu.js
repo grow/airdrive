@@ -3,6 +3,10 @@ airpress.menu = airpress.menu || {};
 
 
 airpress.menu.updateSidebar = function() {
+  var layoutEl = document.querySelector('.layout');
+  if (layoutEl && layoutEl.classList.contains('layout--wide')) {
+    return;
+  }
   var enabled = document.body.offsetWidth <= 1440;
   document.body.classList.toggle('body--drawer-enabled', enabled);
 };

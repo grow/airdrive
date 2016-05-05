@@ -40,7 +40,7 @@
     font-weight: bold !important;
     font: 15px 'Roboto', 'RobotoDraft', arial, sans-serif;
     line-height: 1.54;
-    padding: 8px 12px 6px;
+    padding: 8px 12px;
     vertical-align: top;
     text-align: center;
     text-decoration: none;
@@ -70,6 +70,6 @@
     {% block main %}{% endblock %}
   </div>
   <div class="footer">
-    {{config.CONFIG.email_footer}}
+    {{settings.form.email_footer|safe}}
   </div>
 </div>

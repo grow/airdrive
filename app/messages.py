@@ -98,7 +98,6 @@ class SettingsMessage(messages.Message):
   sidebar_text = messages.StringField(9)
   email_footer = messages.StringField(10)
   logo_url = messages.StringField(11)
-  email_logo_url = messages.StringField(12)
   contact_url = messages.StringField(13)
   email_to_user_approved = messages.StringField(14)
   email_to_user_submitted = messages.StringField(15)
@@ -106,6 +105,8 @@ class SettingsMessage(messages.Message):
   interstitial = messages.StringField(17)
   color = messages.StringField(18)
   favicon_url = messages.StringField(19)
+  interstitial_processing = messages.StringField(20)
+  google_anayltics_id = messages.StringField(21)
 
 
 class ResourceMessage(messages.Message):

@@ -1,11 +1,11 @@
-{% set title = config.CONFIG.title %}
+{% set title = settings.form.title %}
 {% set enable_sidebar = false %}
 {% set enable_header = false %}
 {% extends "base.html" %}
 
 {% block main %}
   <div class="contained contained--sm">
-    <h1 class="text-header--xl">{{title}}</h1>
+    <h1 class="text-header--xl">{{settings.form.title}}</h1>
     {{settings.form.interstitial|safe}}
     {% if not me.registered %}
       <p class="push--top">

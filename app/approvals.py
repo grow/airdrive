@@ -63,6 +63,13 @@ class Approval(models.BaseResourceModel):
     return self
 
   @classmethod
+  def get_or_create(cls, approval_form_message, user, email=True):
+    ent = cls.get(user)
+    if ent:
+      return ent
+    return cls.create(approval_form_message, user, email)
+
+  @classmethod
   def create(cls, approval_form_message, user, email=True):
     ent = cls(user_key=user.key, form=approval_form_message)
     ent.put()

@@ -83,6 +83,7 @@ class Handler(airlock.Handler):
     params['nav'] = folders.get_nav()
     params['settings'] = self.settings
     params['get_sibling'] = folders.get_sibling
+    params['has_access'] = self.me.has_access_to_folder
     params['is_admin'] = self.is_admin(redirect=False)
     template = JINJA.get_template(path)
     html = template.render(params)
@@ -154,9 +155,11 @@ class HomepageHandler(Handler):
       self.redirect(self.urls.sign_in(webapp2.uri_for('home')))
       return
     form_dict = dict(self.request.POST)
+    folders = self.request.POST.getall('folder')
     if 'email_opt_in' in form_dict:
       form_dict['email_opt_in'] = True
     approval_form_message = approvals.Approval.decode_form(form_dict)
+    approval_form_message.folders = folders
     approvals.Approval.create(approval_form_message, self.me)
     self.get()
 
