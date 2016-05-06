@@ -39,21 +39,6 @@ class Approval(models.BaseResourceModel):
     query = query.filter(cls.user_key == user.key)
     return query.get()
 
-  @classmethod
-  def get_or_create(cls, message, user, send_email=True):
-    ent = cls.get(user)
-    if ent is None:
-      ent = cls(user_key=user.key)
-    ent.form = message.form
-    if ent.form and ent.form.folders:
-      ent.form.folders = list(set(ent.form.folders))
-    ent.put()
-    if send_email:
-      emailer = emails.Emailer(ent)
-      emailer.send_created_to_user()
-      emailer.send_created_to_admins()
-    return ent
-
   def update(self, message, updated_by):
     self.form = message.form
     if self.form.folders:
@@ -63,11 +48,11 @@ class Approval(models.BaseResourceModel):
     return self
 
   @classmethod
-  def get_or_create(cls, approval_form_message, user, email=True):
+  def get_or_create(cls, approval_form_message, user, send_email=True):
     ent = cls.get(user)
     if ent:
       return ent
-    return cls.create(approval_form_message, user, email)
+    return cls.create(approval_form_message, user, send_email)
 
   @classmethod
   def create(cls, approval_form_message, user, email=True):

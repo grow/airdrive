@@ -5,124 +5,129 @@
 {% block main %}
   <div class="contained contained--sm">
 
-    {% if me.status == statuses.PENDING %}
-      <p>
-        We are currently processing your request for access. You will receive an email when your request has been processed. Have questions? <a href="{{config.CONFIG.contact_url}}">Contact us</a>.
-      </p>
-    {% elif me.status == statuses.REJECTED %}
-      <p>
-        You are signed in as <b>{{me.email}}</b> and your request to access the toolkit has been rejected. Please <a href="{{config.CONFIG.contact_url}}">contact us</a> if you think this is in error.
-      </p>
+    {% if settings.form.interstitial_gmail_accounts
+           and me.domain == "gmail.com" %}
+      {{settings.form.interstitial_gmail_accounts|safe}}
     {% else %}
+      {% if me.status == statuses.PENDING %}
+        <p>
+          We are currently processing your request for access. You will receive an email when your request has been processed. Have questions? <a href="{{settings.form.contact_url}}">Contact us</a>.
+        </p>
+      {% elif me.status == statuses.REJECTED %}
+        <p>
+          You are signed in as <b>{{me.email}}</b> and your request to access the toolkit has been rejected. Please <a href="{{settings.form.contact_url}}">contact us</a> if you think this is in error.
+        </p>
+      {% else %}
 
-      <p>Welcome, <b>{{me.email}}</b>. You must receive approval before you can access this site. Please fill out the form below.</p>
+        <p>Welcome, <b>{{me.email}}</b>. You must receive approval before you can access this site. Please fill out the form below.</p>
 
-      <form class="form" action="" method="post">
+        <form class="form" action="" method="post">
 
-        <div class="form-field">
-          <label class="form-field-label">Your Google Account</label>
-          <input class="form-field-control" type="text" required value="{{me.email}}" readonly>
-        </div>
-
-        <div class="form-field">
-          <label class="form-field-label">First name</label>
-          <input class="form-field-control" type="text" required name="first_name">
-        </div>
-
-        <div class="form-field">
-          <label class="form-field-label">Last name</label>
-          <input class="form-field-control" type="text" required name="last_name">
-        </div>
-
-        <div class="form-field">
-          <label class="form-field-label">Company</label>
-          <input class="form-field-control" type="text" required name="company">
-        </div>
-
-        {% if config.CONFIG.organization_types %}
-        <div class="form-field">
-          <label class="form-field-label">Organization type</label>
-          <div>
-            <select required class="form-field-control" name="company_type">
-              <option></option>
-              {% for option in config.CONFIG.organization_types %}
-                <option>{{option}}</option>
-              {% endfor %}
-            </select>
+          <div class="form-field">
+            <label class="form-field-label">Your Google Account</label>
+            <input class="form-field-control" type="text" required value="{{me.email}}" readonly>
           </div>
-        </div>
-        {% endif %}
 
-        <div class="form-field">
-          <label class="form-field-label">Corporate email address</label>
-          <input class="form-field-control" type="email" required name="company_email">
-        </div>
-
-        <div class="form-field">
-          <label class="form-field-label">Job title</label>
-          <input class="form-field-control" type="text" required name="job_title">
-        </div>
-
-        {% if config.CONFIG.regions %}
-        <div class="form-field">
-          <label class="form-field-label">Region</label>
-          <div>
-            <select required class="form-field-control" name="region">
-              <option></option>
-              {% for item in config.CONFIG.regions %}
-                <option value="{{item.key}}">{{item.value}}</option>
-              {% endfor %}
-            </select>
+          <div class="form-field">
+            <label class="form-field-label">First name</label>
+            <input class="form-field-control" type="text" required name="first_name">
           </div>
-        </div>
-        {% endif %}
 
-        <div class="form-field">
-          <label class="form-field-label">Country</label>
-          <div>
-            <select required class="form-field-control" name="country">
-              <option></option>
-              {% for item in config.CONFIG.countries %}
-                <option value="{{item.0}}">{{item.1}}</option>
-              {% endfor %}
-            </select>
+          <div class="form-field">
+            <label class="form-field-label">Last name</label>
+            <input class="form-field-control" type="text" required name="last_name">
           </div>
-        </div>
 
-        <div class="form-field">
-          <label class="form-field-label">Which folders do you need to access?</label>
-          {% for item in nav[1:] %}
-            {% if 'folder' not in item %}
-            {% continue %}
-            {% endif %}
-            {% set folder = item['folder'] %}
-            {# Do not include "overview" folder. #}
-            {% if folder.weight == -1 %}{% continue %}{% endif %}
+          <div class="form-field">
+            <label class="form-field-label">Company</label>
+            <input class="form-field-control" type="text" required name="company">
+          </div>
+
+          {% if config.CONFIG.organization_types %}
+          <div class="form-field">
+            <label class="form-field-label">Organization type</label>
             <div>
-              <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.title}}</label>
+              <select required class="form-field-control" name="company_type">
+                <option></option>
+                {% for option in config.CONFIG.organization_types %}
+                  <option>{{option}}</option>
+                {% endfor %}
+              </select>
             </div>
-          {% endfor %}
-        </div>
-
-        <div class="form-field">
-          <label class="form-field-label">Why do you need access to these resources?</label>
-          <textarea class="form-field-control" required name="justification"></textarea>
-        </div>
-
-        <div class="form-field">
-          <label class="form-field-label">Email preference</label>
-          <div>
-            <label><input type="checkbox" name="email_opt_in"> I would like to receive occasional email updates.</label>
           </div>
-        </div>
+          {% endif %}
 
-        <div class="form-field">
-          <button type="submit" class="btn">
-            Submit access request
-          </button>
-        </div>
+          <div class="form-field">
+            <label class="form-field-label">Corporate email address</label>
+            <input class="form-field-control" type="email" required name="company_email">
+          </div>
 
-      </form>
+          <div class="form-field">
+            <label class="form-field-label">Job title</label>
+            <input class="form-field-control" type="text" required name="job_title">
+          </div>
+
+          {% if config.CONFIG.regions %}
+          <div class="form-field">
+            <label class="form-field-label">Region</label>
+            <div>
+              <select required class="form-field-control" name="region">
+                <option></option>
+                {% for item in config.CONFIG.regions %}
+                  <option value="{{item.key}}">{{item.value}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="form-field">
+            <label class="form-field-label">Country</label>
+            <div>
+              <select required class="form-field-control" name="country">
+                <option></option>
+                {% for item in config.CONFIG.countries %}
+                  <option value="{{item.0}}">{{item.1}}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-field-label">Which folders do you need to access?</label>
+            {% for item in nav[1:] %}
+              {% if 'folder' not in item %}
+              {% continue %}
+              {% endif %}
+              {% set folder = item['folder'] %}
+              {# Do not include "overview" folder. #}
+              {% if folder.weight == -1 %}{% continue %}{% endif %}
+              <div>
+                <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.title}}</label>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="form-field">
+            <label class="form-field-label">Why do you need access to these resources?</label>
+            <textarea class="form-field-control" required name="justification"></textarea>
+          </div>
+
+          <div class="form-field">
+            <label class="form-field-label">Email preference</label>
+            <div>
+              <label><input type="checkbox" name="email_opt_in"> I would like to receive occasional email updates.</label>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <button type="submit" class="btn">
+              Submit access request
+            </button>
+          </div>
+
+        </form>
+      {% endif %}
     {% endif %}
 
 {% endblock %}

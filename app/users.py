@@ -67,10 +67,9 @@ class User(models.Model, airlock.User):
     approval_ents = []
     for email in emails:
       user_ent = cls.get_or_create_by_email(email)
-      approval_message = messages.ApprovalMessage()
-      approval_message.form = messages.ApprovalFormMessage()
+      approval_form_message = messages.ApprovalFormMessage()
       approval_ent = approvals.Approval.create_and_approve(
-          approval_message,
+          approval_form_message,
           user_ent,
           created_by=created_by)
       approval_ents.append(approval_ent)

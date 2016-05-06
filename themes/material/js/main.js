@@ -337,5 +337,6 @@ airpress.ng.SyncController.prototype.sync = function(resourceId) {
     this.error = true;
     this.loading = false;
     this.success = false;
+    this.$scope.$apply();
   }.bind(this));
 };

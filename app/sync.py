@@ -155,20 +155,21 @@ def replicate_asset_to_gcs(resp):
   content_type = resp['mimeType']
 
   # Download thumbnail.
-  urlfetch_resp = urlfetch.fetch(resp['thumbnailLink'], deadline=60)
-  thumbnail_content_type = urlfetch_resp.headers['Content-Type']
-  if urlfetch_resp.status_code != 200:
-    logging.error('Received {}: {}'.format(
-        urlfetch_resp.status_code, resp['thumbnailLink'],
-        urlfetch_resp.content))
-    raise
-  thumbnail_content = urlfetch_resp.content
-  thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(CONFIG['folder'], resp['id'], resp['title'])
-  thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
-  logging.info('Wrote: {}'.format(thumbnail_path))
-  fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
-  fp.write(thumbnail_content)
-  fp.close()
+  if 'thumbnailLink' in resp:
+    urlfetch_resp = urlfetch.fetch(resp['thumbnailLink'], deadline=60)
+    thumbnail_content_type = urlfetch_resp.headers['Content-Type']
+    if urlfetch_resp.status_code != 200:
+      logging.error('Received {}: {}'.format(
+          urlfetch_resp.status_code, resp['thumbnailLink'],
+          urlfetch_resp.content))
+      raise
+    thumbnail_content = urlfetch_resp.content
+    thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(CONFIG['folder'], resp['id'], resp['title'])
+    thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
+    logging.info('Wrote: {}'.format(thumbnail_path))
+    fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
+    fp.write(thumbnail_content)
+    fp.close()
 
   # Download asset.
   service = get_service()
