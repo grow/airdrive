@@ -84,7 +84,8 @@ def download_folder(resource_id, process_deletes=True):
   final_children = child_resource_responses
   final_children_ids = [child['id'] for child in child_resource_responses]
   resources_to_delete = []
-  for child_ent in current_children['items']:
+  items_to_check = current_children['items'] + current_children['assets']
+  for child_ent in items_to_check:
     if child_ent.resource_id not in final_children_ids:
       resources_to_delete.append(child_ent)
   if resources_to_delete:
