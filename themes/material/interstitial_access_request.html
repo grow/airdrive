@@ -94,7 +94,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-field-label">Which folders do you need to access?</label>
+            <label class="form-field-label">Which, if any, of these restricted folders do you need to access?</label>
             {% for item in nav[1:] %}
               {% if 'folder' not in item %}
               {% continue %}
@@ -109,7 +109,7 @@
           </div>
 
           <div class="form-field">
-            <label class="form-field-label">Why do you need access to these resources?</label>
+            <label class="form-field-label">Why do you need access to this site? If you are requesting access to the restricted folders, why do you need access?</label>
             <textarea class="form-field-control" required name="justification"></textarea>
           </div>
 
