@@ -107,7 +107,7 @@ class SettingsMessage(messages.Message):
   favicon_url = messages.StringField(19)
 #  interstitial_processing = messages.StringField(20)
   interstitial_gmail_accounts = messages.StringField(21)
-  google_anayltics_id = messages.StringField(22)
+  google_analytics_id = messages.StringField(22)
 
 
 class ResourceMessage(messages.Message):

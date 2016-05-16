@@ -21,7 +21,7 @@ class AdminService(airlock.Service):
   def get_settings(self, request):
     ent = settings.Settings.singleton()
     self.require_admin()
-    resp = ent.form
+    resp = ent.get_form()
     return resp
 
   @remote.method(messages.SettingsMessage,
