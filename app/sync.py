@@ -165,7 +165,8 @@ def replicate_asset_to_gcs(resp):
           urlfetch_resp.content))
       raise
     thumbnail_content = urlfetch_resp.content
-    thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(CONFIG['folder'], resp['id'], resp['title'])
+    thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(
+        CONFIG['folder'], resp['id'], resp['title'])
     thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
     logging.info('Wrote: {}'.format(thumbnail_path))
     fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
@@ -180,7 +181,8 @@ def replicate_asset_to_gcs(resp):
         download_resp.status, resp['downloadUrl'],
         content))
     raise
-  path = 'assets/{}/asset-{}-{}'.format(CONFIG['folder'], resp['id'], resp['title'])
+  path = 'assets/{}/asset-{}-{}'.format(
+      CONFIG['folder'], resp['id'], resp['title'])
   bucket_path = '/{}/{}'.format(BUCKET, path)
   fp = gcs.open(bucket_path, 'w', content_type)
   fp.write(content)
@@ -245,13 +247,14 @@ def create_root_folder():
   }
   resp = service.files().insert(body=data, fields='id').execute()
   file_id = resp['id']
-  permission = {
-      'type': 'user',
-      'role': 'writer',
-      'value': 'jeremydw@google.com'
-  }
-  service.permissions().insert(
-      fileId=file_id,
-      body=permission,
-      fields='id',
-  ).execute()
+  for email in admins.Admin.list_emails():
+    permission = {
+        'type': 'user',
+        'role': 'writer',
+        'value': email,
+    }
+    service.permissions().insert(
+        fileId=file_id,
+        body=permission,
+        fields='id',
+    ).execute()

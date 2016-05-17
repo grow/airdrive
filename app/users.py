@@ -60,7 +60,7 @@ class User(models.Model, airlock.User):
     if self.is_domain_user:
       return True
     approved_folder_ids = self.list_approved_folders
-    return not approved_folder_ids or resource_id in approved_folder_ids
+    return resource_id in approved_folder_ids
 
   @classmethod
   def direct_add_users(cls, emails, created_by=None, send_email=False):

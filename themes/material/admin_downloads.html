@@ -16,11 +16,13 @@
       <td><img src="{{asset.icon_url}}"><a href="{{asset.thumbnail_url}}" target="_blank">{{asset.title}}</a></td>
       <td>
         {# TODO: Laziness. #}
-        {% if asset.parent.parent.parent
+        {% if asset.parent
+          and asset.parent.parent
+          and asset.parent.parent.parent
           and asset.parent.parent.parent.resource_id != config.CONFIG.folder %}
           {{asset.parent.parent.parent.title}} ›
         {% endif %}
-        {% if asset.parent.parent %}
+        {% if asset.parent and asset.parent.parent %}
           {{asset.parent.parent.title}} ›
         {% endif %}
         {{asset.parent.title}}

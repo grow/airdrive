@@ -20,7 +20,8 @@ APP_SERVICE_ACCOUNT = app_identity.get_service_account_name()
 
 _appid = os.getenv('APPLICATION_ID').replace('s~', '')
 EMAIL_SENDER = 'noreply@{}.appspotmail.com'.format(_appid)
-BASE_URL = '{}://{}'.format(os.getenv('wsgi.url_scheme'), os.getenv('SERVER_NAME'))
+BASE_URL = '{}://{}'.format(
+    os.getenv('wsgi.url_scheme'), os.getenv('SERVER_NAME'))
 
 mimetypes.add_type('image/svg+xml', '.svg')
 mimetypes.add_type('font/opentype', '.otf')
