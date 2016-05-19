@@ -85,11 +85,21 @@ def process_special_tags(html):
   html = re.sub('[^`]\[toc\]', '<div class="toc toc--auto"><ul></ul></div>', html)
   html = re.sub('[^`]\[TOC\]', '<div class="toc toc--auto"><ul></ul></div>', html)
   html = re.sub('[^`]\[hr\]', '<hr>', html)
-  html = re.sub('\[link\|([^\]]*)\](.*)\[/link\]', '<a href="\\1">\\2</a>', html)
+  html = re.sub('\[link\|([^\]]*)\]([^\[]+)\[/link\]', '<a href="\\1">\\2</a>', html)
+  html = re.sub('\[spacer\|([^\]]*)\]', '<div style="height: \\1"></div>', html)
   html = re.sub('[^`]\[b\](.*)\[/b\]', '<strong>\\1</strong>', html)
   html = re.sub('[^`]\[i\](.*)\[/i\]', '<em>\\1</em>', html)
   html = re.sub('(?:[^`]?)\[bi\](.*)\[/bi\]', '<strong><em>\\1</em></strong>', html)
   html = re.sub('(?:[^`]?)\[h2\]([^\[]+)\[/h2\]', '<h2>\\1</h2>', html, ALL)
+  html = re.sub('(?:[^`]?)\[h1\]([^\[]+)\[/h1\]', '<h1>\\1</h1>', html, ALL)
+  html = re.sub('(?:[^`]?)\[h2\|tout\]([^\[]+)\[/h2\]', '<h2 class="tout-wrap"><span class="tout tout--mid"><span class="tout__content">\\1</span></span></h2>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|right\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--large tout--large-pulled tout--right"><span class="tout__content">\\1</span></span></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|center\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--centered"><span class="tout__content">\\1</span></span></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|center\|color\|([^\]]+)\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--centered" style="background-color: \\1"><span class="tout__content">\\2</span></span></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|mid\|color\|([^\]]+)\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid" style="background-color: \\1"><span class="tout__content">\\2</span></span></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|mid\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid"><span class="tout__content">\\1</span></span></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|top\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--mid-pulled"><span class="tout__content">\\1</span></span></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[tout\|top\|color\|([^\]]+)\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--mid-pulled" style="background-color: \\1"><span class="tout__content">\\2</span></span></div>', html, ALL)
   html = re.sub('(?:[^`]?)\[h2\]([^\[]+)\[/h2\]', '<h2>\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\](.*)\[/h4\]', '<h4>\\1</h4>', html, ALL)
@@ -104,17 +114,18 @@ def process_special_tags(html):
   # [color|rgb:223,51,42|cmyk:7,94,97,1|hex:#df332a|pantone:179c]
   html = re.sub('[^`]\[color\|rgb:(.*)\|cmyk:(.*)\|hex:(.*)\|pantone:(.*)\](.*)\[/color\]', '<div class="color-chip"><div class="color-chip-color" style="background-color:\\3"></div><div class="color-chip-name">\\5</div><div class="color-chip-colors"><div class="color-chip-colors-color"><span>rgb</span>\\1</div><div class="color-chip-colors-color"><span>cmyk</span>\\2</div><div class="color-chip-colors-color"><span>hex</span>\\3</div><div class="color-chip-colors-color"><span>pantone</span>\\4</div></div></div>', html, ALL)
   html = re.sub('[^`]\[color.*\](.*)\[/color\]', '<div class="color-chip"><div class="color-chip-color"></div><div class="color-chip-name">\\1</div></div>', html, ALL)
-  html = re.sub('\[download\|([^\]]*)\]([^\[]*)\[caption\]([^\[]*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><div class="page-info-content-label">\\2</div><div class="page-info-content-filesize">\\3</div><div class="page-info-content-filesize">100 KB</div></div></div>', html, ALL)
+  html = re.sub('\[download\|([^\]]*)\]([^\[]*)\[caption\]([^\[]*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><a href="\\1" class="page-info-content-label">\\2</a><div class="page-info-content-filesize">\\3</div><div class="page-info-content-filesize"></div></div></div>', html, ALL)
   html = re.sub('\[info\|([^\]]*)\]([^\[]*)\[caption\]([^\[]*)\[/info\]', '<a class="page-info" href="\\1"><span class="page-info-icon"><i class="material-icons">info</i></span><span class="page-info-content"><span class="page-info-content-label">\\2</span><span class="page-info-content-filesize">\\3</span></span></a>', html, ALL)
   html = re.sub('\[highlight\|([^\]]*)\]([^\[]*)\[/highlight\]', '<span class="highlight" style="background-color:\\1">\\2</span>', html, ALL)
   html = re.sub('\[info\|([^\]]*)\]([^\[]*)\[/info\]', '<a class="page-info" href="\\1"><span class="page-info-icon"><i class="material-icons">info</i></span><span class="page-info-content"><span class="page-info-content-label">\\2</span></span></a>', html, ALL)
   html = re.sub('\[info\]([^\[]*)\[caption\]([^\[]*)\[/info\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">info</i></div><div class="page-info-content"><div class="page-info-content-label">\\1</div><div class="page-info-content-filesize">\\2</div></div></div>', html, ALL)
   html = re.sub('\[info\](.*)\[/info\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">info</i></div><div class="page-info-content"><div class="page-info-content-filesize">\\1</div></div></div>', html, ALL)
-  html = re.sub('\[download\|([^\]]*)\](.*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><div class="page-info-content-label">\\2</div><div class="page-info-content-filesize">100 KB</div></div></div>', html, ALL)
+  html = re.sub('\[download\|([^\]]*)\](.*)\[/download\]', '{% set asset = get_asset("\\1") %}<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><a href="{{asset.download_url}}" class="page-info-content-label">\\2</a><div class="page-info-content-filesize">{{asset.size|filesizeformat if asset is not sameas none else ""}}</div></div></div>', html, ALL)
   html = re.sub('[^`]\[youtube\](.*)\[/youtube\]', '<div class="page-youtube-video"><iframe width="560" height="315" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe></div>', html, ALL)
   html = re.sub('\[download\](.*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><div class="page-info-content-label">\\1</div><div class="page-info-content-filesize">100 KB</div></div></div>', html, ALL)
   html = re.sub('\[singlecolumnimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--singlecolumn"><div class="page-image" style="background-image:url(\\1)"></div></div>', html)
   html = re.sub('\[heroimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--hero"><img class="page-image--hero" src="\\1"></div>', html)
+  html = re.sub('\[bgimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--bg"><div class="page-image page-image--bg" style="background-image: url(\\1)"></div></div>', html)
   html = re.sub('\[slides\|([^\]]*)\]', '<iframe class"frame-slides" frameborder="0" data-src="https://docs.google.com/presentation/d/\\1/embed?authuser=0" allowfullscreen></iframe>', html)
   html = re.sub('\[fullsizeimage\|(.*)\]', '<div class="page-image-container page-image-container--fullsize"><div class="page-image" style="background-image:url(\\1)"></div></div>', html, ALL)
   html = re.sub('\[fullwidthimage\|(.*)\]', '<div class="page-image-container page-image-container--fullwidth"><img src="\\1"></div>', html, ALL)
@@ -148,6 +159,8 @@ def remove_empty_tags(soup, tag_names):
       elif tag_name == 'span' and not element.findAll(True):
         element.unwrap()
       elif tag_name == 'p':
+        if re.search('\[tout', text):
+          element.unwrap()
         if (re.search('[^`]\[h\d\]', text)
             or re.search('^\[h\d\]', text)) and element.find('span'):
           element.find('span').unwrap()
@@ -234,6 +247,7 @@ def process_tables(soup, style_tag):
     # Process special image tags in all cells.
     for cell in table.find_all('td'):
       cell_str = str(cell)
+      process_image_tag('bgimage', table, cell, cell_str)
       process_image_tag('heroimage', table, cell, cell_str)
       process_image_tag('singlecolumnimage', table, cell, cell_str,
           attr='data-page-document-table--has-images')
@@ -247,11 +261,17 @@ def process_tables(soup, style_tag):
       tr_str = str(first_row)
       if 'class' not in table:
         table['class'] = ''
+      if re.findall('\[table.*colored', tr_str):
+        table['class'] += 'page-document-table page-document-table--colored'
+      if re.findall('\[table.*callout', tr_str):
+        table['class'] += 'page-document-table page-document-table--callout'
       if re.findall('\[table.*data', tr_str):
         table['class'] += ' page-document-table--data'
       if re.findall('table.*savewidths', tr_str):
         save_widths = True
         table['class'] += ' page-document-table--save-widths'
+      if re.findall('\[table.*bg]', tr_str):
+        table['class'] += ' page-document-table--bg'
       if re.findall('\[table.*noheader', tr_str):
         table['class'] += ' page-document-table--no-header'
       is_fixed = re.findall('\[table.*fixed\]', tr_str)

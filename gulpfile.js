@@ -29,7 +29,7 @@ gulp.task('buildcss', function(callback) {
 });
 
 gulp.task('sass', function() {
-  return gulp.src('./themes/material/sass/*.scss')
+  return gulp.src('./themes/*/sass/*.scss')
     .pipe(plumber())
     .pipe(sass({
         outputStyle: 'compressed'

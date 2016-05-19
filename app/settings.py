@@ -1,6 +1,7 @@
 from . import messages
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
+import appengine_config
 import webapp2
 import yaml
 
@@ -33,3 +34,7 @@ class Settings(ndb.Model):
       return self.form.all_fields()
     form = messages.SettingsMessage()
     return form.all_fields()
+
+  def get_theme(self):
+    form = self.get_form()
+    return form.theme or appengine_config.DEFAULT_THEME

@@ -84,6 +84,7 @@ class BaseResourceModel(Model):
   color = ndb.StringProperty()
   interstitial = ndb.BooleanProperty()
   internal = ndb.BooleanProperty()
+  template = ndb.StringProperty()
 
   @property
   def resource_type(self):
@@ -120,12 +121,14 @@ class BaseResourceModel(Model):
     draft = '[draft]' in title.lower()
     hidden = '[hidden]' in title.lower()
     weight = float(order_matches[0]) if order_matches else None
+    template_matches = re.findall('\[template\|([^\]]*)\]', title.lower())
+    template = template_matches[0] if template_matches else None
     color_matches = re.findall('\[color\|([^\]]*)\]', title.lower())
     color = color_matches[0] if color_matches else None
     title = re.sub('\[[^\]]*\]', '', title).strip()
     internal = '[internal]' in title.lower()
-    return (title, weight, draft, hidden, color, internal)
+    return (title, weight, draft, hidden, color, internal, template)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template = (
         self._parse_title(unprocessed_title))

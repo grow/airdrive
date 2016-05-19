@@ -15,6 +15,8 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'config')
 
 VERSION = os.getenv('CURRENT_VERSION_ID')
 
+DEFAULT_THEME = 'material'
+
 from google.appengine.api import app_identity
 APP_SERVICE_ACCOUNT = app_identity.get_service_account_name()
 

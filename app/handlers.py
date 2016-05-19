@@ -26,13 +26,17 @@ import webapp2
 
 CONFIG = appengine_config.CONFIG
 MAIN_FOLDER_ID = CONFIG['folder']
-
+SETTINGS = settings.Settings.singleton()
 
 _here = os.path.dirname(__file__)
-_theme_path = os.path.join(_here, '..', 'themes', CONFIG['theme'])
+_default_theme_path = os.path.join(_here, '..', 'themes', appengine_config.DEFAULT_THEME)
+_theme_path = os.path.join(_here, '..', 'themes', SETTINGS.get_theme())
 _dist_path = os.path.join(_here, '..', 'dist')
 JINJA = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(_theme_path),
+    loader=jinja2.FileSystemLoader([
+        _theme_path,
+        _default_theme_path,
+    ]),
     extensions=[
         'jinja2.ext.autoescape',
         'jinja2.ext.loopcontrols',
@@ -122,11 +126,18 @@ class PageHandler(Handler):
     if page is None:
       self.error(404)
       return
+    html = page.get_processed_html()
+    content_template = JINJA.from_string(html)
+    rendered_html = content_template.render({
+        'asset': lambda *args, **kwargs: None,
+        'get_asset': assets.Asset.get
+    })
     params = {
         'page': page,
-        'pretty_html': page.get_processed_html(),
+        'pretty_html': rendered_html,
     }
-    self.render_template('page.html', params)
+    template = page.template or 'page.html'
+    self.render_template(template, params)
 
 
 class MainFolderHandler(Handler):

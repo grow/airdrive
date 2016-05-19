@@ -27,6 +27,10 @@ $header-height: 70px
       a
         color: $color-text
         font-size: $font-size-md
+        text-decoration: none
+
+        &:hover
+          text-decoration:none
 
       &-logo
         vertical-align: middle
@@ -63,7 +67,7 @@ $header-height: 70px
 
       .active-item
         a
-          color: $color-brand
+          color: $color-brand-text
           font-weight: $bold
 
       .material-icons
@@ -77,6 +81,7 @@ $header-height: 70px
 
         &:hover
           background-color: $color-light-bg-hover
+          text-decoration: none
 
         .material-icons
           float: right
@@ -86,7 +91,7 @@ $header-height: 70px
 
       .menu-item--active
         font-weight: bold
-        color: $color-brand
+        color: $color-brand-text
 
       ul
         display: none

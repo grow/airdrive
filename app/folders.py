@@ -13,7 +13,7 @@ import webapp2
 CONFIG = appengine_config.CONFIG
 MAIN_FOLDER_ID = CONFIG['folder']
 EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
-NAV_CACHE_KEY = 'nav-2345'
+NAV_CACHE_KEY = 'nav-23456'
 
 
 class Cache(ndb.Model):
@@ -44,6 +44,7 @@ def create_nav():
 
 def update_nav_item(page):
   item = {}
+  item['color'] = page.color
   item['resource_type'] = page.resource_type
   item['resource_id'] = page.resource_id
   item['url'] = page.url

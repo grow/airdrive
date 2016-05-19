@@ -99,15 +99,14 @@ class SettingsMessage(messages.Message):
   email_footer = messages.StringField(10)
   logo_url = messages.StringField(11)
   contact_url = messages.StringField(13)
-#  email_to_user_approved = messages.StringField(14)
-#  email_to_user_submitted = messages.StringField(15)
-#  email_to_user_rejected = messages.StringField(16)
   interstitial = messages.StringField(17)
   color = messages.StringField(18)
   favicon_url = messages.StringField(19)
-#  interstitial_processing = messages.StringField(20)
   interstitial_gmail_accounts = messages.StringField(21)
   google_analytics_id = messages.StringField(22)
+  theme = messages.StringField(23)
+  text_color = messages.StringField(24)
+  text_on_brand_color = messages.StringField(25)
 
 
 class ResourceMessage(messages.Message):
