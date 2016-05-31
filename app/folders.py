@@ -48,10 +48,14 @@ def update_nav_item(page):
   item['resource_type'] = page.resource_type
   item['resource_id'] = page.resource_id
   item['url'] = page.url
+  item['is_asset_container'] = (
+      page.resource_type == 'Folder'
+      and page.is_asset_container)
   item['is_asset_folder'] = (
       page.resource_type == 'Folder'
       and page.is_asset_folder)
   item['title'] = page.title
+  item['is_parent'] = page.is_parent
   item['weight'] = page.weight
   return item
 
@@ -153,7 +157,8 @@ class Folder(models.BaseResourceModel):
 
   @property
   def is_asset_folder(self):
-    return bool(re.match('^assets', self.title.lower()))
+    return (self.is_asset_container
+            or (bool(re.match('^assets', self.title.lower())) and not self.is_parent))
 
   @property
   def is_overview_folder(self):

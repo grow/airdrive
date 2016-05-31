@@ -94,24 +94,14 @@ def download_folder(resource_id, process_deletes=True):
   return child_resource_responses
 
 
-def is_assets_folder(resp):
-  return 'assets' in resp['title'].lower().strip()
-
-
 def download_resource(resource_id, user=None, create_channel=False):
   service = get_service()
   resp = service.files().get(fileId=resource_id).execute()
   if resp['mimeType'] == 'application/vnd.google-apps.folder':
-    if is_assets_folder(resp):
-      text = 'Processing assets: {} ({})'
-      message = text.format(resp['title'], resource_id)
-      update_channel(user, message)
-      process_assets_folder_response(resp, user)
-    else:
-      text = 'Processing folder: {} ({})'
-      message = text.format(resp['title'], resource_id)
-      update_channel(user, message)
-      process_folder_response(resp, user)
+    text = 'Processing folder: {} ({})'
+    message = text.format(resp['title'], resource_id)
+    update_channel(user, message)
+    process_folder_response(resp, user)
   else:
     text = 'Processing file: {} ({})'
     message = text.format(resp['title'], resource_id)
@@ -121,17 +111,6 @@ def download_resource(resource_id, user=None, create_channel=False):
   if create_channel:
     token = channel.create_channel(user.ident)
     return token
-
-
-def process_assets_folder_response(resp, user):
-  folders.Folder.process(resp)
-  resource_id = resp['id']
-  child_resource_responses = download_folder(resp['id'])
-  child_resource_ids = [child['id'] for child in child_resource_responses]
-  set_resources_public(child_resource_ids)
-  for child in child_resource_responses:
-    download_resource(child['id'], user)
-    deferred.defer(download_resource, child['id'], user)
 
 
 def process_folder_response(resp, user):
@@ -154,6 +133,7 @@ def get_file_content(resp):
 
 def replicate_asset_to_gcs(resp):
   content_type = resp['mimeType']
+  thumbnail_bucket_path = None
 
   # Download thumbnail.
   if 'thumbnailLink' in resp:

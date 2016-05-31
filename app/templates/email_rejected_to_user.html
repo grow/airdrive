@@ -4,7 +4,9 @@
   {% if settings.form.email_to_user_rejected %}
     {{settings.form.email_to_user_rejected|safe}}
   {% else %}
-    <p>Hello {{approval.form.first_name}},</p>
+    {% if approval.form.first_name %}
+      <p>Hello {{approval.form.first_name}},</p>
+    {% endif %}
     <p>Unfortunately, your request to access {{config.CONFIG.title}} was declined.</p>
   {% endif %}
 {% endblock %}

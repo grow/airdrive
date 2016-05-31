@@ -115,7 +115,7 @@
             {% if me.registered %}
               <a href="{{uri_for('settings')}}">{{me.email}}</a> | <a href="{{urls.sign_out()}}">Sign out</a>
             {% else %}
-              <a href="{{urls.sign_in()}}" class="btn btn--sm btn--inverted">Sign in</a>
+              <a href="{{urls.sign_in()}}&prompt=select_account" class="btn btn--sm btn--inverted">Sign in</a>
             {% endif %}
           </div>
           {% if enable_sidebar is sameas false %}

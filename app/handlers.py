@@ -40,6 +40,7 @@ JINJA = jinja2.Environment(
     extensions=[
         'jinja2.ext.autoescape',
         'jinja2.ext.loopcontrols',
+        'jinja2.ext.with_',
         extensions.FragmentCacheExtension,
 ],
     autoescape=True)
@@ -130,13 +131,14 @@ class PageHandler(Handler):
     content_template = JINJA.from_string(html)
     rendered_html = content_template.render({
         'asset': lambda *args, **kwargs: None,
-        'get_asset': assets.Asset.get
+        'get_asset': assets.Asset.get,
+        'get_page': pages.Page.get,
     })
     params = {
         'page': page,
         'pretty_html': rendered_html,
     }
-    template = page.template or 'page.html'
+    template = page.template or page.parent.template or 'page.html'
     self.render_template(template, params)
 
 

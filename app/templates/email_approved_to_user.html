@@ -4,7 +4,9 @@
   {% if settings.form.email_to_user_approved %}
     {{settings.form.email_to_user_approved|safe}}
   {% else %}
-    <p>Hello {{approval.form.first_name}},</p>
+    {% if approval.form.first_name %}
+      <p>Hello {{approval.form.first_name}},</p>
+    {% endif %}
     <p>Your request to access {{config.CONFIG.title}} has been approved.</p>
     <p class="centered"><a class="btn" href="{{config.BASE_URL}}">Visit website</a></p>
   {% endif %}

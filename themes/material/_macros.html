@@ -6,7 +6,7 @@
   {% if 'folder' in resource and resource['folder'] %}
     {% set resource = resource['folder'] %}
   {% endif %}
-  {% if 'children' in resource and not resource['is_asset_folder'] %}
+  {% if resource['is_parent'] or ('children' in resource and not resource['is_asset_folder'] and not resource['is_asset_container']) %}
     {% set has_children = true %}
     {% set url = "javascript:" %}
   {% else %}

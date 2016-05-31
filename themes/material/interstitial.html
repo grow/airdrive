@@ -9,7 +9,7 @@
     {{settings.form.interstitial|safe}}
     {% if not me.registered %}
       <p class="push--top">
-        <a href="{{urls.sign_in()}}" class="btn">Sign in</a>
+        <a href="{{urls.sign_in()}}&prompt=select_account" class="btn">Sign in</a>
       </p>
     {% endif %}
   </div>

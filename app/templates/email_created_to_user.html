@@ -4,7 +4,9 @@
   {% if settings.form.email_to_user_submitted %}
     {{settings.form.email_to_user_submitted|safe}}
   {% else %}
-    <p>Hello {{approval.form.first_name}},</p>
+    {% if approval.form.first_name %}
+      <p>Hello {{approval.form.first_name}},</p>
+    {% endif %}
     <p>We have received your request for access to the {{config.CONFIG.title}}.</p>
     <p>We are processing your request and will respond shortly. Thank you.</p>
   {% endif %}

@@ -44,6 +44,30 @@
     background: transparent
     height: inherit
 
+.page-header
+  background-color: $color-brand
+  color: $color-text-on-brand
+  margin-bottom: $pad-xx
+  padding: $pad-xx 30px
+  position: relative
+
+  a
+    color: $color-text-on-brand
+
+  .toc
+    &:before
+      display: none
+
+    border-left-color: $color-text-on-brand
+    font-size: 16px
+    font-weight: 500
+    margin: 0
+
+  .tout
+    position: absolute
+    right: 0
+    bottom: -95%
+
 .page-intro
   max-width: $max-width
   font-size: $font-size-md
@@ -52,6 +76,7 @@
 .page-info
   background: $color-white
   border: 1px solid $color-border
+  cursor: default
   display: flex
 
   .page-info-icon
@@ -73,6 +98,12 @@
       display: block
       font-weight: $bold
       line-height: $line-height-sm
+
+      &:not([href])
+        color: inherit
+
+        &:hover
+          text-decoration: none
 
     .page-info-content-filesize
       color: $color-grey

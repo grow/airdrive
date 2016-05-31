@@ -10,13 +10,13 @@
     <div class="toc">
       <ul>
         {% for f in folder.children['folders'] %}
-          {% if folder.is_asset_folder %}
+          {% if folder.is_asset_folder or folder.is_asset_container %}
             <li><a data-scroll href="#{{f.slug}}">{{f.title}}</a></li>
           {% else %}
             <li><a href="{{f.url}}">{{f.title}}</a></li>
           {% endif %}
         {% endfor %}
-        {% if not folder.is_asset_folder %}
+        {% if not folder.is_asset_folder and not folder.is_asset_container %}
           {% for p in folder.children['pages'] %}
           <li><a href="{{p.url}}">{{p.title}}</a></li>
           {% endfor %}
@@ -25,7 +25,7 @@
     </div>
     {% endif %}
 
-    {% if folder.is_asset_folder %}
+    {% if folder.is_asset_folder or folder.is_asset_container %}
 
       {% if folder.children['pages'] %}
         {% for p in folder.children['pages'] %}
@@ -35,9 +35,9 @@
       {% endif %}
 
       {% for f in folder.children['folders'] %}
-      <hr>
-      <h3 id="{{f.slug}}">{{f.title}}</h3>
-      {{macros.render_assets(f.children['assets'])}}
+        <hr>
+        <h3 id="{{f.slug}}">{{f.title}}</h3>
+        {{macros.render_assets(f.children['assets'])}}
       {% endfor %}
       {{macros.render_assets(folder.children['assets'])}}
     {% endif %}
