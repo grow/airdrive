@@ -29,5 +29,6 @@ app = airlock.WSGIApplication(routes)
 
 
 api_app = service.service_mappings((
+    ('/_api/assets.*', services.AssetService),
     ('/_api/admins.*', services.AdminService),
 ))

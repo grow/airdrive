@@ -1,6 +1,7 @@
 import appengine_config
 from . import admins
 from . import approvals
+from . import assets
 from . import folders
 from . import messages
 from . import settings
@@ -8,6 +9,18 @@ from . import sync
 from . import users
 from protorpc import remote
 import airlock
+
+
+class AssetService(airlock.Service):
+
+  @remote.method(messages.GetAssetGroupRequest,
+                 messages.GetAssetGroupResponse)
+  def get_group(self, request):
+    title = request.title
+    asset_messages = assets.Asset.get_group(title)
+    resp = messages.GetAssetGroupResponse()
+    resp.assets = asset_messages
+    return resp
 
 
 class AdminService(airlock.Service):

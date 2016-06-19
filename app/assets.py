@@ -1,3 +1,4 @@
+from . import messages
 from . import models
 from google.appengine.ext import ndb
 from google.appengine.ext import blobstore
@@ -48,6 +49,13 @@ class Asset(models.BaseResourceModel):
     ent.basename, ent.ext = os.path.splitext(resp['title'])
     ent.put()
 
+  @classmethod
+  def get_group(cls, title):
+    query = cls.query()
+    query = query.filter(cls.title == title)
+    ents = query.fetch()
+    return [ent.to_message() for ent in ents]
+
   @property
   def media_url(self):
     return DOWNLOAD_URL_FORMAT.format(
@@ -57,12 +65,6 @@ class Asset(models.BaseResourceModel):
   @property
   def thumbnail_url(self):
     return '/thumbnails/{}'.format(self.resource_id)
-
-  @classmethod
-  def create_thumbnail_url(cls, resource_id):
-    return THUMBNAIL_URL_FORMAT.format(
-        resource_id=resource_id,
-        size=250)
 
   @classmethod
   def create_thumbnail_url(cls, resource_id):
@@ -89,3 +91,14 @@ class Asset(models.BaseResourceModel):
     if thumbnail:
       return blobstore.create_gs_key('/gs{}'.format(self.gcs_thumbnail_path))
     return blobstore.create_gs_key('/gs{}'.format(self.gcs_path))
+
+  def to_message(self):
+    message = messages.AssetMessage()
+    message.ident = self.ident
+    message.download_url = self.download_url
+    message.title = self.title
+    message.size = self.size
+    message.thumbnail_url = self.thumbnail_url
+    message.messaging = self.messaging
+    message.region = self.region
+    return message

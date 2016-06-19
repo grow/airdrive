@@ -31,6 +31,17 @@ class FolderMessage(messages.Message):
   draft = messages.BooleanField(10)
 
 
+class AssetMessage(messages.Message):
+  ident = messages.StringField(1)
+  download_url = messages.StringField(2)
+  title = messages.StringField(3)
+  size = messages.StringField(4)
+  thumbnail_url = messages.StringField(5)
+  format = messages.StringField(5)
+  messaging = messages.StringField(6)
+  region = messages.StringField(7)
+
+
 class FoldersMessage(messages.Message):
   folders = messages.MessageField(FolderMessage, 1, repeated=True)
 
@@ -120,3 +131,11 @@ class ResourcesMessage(messages.Message):
 class SyncMessage(messages.Message):
   resources = messages.MessageField(ResourceMessage, 1, repeated=True)
   token = messages.StringField(2)
+
+
+class GetAssetGroupRequest(messages.Message):
+  title = messages.StringField(1)
+
+
+class GetAssetGroupResponse(messages.Message):
+  assets = messages.MessageField(AssetMessage, 1, repeated=True)

@@ -87,6 +87,9 @@ class BaseResourceModel(Model):
   template = ndb.StringProperty()
   is_parent = ndb.BooleanProperty()
   is_asset_container = ndb.BooleanProperty()
+  format = ndb.StringProperty()
+  messaging = ndb.StringProperty()
+  region = ndb.StringProperty()
 
   @property
   def resource_type(self):
@@ -127,12 +130,18 @@ class BaseResourceModel(Model):
     template = template_matches[0] if template_matches else None
     color_matches = re.findall('\[color\|([^\]]*)\]', title.lower())
     color = color_matches[0] if color_matches else None
+    format_matches = re.findall('\[format\|([^\]]*)\]', title.lower())
+    format = format_matches[0] if format_matches else None
+    messaging_matches = re.findall('\[messaging\|([^\]]*)\]', title.lower())
+    messaging = messaging_matches[0] if messaging_matches else None
+    region_matches = re.findall('\[region\|([^\]]*)\]', title.lower())
+    region = region_matches[0] if region_matches else None
     internal = '[internal]' in title.lower()
     is_parent = '[parent]' in title.lower()
     is_asset_container = '[assets]' in title.lower()
     cleaned_title = re.sub('\[[^\]]*\]', '', title).strip()
-    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container)
+    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, format, messaging, region)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.format, self.messaging, self.region = (
         self._parse_title(unprocessed_title))

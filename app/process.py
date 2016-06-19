@@ -101,6 +101,7 @@ def process_special_tags(html):
   html = re.sub('(?:[^`]?)\[tout\|top\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--mid-pulled"><span class="tout__content">\\1</span></span></div>', html, ALL)
   html = re.sub('(?:[^`]?)\[tout\|top\|color\|([^\]]+)\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--mid-pulled" style="background-color: \\1"><span class="tout__content">\\2</span></span></div>', html, ALL)
   html = re.sub('(?:[^`]?)\[h2\]([^\[]+)\[/h2\]', '<h2>\\1</h2>', html, ALL)
+  html = re.sub('(?:[^`]?)\[h2\|center\]([^\[]+)\[/h2\]', '<h2 class="text--centered">\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
   html = re.sub('(?:[^`]?)\[caption\]([^\[]+)\[/caption\]', '<div class="caption"><div class="caption-text">\\1</div></div>', html, ALL)
@@ -124,6 +125,7 @@ def process_special_tags(html):
   html = re.sub('\[page\|([^\]]*)\]([^\[]*)\[/page\]', '{% with page = get_page("\\1") %}<a href="{{page.url}}">\\2</a>{% endwith %}', html, ALL)
   html = re.sub('[^`]\[youtube\](.*)\[/youtube\]', '<div class="page-youtube-video"><iframe width="560" height="315" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe></div>', html, ALL)
   html = re.sub('\[download\](.*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><div class="page-info-content-label">\\1</div><div class="page-info-content-filesize">100 KB</div></div></div>', html, ALL)
+  html = re.sub('\[assets\]([^\[]*)\[/assets\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><a data-asset-title="\\1" class="page-info-content-label">Download</a></div></div>', html, ALL)
   html = re.sub('\[singlecolumnimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--singlecolumn"><div class="page-image" style="background-image:url(\\1)"></div></div>', html)
   html = re.sub('\[heroimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--hero"><img class="page-image--hero" src="\\1"></div>', html)
   html = re.sub('\[bgimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--bg"><div class="page-image page-image--bg" style="background-image: url(\\1)"></div></div>', html)
@@ -262,6 +264,8 @@ def process_tables(soup, style_tag):
       tr_str = str(first_row)
       if 'class' not in table:
         table['class'] = ''
+      if re.findall('\[table.*brand', tr_str):
+        table['class'] += 'page-document-table page-document-table--brand'
       if re.findall('\[table.*colored', tr_str):
         table['class'] += 'page-document-table page-document-table--colored'
       if re.findall('\[table.*callout', tr_str):
