@@ -1,0 +1,57 @@
+.downloadbar 
+  background: #4BA6EE
+  bottom: 0
+  color: black
+  font-weight: 400
+  left: 0
+  padding: 20px
+  position: fixed
+  transform: translateY(120px)
+  transition: all 200ms ease
+  opacity: 0
+  visibility: hidden
+  width: 100%
+  z-index: 5
+
+  &--visible
+    opacity: 1
+    visibility: visible
+    transform: translateY(0)
+
+  a
+    color: inherit
+
+  .downloadbar-col
+    display: inline-block
+    padding: 20px
+
+    &--cta
+      a
+        color: inherit
+        text-transform: uppercase
+
+        &:hover
+          text-decoration: none
+
+      i
+        margin-right: 5px
+        vertical-align: middle
+
+      &--disabled
+        opacity: .5
+        pointer-events: none
+
+    &--sm
+
+    &--md
+      width: 250px
+
+    select
+      border-radius: 0
+      border: none
+      color: #757575
+      display: inline-block
+      font: 400 18px/1 "Roboto","Helvetica",arial,sans-serif
+      height: 40px
+      padding: 10px
+      width: 100%

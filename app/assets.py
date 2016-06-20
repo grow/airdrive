@@ -52,7 +52,7 @@ class Asset(models.BaseResourceModel):
   @classmethod
   def get_group(cls, title):
     query = cls.query()
-    query = query.filter(cls.title == title)
+    query = query.filter(cls.title_lower == title)
     ents = query.fetch()
     return [ent.to_message() for ent in ents]
 
@@ -101,4 +101,5 @@ class Asset(models.BaseResourceModel):
     message.thumbnail_url = self.thumbnail_url
     message.messaging = self.messaging
     message.region = self.region
+    message.format = self.format
     return message

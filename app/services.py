@@ -16,7 +16,7 @@ class AssetService(airlock.Service):
   @remote.method(messages.GetAssetGroupRequest,
                  messages.GetAssetGroupResponse)
   def get_group(self, request):
-    title = request.title
+    title = request.title.lower()
     asset_messages = assets.Asset.get_group(title)
     resp = messages.GetAssetGroupResponse()
     resp.assets = asset_messages

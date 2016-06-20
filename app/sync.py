@@ -145,13 +145,15 @@ def replicate_asset_to_gcs(resp):
           urlfetch_resp.content))
       raise
     thumbnail_content = urlfetch_resp.content
+    title_slug = models.BaseResourceModel.generate_slug(resp['title'])
     thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(
-        CONFIG['folder'], resp['id'], resp['title'])
+        CONFIG['folder'], resp['id'], title_slug)
     thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
     logging.info('Wrote: {}'.format(thumbnail_path))
-    fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
-    fp.write(thumbnail_content)
-    fp.close()
+    if not appengine_config.DEV_SERVER:
+      fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
+      fp.write(thumbnail_content)
+      fp.close()
 
   # Download asset.
   service = get_service()
@@ -161,12 +163,14 @@ def replicate_asset_to_gcs(resp):
         download_resp.status, resp['downloadUrl'],
         content))
     raise
+  title_slug = models.BaseResourceModel.generate_slug(resp['title'])
   path = 'assets/{}/asset-{}-{}'.format(
-      CONFIG['folder'], resp['id'], resp['title'])
+      CONFIG['folder'], resp['id'], title_slug)
   bucket_path = '/{}/{}'.format(BUCKET, path)
-  fp = gcs.open(bucket_path, 'w', content_type)
-  fp.write(content)
-  fp.close()
+  if not appengine_config.DEV_SERVER:
+    fp = gcs.open(bucket_path, 'w', content_type)
+    fp.write(content)
+    fp.close()
   return bucket_path, thumbnail_bucket_path
 
 

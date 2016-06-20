@@ -7,6 +7,7 @@ airpress.main = function() {
          $interpolateProvider.startSymbol('[[').endSymbol(']]');
       }])
       .controller('FoldersController', airpress.ng.FoldersController)
+      .controller('DownloadBarController', airpress.ng.DownloadBarController)
       .controller('AdminsController', airpress.ng.AdminsController)
       .controller('ApprovalController', airpress.ng.ApprovalController)
       .controller('ApprovalsController', airpress.ng.ApprovalsController)
@@ -143,7 +144,6 @@ airpress.ng.SettingsController = function($scope) {
 
 
 airpress.ng.SettingsController.prototype.updateSettings = function(form) {
-  console.log(form);
   airpress.rpc('admins.update_settings', form).done(function(resp) {
     this.settings = resp;
     this.$scope.$apply();
@@ -339,4 +339,78 @@ airpress.ng.SyncController.prototype.sync = function(resourceId) {
     this.success = false;
     this.$scope.$apply();
   }.bind(this));
+};
+
+
+airpress.ng.DownloadBarController = function($scope, $element) {
+  this.el_ = $element[0];
+  this.$scope = $scope;
+  this.visible = false;
+  this.asset = {};
+  this.updateForm_([]);
+  this.assets = {};
+
+  var buttonEls = document.querySelectorAll('[data-asset-title]');
+  [].forEach.call(buttonEls, function(buttonEl) {
+    var assetTitle = buttonEl.getAttribute('data-asset-title');
+    buttonEl.addEventListener('click', function() {
+      this.setVisible(!this.visible, assetTitle);
+      this.$scope.$apply();
+    }.bind(this));
+  }.bind(this));
+};
+
+
+airpress.ng.DownloadBarController.prototype.setVisible = function(visible, assetTitle) {
+  this.visible = visible;
+  if (!visible) {
+    return;
+  }
+  this.asset.title = assetTitle;
+  this.updateAsset_(assetTitle);
+};
+
+
+airpress.ng.DownloadBarController.prototype.updateAsset_ = function(title) {
+  airpress.rpc('assets.get_group', {
+    'title': title
+  }).done(
+      function(resp) {
+    this.asset.title = title;
+    this.updateForm_(resp['assets']);
+    this.$scope.$apply();
+  }.bind(this));
+};
+
+
+airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
+  this.assets = assets;
+  this.form = {
+    format: [],
+    messaging: [],
+    region: [],
+  };
+  this.assets.forEach(function(asset) {
+    if (this.form.format.indexOf(asset.format) == -1) {
+      this.form.format.push(asset.format);
+    }
+    if (this.form.messaging.indexOf(asset.messaging) == -1) {
+      this.form.messaging.push(asset.messaging);
+    }
+    if (this.form.region.indexOf(asset.region) == -1) {
+      this.form.region.push(asset.region);
+    }
+  }.bind(this));
+};
+
+
+airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
+  for (var i = 0; i < this.assets.length; i++) {
+    var asset = this.assets[i];
+    if (asset.format == this.asset.format
+          && asset.messaging == this.asset.messaging
+          && asset.region == this.asset.region) {
+      return asset.download_url;
+    }
+  }
 };

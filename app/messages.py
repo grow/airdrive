@@ -35,11 +35,11 @@ class AssetMessage(messages.Message):
   ident = messages.StringField(1)
   download_url = messages.StringField(2)
   title = messages.StringField(3)
-  size = messages.StringField(4)
-  thumbnail_url = messages.StringField(5)
+  size = messages.IntegerField(4)
   format = messages.StringField(5)
   messaging = messages.StringField(6)
   region = messages.StringField(7)
+  thumbnail_url = messages.StringField(8)
 
 
 class FoldersMessage(messages.Message):

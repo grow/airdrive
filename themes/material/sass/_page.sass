@@ -12,7 +12,7 @@
   width: 100%
 
   &--bg
-    height: 600px
+    height: 550px
     margin: 0
 
   .page-image
@@ -78,6 +78,15 @@
   border: 1px solid $color-border
   cursor: default
   display: flex
+
+  &[data-asset-title]
+    cursor: pointer
+
+    a
+      color: $color-brand !important
+
+    .page-info-content-filesize:after
+      content: 'See available files'
 
   .page-info-icon
     background: $color-border
