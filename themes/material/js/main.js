@@ -414,3 +414,33 @@ airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
     }
   }
 };
+
+
+airpress.initTables = function() {
+  // TODO: Clean up this code.
+  $('.page-document > table').each(function(i, table) {
+    var $table = $(table);
+    if ($table) {
+      var numCols = $(this).find('> tbody > tr:first-child > td').size();
+      if ($table.attr('class').indexOf('page-document-table') < 0) {
+        $(this).addClass('cols-' + numCols);
+      }
+    }
+  });
+  $('.page--hidden').removeClass('page--hidden');
+
+  var buildToc = function() {
+    var tocEl = document.querySelector('.toc--auto ul');
+    if (tocEl) {
+      var els = document.querySelectorAll('h2');
+      [].forEach.call(els, function(el, i) {
+        var elId = 'toc-' + i;
+        el.setAttribute('id', elId);
+        var title = el.textContent;
+        var listItemEl = $('<li><a data-scroll href="#' + elId + '">' + title + '</a></li>');
+        $(tocEl).append(listItemEl);
+      });
+    }
+  };
+  buildToc();
+};
