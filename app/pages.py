@@ -69,7 +69,8 @@ class Page(models.BaseResourceModel):
 
   @property
   def url(self):
-    return '/{}/{}/{}/'.format(self.parent.slug, self.key.id(), self.slug)
+    if self.parent:
+        return '/{}/{}/{}/'.format(self.parent.slug, self.key.id(), self.slug)
 
   @property
   def edit_url(self):

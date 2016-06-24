@@ -13,11 +13,11 @@
     {% set has_children = false %}
     {% set url = resource['url'] %}
   {% endif %}
-  <li class="{{"menu-item-child--open" if resource['resource_id'] == active_resource_id or config.keep_folders_open}}"><a
+  <li class="{{"menu-item-child--open" if resource['resource_id'] == active_resource_id or settings.form.keep_folders_open}} {{"menu-item-child--kept-open" if settings.form.keep_folders_open}}"><a
     href="{{url}}"
-    class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource['resource_id'] == active_resource_id and not has_children}}"
+    class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource['resource_id'] == active_resource_id and not has_children}} "
     >{{resource['title']}}
-    {% if not config.keep_folders_open %}
+    {% if not settings.form.keep_folders_open %}
       {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
     {% endif %}
     </a></li>
@@ -25,7 +25,7 @@
     <ul class="menu-item--child {{"menu-item-child--open"
       if (folder and resource['resource_id'] in folder.resource_id
             or page and resource['resource_id'] in page.resource_id)
-          or config.keep_folders_open}}">
+          or settings.form.keep_folders_open}}">
       {% for item in resource['children']['items']|sort(attribute='weight') %}
         {{render_menu_tree(item, config, active_resource_id=active_resource_id)}}
       {% endfor %}
@@ -74,7 +74,7 @@
             {% set thumbnail_item = group.list[0] %}
           {% endif %}
           <div class="assets-asset-image-thumbnail">
-            <div class="assets-asset-image-thumbnail-image {% if group.list|length == 1 and group.list[0].title.endswith('.zip') %}assets-asset-image-thumbnail-image--zip{% endif %}" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
+            <div class="assets-asset-image-thumbnail-image {% if group.list|length == 1 %}assets-asset-image-thumbnail-image--{{group.list[0].title.split('.')[-1]}}{% endif %}" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
           </div>
         </div>
         <div class="assets-asset-meta">

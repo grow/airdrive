@@ -118,6 +118,7 @@ class SettingsMessage(messages.Message):
   theme = messages.StringField(23)
   text_color = messages.StringField(24)
   text_on_brand_color = messages.StringField(25)
+  keep_folders_open = messages.StringField(26)
 
 
 class ResourceMessage(messages.Message):

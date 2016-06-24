@@ -349,6 +349,7 @@ airpress.ng.DownloadBarController = function($scope, $element) {
   this.asset = {};
   this.updateForm_([]);
   this.assets = {};
+  this.maskEl = document.querySelector('.downloadbar-mask');
 
   var buttonEls = document.querySelectorAll('[data-asset-title]');
   [].forEach.call(buttonEls, function(buttonEl) {
@@ -358,10 +359,20 @@ airpress.ng.DownloadBarController = function($scope, $element) {
       this.$scope.$apply();
     }.bind(this));
   }.bind(this));
+
+  this.maskEl.addEventListener('click', function() {
+    this.setVisible(false);
+    this.$scope.$apply();
+  }.bind(this));
 };
 
 
 airpress.ng.DownloadBarController.prototype.setVisible = function(visible, assetTitle) {
+  if (visible) {
+      this.maskEl.classList.add('downloadbar-mask--visible');
+  } else {
+      this.maskEl.classList.remove('downloadbar-mask--visible');
+  }
   this.visible = visible;
   if (!visible) {
     return;
@@ -390,6 +401,9 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     messaging: [],
     region: [],
   };
+  if (!this.assets) {
+    return;
+  }
   this.assets.forEach(function(asset) {
     if (this.form.format.indexOf(asset.format) == -1) {
       this.form.format.push(asset.format);
@@ -405,6 +419,9 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
 
 
 airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
+  if (!this.assets) {
+    return;
+  }
   for (var i = 0; i < this.assets.length; i++) {
     var asset = this.assets[i];
     if (asset.format == this.asset.format

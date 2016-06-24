@@ -102,6 +102,7 @@ def process_special_tags(html):
   html = re.sub('(?:[^`]?)\[tout\|top\|color\|([^\]]+)\]([^\[]+)\[/tout\]', '<div class="tout-wrap"><span class="tout tout--mid tout--mid-pulled" style="background-color: \\1"><span class="tout__content">\\2</span></span></div>', html, ALL)
   html = re.sub('(?:[^`]?)\[h2\]([^\[]+)\[/h2\]', '<h2>\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h2\|center\]([^\[]+)\[/h2\]', '<h2 class="text--centered">\\1</h2>', html, ALL)
+  html = re.sub('(?:[^`]?)\[h3\|center\]([^\[]+)\[/h3\]', '<h3 class="text--centered">\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
   html = re.sub('(?:[^`]?)\[caption\]([^\[]+)\[/caption\]', '<div class="caption"><div class="caption-text">\\1</div></div>', html, ALL)
@@ -111,6 +112,7 @@ def process_special_tags(html):
   html = re.sub('[^`]\[caption\|do\]([^\[]*)\[/caption\]', '<div class="caption caption--do"><div class="caption-bar"></div><div class="caption-label">Do</div><div class="caption-text">\\1</div></div>', html, ALL)
   html = re.sub('[^`]\[caption\|label\]([^\[]*)\[/caption\]', '<div class="caption"><div class="caption-label">\\1</div></div>', html, ALL)
   html = re.sub('\[intro\]([^\[]+)\[/intro\]', '<div class="page-intro">\\1</div>', html, ALL)
+  html = re.sub('\[button\|([^\]]*)\]([^\[]*)\[/button\]', '{% with page = get_page("\\1") %}<a class="btn" href="{{page.url}}">\\2</a>{% endwith %}', html, ALL)
   html = re.sub('\[button\]([^\[]*)\[/button\]', '<a class="btn">\\1</a>', html, ALL)
   # [color|rgb:223,51,42|cmyk:7,94,97,1|hex:#df332a|pantone:179c]
   html = re.sub('[^`]\[color\|rgb:(.*)\|cmyk:(.*)\|hex:(.*)\|pantone:(.*)\](.*)\[/color\]', '<div class="color-chip"><div class="color-chip-color" style="background-color:\\3"></div><div class="color-chip-name">\\5</div><div class="color-chip-colors"><div class="color-chip-colors-color"><span>rgb</span>\\1</div><div class="color-chip-colors-color"><span>cmyk</span>\\2</div><div class="color-chip-colors-color"><span>hex</span>\\3</div><div class="color-chip-colors-color"><span>pantone</span>\\4</div></div></div>', html, ALL)
@@ -132,8 +134,10 @@ def process_special_tags(html):
   html = re.sub('\[slides\|([^\]]*)\]', '<iframe class"frame-slides" frameborder="0" data-src="https://docs.google.com/presentation/d/\\1/embed?authuser=0" allowfullscreen></iframe>', html)
   html = re.sub('\[fullsizeimage\|(.*)\]', '<div class="page-image-container page-image-container--fullsize"><div class="page-image" style="background-image:url(\\1)"></div></div>', html, ALL)
   html = re.sub('\[fullwidthimage\|(.*)\]', '<div class="page-image-container page-image-container--fullwidth"><img src="\\1"></div>', html, ALL)
+  html = re.sub('\[calloutimage\|(.*)\]', '<div class="page-image-container page-image-container--callout"><img src="\\1"></div>', html, ALL)
   html = re.sub('\`([^`]*)\`', '<code>\\1</code>', html)
   html = re.sub('</ol>[^<]*<ol>', '', html, ALL)
+  html = re.sub('\[nav\|next([^\]]*)\]', '{% with page = get_page("\\1") %}{% include "nav.html" with context %}{% endwith %}', html, ALL)
   return html
 
 
@@ -255,7 +259,8 @@ def process_tables(soup, style_tag):
       process_image_tag('singlecolumnimage', table, cell, cell_str,
           attr='data-page-document-table--has-images')
       process_image_tag('fullwidthimage', table, cell, cell_str)
-      process_image_tag('fullsizeimage', table, cell, cell_str)
+#      process_image_tag('calloutimage', table, cell, cell_str)
+#      process_image_size_tag(table, cell, cell_str)
 
     # Process table header.
     first_row = table.find('tr')
@@ -348,5 +353,21 @@ def process_image_tag(name, table, cell, cell_str, attr=None):
       for node in cell.find_all('p'):
         if '[{}]'.format(name) in str(node):
           node.string = '[{}|{}]'.format(name, url)
+        img.decompose()
+        node.unwrap()
+
+
+def process_image_size_tag(table, cell, cell_str, attr=None):
+  if re.search(r'[^`]\[imagesize|.*\]', cell_str):
+    if attr:
+      table.attrs[attr] = 'true'
+    img = cell.find('img')
+    if img:
+      url = img.get('src')
+      for node in cell.find_all('p'):
+        match = re.match(r'\[imagesize|([^\]]+)\]', str(node))
+        if match:
+          size = match.groups()[0]
+          node.string = '[imagesize|{}|{}]'.frmat(size, url)
         img.decompose()
         node.unwrap()

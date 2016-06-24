@@ -1,3 +1,15 @@
+.downloadbar-mask
+  display: none
+  position: fixed
+  z-index: 4
+  top: 0
+  bottom: 0
+  right: 0
+  left: 0
+
+  &--visible
+    display: block
+
 .downloadbar 
   background: #4BA6EE
   bottom: 0
@@ -38,7 +50,7 @@
         vertical-align: middle
 
       &--disabled
-        opacity: .5
+        opacity: .15
         pointer-events: none
 
     &--sm
