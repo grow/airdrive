@@ -2,9 +2,19 @@
 {% extends "base.html" %}
 
 {% block main %}
-  <div class="contained">
+  <div class="page contained">
 
     <h1>{{folder.title}}</h1>
+
+    {% if folder.is_asset_folder or folder.is_asset_container %}
+      {% if folder.children['pages'] %}
+        <div class="page-document">
+          {% for p in folder.children['pages'] %}
+            {{p.get_processed_html()|safe}}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endif %}
 
     {% if folder.children['folders'] %}
     <div class="toc">
@@ -26,16 +36,28 @@
     {% endif %}
 
     {% if folder.is_asset_folder or folder.is_asset_container %}
-
-      {% if folder.children['pages'] %}
-        {% for p in folder.children['pages'] %}
-          {{p.get_processed_html()|safe}}
-        {% endfor %}
-      {% endif %}
-
       {% for f in folder.children['folders'] %}
         <hr>
-        <h3 id="{{f.slug}}">{{f.title}}</h3>
+        {% if is_admin %}
+          <div ng-controller="SyncController as ctrl">
+        {% endif %}
+        <h3 id="{{f.slug}}">
+          {{f.title}}
+          {% if is_admin %}
+            <a href="javascript:" ng-click="ctrl.sync('{{f.resource_id}}')">Sync</a>
+          {% endif %}
+        </h3>
+        {% if is_admin %}
+          {{macros.sync_snackbar()}}
+          </div>
+        {% endif %}
+        {% if f.children['pages'] %}
+          <div class="page-document">
+            {% for p in f.children['pages'] %}
+              {{p.get_processed_html()|safe}}
+            {% endfor %}
+          </div>
+        {% endif %}
         {{macros.render_assets(f.children['assets'])}}
       {% endfor %}
       {{macros.render_assets(folder.children['assets'])}}

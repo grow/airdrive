@@ -116,8 +116,10 @@ airpress.ng.ApprovalsController.prototype.deleteApproval = function(ident) {
 
 
 airpress.ng.ApprovalsController.prototype.searchApprovals = function() {
+  this.loading = true;
   airpress.rpc('admins.search_approvals', {}).done(
       function(resp) {
+    this.loading = false;
     this.approvals = resp['approvals'] || [];
     this.$scope.$apply();
   }.bind(this));

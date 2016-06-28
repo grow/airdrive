@@ -137,40 +137,46 @@ def replicate_asset_to_gcs(resp):
 
   # Download thumbnail.
   if 'thumbnailLink' in resp:
-    urlfetch_resp = urlfetch.fetch(resp['thumbnailLink'], deadline=60)
-    thumbnail_content_type = urlfetch_resp.headers['Content-Type']
-    if urlfetch_resp.status_code != 200:
-      logging.error('Received {}: {}'.format(
-          urlfetch_resp.status_code, resp['thumbnailLink'],
-          urlfetch_resp.content))
-      raise
-    thumbnail_content = urlfetch_resp.content
     title_slug = models.BaseResourceModel.generate_slug(resp['title'])
     thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(
         CONFIG['folder'], resp['id'], title_slug)
     thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
-    logging.info('Wrote: {}'.format(thumbnail_path))
     if not appengine_config.DEV_SERVER:
-      fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
-      fp.write(thumbnail_content)
-      fp.close()
+      try:
+        gcs.stat(thumbnail_bucket_path)
+      except gcs.NotFoundError:
+        urlfetch_resp = urlfetch.fetch(resp['thumbnailLink'], deadline=60)
+        thumbnail_content_type = urlfetch_resp.headers['Content-Type']
+        if urlfetch_resp.status_code != 200:
+          logging.error('Received {}: {}'.format(
+              urlfetch_resp.status_code, resp['thumbnailLink'],
+              urlfetch_resp.content))
+          raise
+        thumbnail_content = urlfetch_resp.content
+        logging.info('Wrote: {}'.format(thumbnail_path))
+        fp = gcs.open(thumbnail_bucket_path, 'w', thumbnail_content_type)
+        fp.write(thumbnail_content)
+        fp.close()
 
   # Download asset.
   service = get_service()
-  download_resp, content = service._http.request(resp['downloadUrl'])
-  if download_resp.status != 200:
-    logging.error('Received {} from {}: {}'.format(
-        download_resp.status, resp['downloadUrl'],
-        content))
-    raise
   title_slug = models.BaseResourceModel.generate_slug(resp['title'])
-  path = 'assets/{}/asset-{}-{}'.format(
-      CONFIG['folder'], resp['id'], title_slug)
+  path = 'assets/{}/asset-{}-{}'
+  path = path.format(CONFIG['folder'], resp['id'], title_slug)
   bucket_path = '/{}/{}'.format(BUCKET, path)
   if not appengine_config.DEV_SERVER:
-    fp = gcs.open(bucket_path, 'w', content_type)
-    fp.write(content)
-    fp.close()
+    try:
+      gcs.stat(bucket_path)
+    except gcs.NotFoundError:
+      download_resp, content = service._http.request(resp['downloadUrl'])
+      if download_resp.status != 200:
+        logging.error('Received {} from {}: {}'.format(
+            download_resp.status, resp['downloadUrl'],
+            content))
+        raise
+      fp = gcs.open(bucket_path, 'w', content_type)
+      fp.write(content)
+      fp.close()
   return bucket_path, thumbnail_bucket_path
 
 

@@ -33,8 +33,7 @@
   {% endif %}
 {% endmacro %}
 
-{% macro render_admin_bar(resource) %}
-<div ng-controller="SyncController as ctrl" ng-cloak>
+{% macro sync_snackbar() %}
   <div class="snackbar" ng-if="ctrl.error">
     An error occured.
   </div>
@@ -44,6 +43,11 @@
   <div class="snackbar" ng-if="ctrl.success">
     Done syncing. <a href=".">Refresh</a> or <a ng-click="ctrl.success = false; ctrl.loading == false" href="javascript:">dismiss</a>.
   </div>
+{% endmacro %}
+
+{% macro render_admin_bar(resource) %}
+<div ng-controller="SyncController as ctrl" ng-cloak>
+  {{sync_snackbar()}}
   <div class="admin-bar">
     <a href="{{uri_for('admin')}}">Site Admin</a>
     <a href="{{resource.edit_url}}">Edit Page</a>
@@ -69,6 +73,10 @@
           {% if group.list[0].title.endswith(('.eps', '.ai'))
               and group.list[1]
               and not group.list[1].title.endswith(('.eps', '.ai')) %}
+            {% set thumbnail_item = group.list[1] %}
+          {% elif group.list[0].title.endswith('.zip')
+              and group.list[1]
+              and not group.list[1].title.endswith('.zip') %}
             {% set thumbnail_item = group.list[1] %}
           {% else %}
             {% set thumbnail_item = group.list[0] %}

@@ -54,7 +54,7 @@
         <tbody>
           <tr ng-repeat="(key, val) in ctrl.approval.form" ng-if="key != 'folders'">
             <td>[[key]]</td>
-            <td><input class="form-field-control" ng-model="ctrl.approval.form[key]"></td>
+            <td><textarea class="form-field-control" ng-model="ctrl.approval.form[key]"></textarea></td>
           </tr>
         </tbody>
       </table>

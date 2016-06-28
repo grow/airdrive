@@ -35,6 +35,9 @@
     </div>
   </form>
 
+  <div ng-show="!ctrl.approvals && ctrl.loading">
+    Loading...
+  </div>
   <table class="table" ng-show="ctrl.approvals">
     <thead>
       <th></th>
