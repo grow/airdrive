@@ -39,6 +39,7 @@ JINJA = jinja2.Environment(
     ]),
     extensions=[
         'jinja2.ext.autoescape',
+        'jinja2.ext.do',
         'jinja2.ext.loopcontrols',
         'jinja2.ext.with_',
         extensions.FragmentCacheExtension,
