@@ -271,6 +271,14 @@ airpress.ng.ApprovalController = function($scope, $element) {
 };
 
 
+airpress.ng.ApprovalController.prototype.updateForm = function() {
+  var approval = this.approval;
+  airpress.rpc('admins.update_approvals', {
+    'approvals': [approval]
+  });
+};
+
+
 airpress.ng.ApprovalController.prototype.updateStatus =
     function(approve, sendEmail) {
   var method = approve ? 'admins.approve_approvals' : 'admins.reject_approvals';

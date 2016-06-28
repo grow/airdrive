@@ -13,3 +13,5 @@ config/
 config.*/
 scripts/deploy
 scripts/deploy_*
+themes/
+!themes/material

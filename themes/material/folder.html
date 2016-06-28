@@ -31,7 +31,6 @@
         {% for p in folder.children['pages'] %}
           {{p.get_processed_html()|safe}}
         {% endfor %}
-        <hr>
       {% endif %}
 
       {% for f in folder.children['folders'] %}

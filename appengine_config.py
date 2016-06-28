@@ -7,6 +7,9 @@ import json
 import mimetypes
 import yaml
 
+from app import monkeypatch
+monkeypatch.patch()
+
 DEV_SERVER = os.getenv('SERVER_SOFTWARE').startswith('Dev')
 OFFLINE = False
 

@@ -15,7 +15,8 @@ PER_PAGE = 100
 class Approval(models.BaseResourceModel):
   _message_class = messages.ApprovalMessage
   created = ndb.DateTimeProperty(auto_now_add=True)
-  form = msgprop.MessageProperty(messages.ApprovalFormMessage, indexed_fields=['folders'])
+  form = msgprop.MessageProperty(
+      messages.ApprovalFormMessage, indexed_fields=['folders'])
   user_key = ndb.KeyProperty()
   updated_by_key = ndb.KeyProperty()
   status = msgprop.EnumProperty(messages.Status, default=messages.Status.PENDING)

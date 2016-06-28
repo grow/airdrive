@@ -22,8 +22,10 @@
         </span>
       </li>
     </ul>
-    <h3>Access to folders</h3>
-    <form>
+    <hr class="hr--sm">
+    <form class="form">
+      <h3>Access to folders</h3>
+      <a class="btn btn--sm" ng-click="ctrl.updateStatus(true, ctrl.sendEmailToApprovals)">Approve</a>
       <ul>
         {% for item in nav[1:] %}
           {% if 'folder' not in item %}
@@ -36,21 +38,27 @@
         {% endfor %}
       </ul>
     </form>
-    <h3>Form response</h3>
-    <table class="table" ng-show="ctrl.approval.form">
-      <thead>
-        <tr>
-          <th>Question</th>
-          <th>Response</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-repeat="(key, val) in ctrl.approval.form" ng-if="key != 'folders'">
-          <td>[[key]]</td>
-          <td>[[val]]</td>
-        </tr>
-      </tbody>
-    </table>
+    <hr class="hr--sm">
+    <form class="form" ng-submit="ctrl.updateForm()">
+      <h3>Form response</h3>
+      <div class="form-field">
+        <button type="submit" class="btn btn--inverted btn--sm">Update</button>
+      </div>
+      <table class="table" ng-show="ctrl.approval.form">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Response</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(key, val) in ctrl.approval.form" ng-if="key != 'folders'">
+            <td>[[key]]</td>
+            <td><input class="form-field-control" ng-model="ctrl.approval.form[key]"></td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
   </div>
 
 {% endblock %}
