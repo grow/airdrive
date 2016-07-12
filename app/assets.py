@@ -1,10 +1,12 @@
 from . import messages
 from . import models
 from google.appengine.ext import ndb
+from google.appengine.ext.ndb import msgprop
 from google.appengine.ext import blobstore
 import appengine_config
 import datetime
 import os
+import re
 import webapp2
 
 DOWNLOAD_URL_FORMAT = 'https://www.googleapis.com/drive/v3/files/{resource_id}?alt=media&key={key}'
@@ -28,6 +30,8 @@ class Asset(models.BaseResourceModel):
   gcs_path = ndb.StringProperty()
   gcs_thumbnail_path = ndb.StringProperty()
   etag = ndb.StringProperty()
+  metadata = msgprop.MessageProperty(
+      messages.AssetMetadata, indexed_fields=['width', 'height', 'label'])
 
   @classmethod
   def process(cls, resp, gcs_path=None, gcs_thumbnail_path=None):
@@ -47,14 +51,45 @@ class Asset(models.BaseResourceModel):
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
     ent.basename, ent.ext = os.path.splitext(resp['title'])
+    ent.set_metadata(resp)
     ent.put()
 
   @classmethod
-  def get_group(cls, title):
+  def get_group(cls, parent_key=None):
     query = cls.query()
-    query = query.filter(cls.title_lower == title)
+    query = query.filter(cls.parents == parent_key)
     ents = query.fetch()
-    return [ent.to_message() for ent in ents]
+    asset_messages = [ent.to_message() for ent in ents]
+    folder_message = parent_key.get().to_message()
+    return folder_message, asset_messages
+
+  def set_metadata(self, resp):
+    metadata = messages.AssetMetadata()
+    title = resp['title']  # Formatted: CB_US_STD_ATTRACT_HANGING_LANDSCAPE_48x24.ext
+    base, ext = os.path.splitext(resp['title'])
+    metadata.language = 'en'
+
+    # Width and height.
+    for part in base.split('_'):
+      part = re.sub('[p][x]', '', part)
+      match = re.match('(\d*)x(\d*)', part)
+      if match:
+        width, height = match.groups()
+        metadata.width = int(width)
+        metadata.height = int(height)
+        metadata.dimensions = '{}x{}'.format(width, height)
+
+    # Label.
+    if '_STD_' in base:
+      metadata.label = 'Standard'
+    elif '_PROMO_' in base:
+      metadata.label = 'Promotional'
+    elif '_CO-BRAND_' in base:
+      metadata.label = 'Co-branding'
+    elif '_CTA_' in base:
+      metadata.label = 'Call-to-action'
+
+    self.metadata = metadata
 
   @property
   def media_url(self):
@@ -99,7 +134,5 @@ class Asset(models.BaseResourceModel):
     message.title = self.title
     message.size = self.size
     message.thumbnail_url = self.thumbnail_url
-    message.messaging = self.messaging
-    message.region = self.region
-    message.format = self.format
+    message.metadata = self.metadata
     return message

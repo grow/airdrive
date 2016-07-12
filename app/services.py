@@ -9,6 +9,7 @@ from . import sync
 from . import users
 from protorpc import remote
 import airlock
+from google.appengine.ext import ndb
 
 
 class AssetService(airlock.Service):
@@ -16,9 +17,10 @@ class AssetService(airlock.Service):
   @remote.method(messages.GetAssetGroupRequest,
                  messages.GetAssetGroupResponse)
   def get_group(self, request):
-    title = request.title.lower()
-    asset_messages = assets.Asset.get_group(title)
+    parent_key = ndb.Key('Folder', request.parent_key)
+    folder_message, asset_messages = assets.Asset.get_group(parent_key=parent_key)
     resp = messages.GetAssetGroupResponse()
+    resp.folder = folder_message
     resp.assets = asset_messages
     return resp
 
@@ -148,7 +150,8 @@ class AdminService(airlock.Service):
                  messages.ApprovalsMessage)
   def directly_add_users(self, request):
     self.require_admin()
-    emails = [user.email for user in request.users]
+    emails = [users.User.parse_email(user.email)
+              for user in request.users]
     send_email = request.send_email
     approval_ents = users.User.direct_add_users(
         emails, created_by=self.me, send_email=send_email)

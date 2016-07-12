@@ -11,13 +11,14 @@
     display: block
 
 .downloadbar 
-  background: #4BA6EE
+  background: #44A3ED
   bottom: 0
   color: black
-  font-weight: 400
+  font: 400 16px/1 "Roboto","Helvetica",arial,sans-serif
   left: 0
-  padding: 20px
+  padding: 15px
   position: fixed
+  text-align: center
   transform: translateY(120px)
   transition: all 200ms ease
   opacity: 0
@@ -34,15 +35,30 @@
     color: inherit
 
   .downloadbar-col
+    border-right: 1px solid rgba(0, 0, 0, .18);
     display: inline-block
-    padding: 20px
+    margin-right: 15px
+    padding-right: 15px
+
+    &:last-child
+      border-right: none
+      margin-left: 20px
+
+    &--title
+      font-weight: bold
+
+      & > span
+        display: inline-block
+        padding: 10px
 
     &--cta
       a
-        color: inherit
+        color: #000
         text-transform: uppercase
+        transition: all 100ms
 
         &:hover
+          color: #fff
           text-decoration: none
 
       i
@@ -55,15 +71,16 @@
 
     &--sm
 
-    &--md
-      width: 250px
-
     select
+      background: none
       border-radius: 0
       border: none
-      color: #757575
+      color: #000
+      cursor: pointer
       display: inline-block
-      font: 400 18px/1 "Roboto","Helvetica",arial,sans-serif
-      height: 40px
+      font: 400 16px/1 "Roboto","Helvetica",arial,sans-serif
+      height: 36px
+      min-width: 120px
+      outline: none
       padding: 10px
       width: 100%

@@ -1,11 +1,15 @@
-from . import messages
-from . import models
 from . import approvals
 from . import emails as emails_lib
+from . import messages
+from . import models
+from email import utils as email_utils
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
 import airlock
 import appengine_config
+import csv
+import io
+import logging
 import webapp2
 
 
@@ -77,3 +81,32 @@ class User(models.Model, airlock.User):
         emailer = emails_lib.Emailer(approval_ent)
         emailer.send_approved_to_user()
     return approval_ents
+
+  @classmethod
+  def parse_email(cls, email):
+      return email_utils.parseaddr(email)[1]
+
+  @classmethod
+  def import_from_csv(cls, content, updated_by):
+    fp = io.BytesIO()
+    fp.write(content)
+    fp.seek(0)
+    reader = csv.DictReader(fp)
+    ents = []
+    for row in reader:
+      valid_keys = []
+      if 'email' not in row:
+          raise Exception('Email not found.')
+      email = cls.parse_email(row.pop('email', ''))
+      for key in row.keys():
+          if key in dir(messages.ApprovalFormMessage):
+            valid_keys.append(key)
+          else:
+            del row[key]
+      form = messages.ApprovalFormMessage(**row)
+      user = cls.get_or_create_by_email(email)
+      ent = approvals.Approval(
+          user_key=user.key, form=form, updated_by_key=updated_by.key,
+          status=messages.Status.APPROVED)
+      ents.append(ent)
+    return ents

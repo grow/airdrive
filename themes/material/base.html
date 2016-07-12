@@ -77,21 +77,21 @@
             {% endif %}
           </ul>
 
-          <div class="layout-side-bordered">
-            <ul class="menu menu--hidden">
-            {% if nav %}
-              {% for nav_item in nav[1:] %}
-                {% if not nav_item.folder %}{% continue %}{% endif %}
-                {% set each_folder = nav_item['folder'] %}
-                {% if not has_access(each_folder['resource_id']) %}
-                  {% continue %}
-                {% endif %}
-                {{macros.render_menu_tree(each_folder, config.CONFIG, active_resource_id=(page or folder).resource_id)}}
-              {% endfor %}
-            {% endif %}
-            </ul>
-          </div>
-        <div class="layout-side-bottom">
+          {% if nav|length > 1 and nav[1:] %}
+            <div class="layout-side-bordered layout-side-bordered--menu">
+              <ul class="menu menu--hidden">
+                {% for nav_item in nav[1:] %}
+                  {% if not nav_item.folder %}{% continue %}{% endif %}
+                  {% set each_folder = nav_item['folder'] %}
+                  {% if not has_access(each_folder['resource_id']) %}
+                    {% continue %}
+                  {% endif %}
+                  {{macros.render_menu_tree(each_folder, config.CONFIG, active_resource_id=(page or folder).resource_id)}}
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        <div class="layout-side-bordered layout-side-bordered--bottom">
           {% if settings.form.sidebar_text %}
             {{settings.form.sidebar_text|safe}}
           {% endif %}
@@ -137,3 +137,11 @@
     airpress.menu.init();
     airpress.main();
   </script>
+  {% if settings.form.google_analytics_id %}
+  <script src="//www.google.com/js/gweb/analytics/autotrack.js"></script>
+  <script>
+    new gweb.analytics.AutoTrack({
+      profile: '{{settings.form.google_analytics_id}}'
+    });
+  </script>
+  {% endif %}

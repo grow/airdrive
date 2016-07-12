@@ -8,6 +8,7 @@ from . import folders
 from . import messages
 from . import pages
 from . import settings
+from . import users as app_users
 from . import sync
 from datetime import datetime
 from google.appengine.api import channel
@@ -48,6 +49,7 @@ JINJA = jinja2.Environment(
 JINJA.fragment_cache = cache.MemcachedCache()
 JINJA.filters['filesizeformat'] = common.do_filesizeformat
 JINJA.filters['markdown'] = common.do_markdown
+JINJA.filters['stripext'] = common.do_stripext
 
 
 def get_config_content(name):
@@ -134,6 +136,8 @@ class PageHandler(Handler):
         'asset': lambda *args, **kwargs: None,
         'get_asset': assets.Asset.get,
         'get_page': pages.Page.get,
+        'get_folder': folders.Folder.get,
+        'is_admin': self.is_admin(redirect=False),
     })
     params = {
         'page': page,
@@ -174,7 +178,7 @@ class HomepageHandler(Handler):
       form_dict['email_opt_in'] = True
     approval_form_message = approvals.Approval.decode_form(form_dict)
     approval_form_message.folders = folders
-    approvals.Approval.create(approval_form_message, self.me)
+    approvals.Approval.get_or_create(approval_form_message, self.me)
     self.get()
 
 
@@ -232,7 +236,9 @@ class SettingsHandler(Handler):
     if not self.me.is_registered:
       self.redirect(self.urls.sign_in())
       return
-    self.render_template('settings.html')
+    params = {}
+    params['admin_page'] = True
+    self.render_template('settings.html', params)
 
 
 class AdminApprovalsApprovalHandler(Handler):
@@ -242,6 +248,7 @@ class AdminApprovalsApprovalHandler(Handler):
       return
     params = {}
     params['approval'] = approvals.Approval.get_by_ident(ident)
+    params['admin_page'] = True
     self.render_template('admin_approvals_approval.html', params)
 
 
@@ -259,6 +266,7 @@ class AdminAdminsHandler(Handler):
       return
     params = {}
     params['admins'] = admins.Admin.list()
+    params['admin_page'] = True
     self.render_template('admin_admins.html', params)
 
 
@@ -268,6 +276,7 @@ class AdminSettingsHandler(Handler):
     if not self.is_admin():
       return
     params = {}
+    params['admin_page'] = True
     params['approvals'] = approvals.Approval.search()
     params['admins'] = admins.Admin.list()
     params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
@@ -287,6 +296,7 @@ class AdminHandler(Handler):
       self.response.out.write(content)
       return
     params = {}
+    params['admin_page'] = True
     params['approvals'] = approvals.Approval.search()
     params['admins'] = admins.Admin.list()
     params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
@@ -332,3 +342,12 @@ class DeleteHandler(Handler):
       if folder:
         folder.delete()
         self.response.out.write('deleted')
+
+
+class ImportCsvHandler(Handler):
+
+  def post(self):
+    if not self.is_admin():
+      return
+    content = self.request.get('file')
+    app_users.User.import_from_csv(content, updated_by=self.me)

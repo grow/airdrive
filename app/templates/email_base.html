@@ -69,7 +69,9 @@
   <div class="main">
     {% block main %}{% endblock %}
   </div>
-  <div class="footer">
-    {{settings.form.email_footer|safe}}
-  </div>
+  {% if settings.form.email_footer %}
+    <div class="footer">
+      {{settings.form.email_footer|safe}}
+    </div>
+  {% endif %}
 </div>

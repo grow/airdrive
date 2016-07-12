@@ -13,6 +13,15 @@ airpress.main = function() {
       .controller('ApprovalsController', airpress.ng.ApprovalsController)
       .controller('SettingsController', airpress.ng.SettingsController)
       .controller('SyncController', airpress.ng.SyncController)
+      .filter('prettyLanguage', function() {
+         return function(identifier) {
+           switch (identifier) {
+             case 'en':
+               return 'English';
+           }
+           return identifier;
+        }
+      })
 
   angular.bootstrap(document, ['airpress'])
   smoothScroll.init({offset: 40});
@@ -356,16 +365,17 @@ airpress.ng.DownloadBarController = function($scope, $element) {
   this.el_ = $element[0];
   this.$scope = $scope;
   this.visible = false;
-  this.asset = {};
+  this.selectedAsset = {};
   this.updateForm_([]);
   this.assets = {};
+  this.loaded = false;
   this.maskEl = document.querySelector('.downloadbar-mask');
 
-  var buttonEls = document.querySelectorAll('[data-asset-title]');
+  var buttonEls = document.querySelectorAll('[data-asset-parentkey]');
   [].forEach.call(buttonEls, function(buttonEl) {
-    var assetTitle = buttonEl.getAttribute('data-asset-title');
+    var parentKey = buttonEl.getAttribute('data-asset-parentkey');
     buttonEl.addEventListener('click', function() {
-      this.setVisible(!this.visible, assetTitle);
+      this.setVisible(!this.visible, parentKey);
       this.$scope.$apply();
     }.bind(this));
   }.bind(this));
@@ -377,7 +387,7 @@ airpress.ng.DownloadBarController = function($scope, $element) {
 };
 
 
-airpress.ng.DownloadBarController.prototype.setVisible = function(visible, assetTitle) {
+airpress.ng.DownloadBarController.prototype.setVisible = function(visible, parentKey) {
   if (visible) {
       this.maskEl.classList.add('downloadbar-mask--visible');
   } else {
@@ -387,18 +397,18 @@ airpress.ng.DownloadBarController.prototype.setVisible = function(visible, asset
   if (!visible) {
     return;
   }
-  this.asset.title = assetTitle;
-  this.updateAsset_(assetTitle);
+  this.updateAsset_(parentKey);
 };
 
 
-airpress.ng.DownloadBarController.prototype.updateAsset_ = function(title) {
+airpress.ng.DownloadBarController.prototype.updateAsset_ = function(parentKey) {
   airpress.rpc('assets.get_group', {
-    'title': title
+    'parent_key': parentKey
   }).done(
       function(resp) {
-    this.asset.title = title;
+    this.selectedAsset.title = resp['folder']['title'];
     this.updateForm_(resp['assets']);
+    this.loaded = true;
     this.$scope.$apply();
   }.bind(this));
 };
@@ -407,24 +417,34 @@ airpress.ng.DownloadBarController.prototype.updateAsset_ = function(title) {
 airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
   this.assets = assets;
   this.form = {
-    format: [],
-    messaging: [],
-    region: [],
+    dimensions: [],
+    label: [],
+    language: [],
   };
   if (!this.assets) {
     return;
   }
   this.assets.forEach(function(asset) {
-    if (this.form.format.indexOf(asset.format) == -1) {
-      this.form.format.push(asset.format);
+    if (this.form.dimensions.indexOf(asset.metadata.dimensions) == -1) {
+      this.form.dimensions.push(asset.metadata.dimensions);
     }
-    if (this.form.messaging.indexOf(asset.messaging) == -1) {
-      this.form.messaging.push(asset.messaging);
+    if (this.form.label.indexOf(asset.metadata.label) == -1) {
+      this.form.label.push(asset.metadata.label);
     }
-    if (this.form.region.indexOf(asset.region) == -1) {
-      this.form.region.push(asset.region);
+    if (this.form.language.indexOf(asset.metadata.language) == -1) {
+      this.form.language.push(asset.metadata.language);
     }
   }.bind(this));
+  if (this.form.label.length == 1) {
+    this.selectedAsset.label = this.form.label[0];
+  }
+  if (this.form.dimensions.length == 1) {
+    this.selectedAsset.dimensions = this.form.dimensions[0];
+  }
+  if (this.form.language.length == 1) {
+    this.selectedAsset.language = this.form.language[0];
+  }
+  console.log(this.form.language.length);
 };
 
 
@@ -434,9 +454,9 @@ airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
   }
   for (var i = 0; i < this.assets.length; i++) {
     var asset = this.assets[i];
-    if (asset.format == this.asset.format
-          && asset.messaging == this.asset.messaging
-          && asset.region == this.asset.region) {
+    if (asset.metadata.dimensions == this.selectedAsset.dimensions
+          && asset.metadata.label == this.selectedAsset.label
+          && asset.metadata.language == this.selectedAsset.language) {
       return asset.download_url;
     }
   }

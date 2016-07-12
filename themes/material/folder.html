@@ -38,19 +38,9 @@
     {% if folder.is_asset_folder or folder.is_asset_container %}
       {% for f in folder.children['folders'] %}
         <hr>
-        {% if is_admin %}
-          <div ng-controller="SyncController as ctrl">
-        {% endif %}
         <h3 id="{{f.slug}}">
           {{f.title}}
-          {% if is_admin %}
-            <a href="javascript:" ng-click="ctrl.sync('{{f.resource_id}}')">Sync</a>
-          {% endif %}
         </h3>
-        {% if is_admin %}
-          {{macros.sync_snackbar()}}
-          </div>
-        {% endif %}
         {% if f.children['pages'] %}
           <div class="page-document">
             {% for p in f.children['pages'] %}
@@ -58,9 +48,9 @@
             {% endfor %}
           </div>
         {% endif %}
-        {{macros.render_assets(f.children['assets'])}}
+        {{macros.render_assets(f.children['assets'], folder=f)}}
       {% endfor %}
-      {{macros.render_assets(folder.children['assets'])}}
+      {{macros.render_assets(folder.children['assets'], folder=f)}}
     {% endif %}
 
     {% if is_admin %}

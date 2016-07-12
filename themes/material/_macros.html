@@ -65,20 +65,21 @@
   {% include "_mosaic.html" with context %}
 {% endmacro %}
 
-{% macro render_assets(assets) %}
+{% macro render_assets(assets, folder=None) %}
   <div class="assets">
     {% for group in assets|groupby('basename') %}
       <div class="assets-asset">
         <div class="assets-asset-image">
-          {% if group.list[0].title.endswith(('.eps', '.ai'))
-              and group.list[1]
-              and not group.list[1].title.endswith(('.eps', '.ai')) %}
-            {% set thumbnail_item = group.list[1] %}
-          {% elif group.list[0].title.endswith('.zip')
-              and group.list[1]
-              and not group.list[1].title.endswith('.zip') %}
-            {% set thumbnail_item = group.list[1] %}
-            {% do group.list.pop() %}
+          {% set group_list = group.list|sort(attribute='title', reverse=true) %}
+          {% if group_list[0].title.endswith(('.eps', '.ai'))
+              and group_list[1]
+              and not group_list[1].title.endswith(('.eps', '.ai')) %}
+            {% set thumbnail_item = group_list[1] %}
+          {% elif group_list[0].title.endswith('.zip')
+              and group_list[1]
+              and not group_list[1].title.endswith('.zip') %}
+            {% set thumbnail_item = group_list[1] %}
+            {% do group_list.pop() %}
           {% else %}
             {% set thumbnail_item = group.list[0] %}
           {% endif %}
@@ -88,9 +89,9 @@
         </div>
         <div class="assets-asset-meta">
           <div class="assets-asset-meta-title">
-            {{thumbnail_item.title}}
+            {{thumbnail_item.title|stripext}}
           </div>
-          {% for item in group.list %}
+          {% for item in group_list|sort(attribute='title') %}
             <div class="assets-asset-meta-link">
               <a href="{{item.download_url}}">{{item.ext[1:]|upper}}</a> {{item.size|filesizeformat}}</li>
             </div>
@@ -99,4 +100,10 @@
       </div>
     {% endfor %}
   </div>
+  {% if folder and is_admin %}
+  <div ng-controller="SyncController as ctrl">
+    <a href="javascript:" ng-click="ctrl.sync('{{folder.resource_id}}')">Sync {{folder.title}}</a>
+    {{sync_snackbar()}}
+  </div>
+  {% endif %}
 {% endmacro %}

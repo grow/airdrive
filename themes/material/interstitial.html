@@ -3,10 +3,20 @@
 {% set enable_header = false %}
 {% extends "base.html" %}
 
+{% block head_base %}
+<link rel="stylesheet" href="/_app/{{config.VERSION}}/assets/css/{{settings.theme}}/sass/{{settings.theme}}.css">
+{% endblock %}
+
 {% block main %}
-  <div class="contained contained--sm">
-    <h1 class="text-header--xl">{{settings.form.title}}</h1>
-    {{settings.form.interstitial|safe}}
+  <div class="contained contained--sm interstitial">
+    {% if settings.form.logo_url %}
+      <div class="interstitial-logo">
+        <img src="{{settings.form.logo_url}}">
+      </div>
+    {% else %}
+      <h1 class="text-header--xl">{{settings.form.title}}</h1>
+    {% endif %}
+    <p class="interstitial-body">{{settings.form.interstitial|safe}}</p>
     {% if not me.registered %}
       <p class="push--top">
         <a href="{{urls.sign_in()}}&prompt=select_account" class="btn">Sign in</a>

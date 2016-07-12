@@ -1,6 +1,11 @@
 from markdown.extensions import tables
 from markdown.extensions import toc
+import os
 import markdown
+
+
+def do_stripext(value):
+  return os.path.splitext(value)[0]
 
 
 def do_markdown(value):

@@ -71,3 +71,19 @@ code
 .text-code
   &--block
     display: block
+
+// Override Chrome image resizing issue.
+img
+  transform: none !important
+
+.loading-spinner
+  display: inline-block
+  height: 40px
+  text-align: center
+  vertical-align: top
+  width: 40px
+  zoom: .65
+
+  svg path,
+  svg rect
+    fill: #fff

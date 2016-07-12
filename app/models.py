@@ -10,7 +10,7 @@ class Model(ndb.Model):
     # a property `category_key` will return the corresponding category
     # when accessing `entity.category`.
     reference_key_name = '{}_key'.format(name)
-    if hasattr(self, reference_key_name):
+    if hasattr(self, reference_key_name) and not hasattr(self, name):
       key = getattr(self, reference_key_name)
       return key.get() if key is not None else None
     return self.__getattribute__(name)
@@ -131,19 +131,13 @@ class BaseResourceModel(Model):
     template = template_matches[0] if template_matches else None
     color_matches = re.findall('\[color\|([^\]]*)\]', title.lower())
     color = color_matches[0] if color_matches else None
-    format_matches = re.findall('\[format\|([^\]]*)\]', title)
-    format = format_matches[0] if format_matches else None
-    messaging_matches = re.findall('\[messaging\|([^\]]*)\]', title)
-    messaging = messaging_matches[0] if messaging_matches else None
-    region_matches = re.findall('\[region\|([^\]]*)\]', title)
-    region = region_matches[0] if region_matches else None
     internal = '[internal]' in title.lower()
     is_parent = '[parent]' in title.lower()
     is_asset_container = '[assets]' in title.lower()
     cleaned_title = re.sub('\[[^\]]*\]', '', title).strip()
     title_lower = cleaned_title.lower()
-    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, format, messaging, region, title_lower)
+    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.format, self.messaging, self.region, self.title_lower = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower = (
         self._parse_title(unprocessed_title))

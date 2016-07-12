@@ -18,6 +18,13 @@
     </div>
   </form>
 
+  <form class="form" enctype="multipart/form-data" method="post" action="/admin/importcsv">
+    <input type="file" name="file">
+    <button type="submit">Upload</button>
+  </form>
+
+  <hr>
+
   <h2>Users</h2>
 
   <div class="push-sm--bottom">
@@ -56,7 +63,7 @@
             [[approval.status]]
           </td>
           <td>
-            <a target="_blank" ng-href="./[[approval.ident]]/">[[approval.user.email]]</a>
+            <a target="_blank" ng-href="./[[approval.ident]]/">[[approval.user.email || approval.form.company_email]]</a>
           </td>
           <td>
             [[approval.created|date:"short"]]

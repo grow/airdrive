@@ -15,6 +15,7 @@ routes = [
     webapp2.Route('/thumbnails/<resource_id>', handlers.ThumbnailDownloadHandler, name='thumbnail'),
     webapp2.Route('/assets/<resource_id>', handlers.AssetDownloadHandler, name='asset'),
     webapp2.Route('/settings/', handlers.SettingsHandler, name='settings'),
+    webapp2.Route('/admin/importcsv', handlers.ImportCsvHandler, name='admin-import-csv'),
     webapp2.Route('/admin/approvals/<ident>/', handlers.AdminApprovalsApprovalHandler, name='admin-approvals-approval'),
     webapp2.Route('/admin/settings/', handlers.AdminSettingsHandler, name='admin-settings'),
     webapp2.Route('/admin/admins/', handlers.AdminAdminsHandler, name='admin-admins'),

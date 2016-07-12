@@ -6,6 +6,7 @@
   <div class="contained contained--sm">
 
     {% if settings.form.interstitial_gmail_accounts
+           and not settings.form.allow_gmail_accounts
            and me.domain == "gmail.com" %}
       {{settings.form.interstitial_gmail_accounts|safe}}
     {% else %}

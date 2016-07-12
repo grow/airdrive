@@ -1,3 +1,4 @@
+import airlock
 from . import emails
 from . import messages
 from . import models
@@ -12,25 +13,52 @@ import json
 PER_PAGE = 100
 
 
+class User(models.Model, airlock.User):
+  email = ndb.StringProperty()
+  _message_class = messages.UserMessage
+
+  def to_message(self):
+    message = self._message_class()
+    message.email = self.email
+    return message
+
+
 class Approval(models.BaseResourceModel):
   _message_class = messages.ApprovalMessage
   created = ndb.DateTimeProperty(auto_now_add=True)
   form = msgprop.MessageProperty(
       messages.ApprovalFormMessage, indexed_fields=['folders'])
   user_key = ndb.KeyProperty()
+  user = ndb.StructuredProperty(User)
   updated_by_key = ndb.KeyProperty()
+  updated_by = ndb.StructuredProperty(User)
   status = msgprop.EnumProperty(messages.Status, default=messages.Status.PENDING)
   updated = ndb.DateTimeProperty(auto_now=True)
+
+  _csv_header = [
+      'company',
+      'company_email',
+      'company_type',
+      'country',
+      'email_opt_in',
+      'first_name',
+      'folders',
+      'job_title',
+      'justification',
+      'last_name',
+      'region',
+  ]
 
   def to_message(self):
     message = self._message_class()
     message.created = self.created
     message.ident = self.ident
-    message.user = self.user.to_message()
+    if self.user:
+        message.user = self.user.to_message()
     message.status = self.status
     message.updated = self.updated
     message.form = self.form
-    if self.updated_by_key:
+    if self.updated_by:
       message.updated_by = self.updated_by.to_message()
     return message
 
@@ -44,6 +72,8 @@ class Approval(models.BaseResourceModel):
     self.form = message.form
     if self.form.folders:
       self.form.folders = list(set(self.form.folders))
+    embedded_user = User(**updated_by.to_dict())
+    self.updated_by = embedded_user
     self.updated_by_key = updated_by.key
     self.put()
     return self
@@ -57,7 +87,8 @@ class Approval(models.BaseResourceModel):
 
   @classmethod
   def create(cls, approval_form_message, user, email=True):
-    ent = cls(user_key=user.key, form=approval_form_message)
+    embedded_user = User(**user.to_dict())
+    ent = cls(user_key=user.key, user=embedded_user, form=approval_form_message)
     ent.put()
     if email:
       emailer = emails.Emailer(ent)
@@ -83,6 +114,8 @@ class Approval(models.BaseResourceModel):
 
   def approve(self, updated_by, email=True):
     self.status = messages.Status.APPROVED
+    embedded_user = User(**updated_by.to_dict())
+    self.updated_by = embedded_user
     self.updated_by_key = updated_by.key
     self.put()
     if email:
@@ -91,6 +124,8 @@ class Approval(models.BaseResourceModel):
 
   def reject(self, updated_by, email=True):
     self.status = messages.Status.REJECTED
+    embedded_user = User(**updated_by.to_dict())
+    self.updated_by = embedded_user
     self.updated_by_key = updated_by.key
     self.put()
     if email:
@@ -144,19 +179,7 @@ class Approval(models.BaseResourceModel):
 
   @classmethod
   def to_csv(cls):
-    header = [
-        'company',
-        'company_email',
-        'company_type',
-        'country',
-        'email_opt_in',
-        'first_name',
-        'folders',
-        'job_title',
-        'justification',
-        'last_name',
-        'region',
-    ]
+    header = cls._csv_header
     ents, _, _ = cls.search()
     rows = []
     for ent in ents:
@@ -188,3 +211,20 @@ class Approval(models.BaseResourceModel):
     return protojson.decode_message(
         messages.ApprovalFormMessage,
         encoded_message)
+
+  @classmethod
+  def import_from_csv(cls, content, updated_by):
+    fp = io.BytesIO()
+    fp.write(content)
+    fp.seek(0)
+    reader = csv.DictReader(fp)
+    ents = []
+    for row in reader:
+      form = messages.ApprovalFormMessage(**row)
+      email = users.User.parse_email(row['email'])
+      user = users.User.get_or_create_by_email(email)
+      ent = cls(user=user, form=form, updated_by_key=updated_by.key,
+                status=messages.Status.APPROVED)
+      ents.append(ent)
+    import logging
+    logging.info(ents)

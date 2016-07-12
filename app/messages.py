@@ -31,15 +31,21 @@ class FolderMessage(messages.Message):
   draft = messages.BooleanField(10)
 
 
+class AssetMetadata(messages.Message):
+  width = messages.IntegerField(1)
+  height = messages.IntegerField(2)
+  language = messages.StringField(3)
+  label = messages.StringField(4)
+  dimensions = messages.StringField(5)
+
+
 class AssetMessage(messages.Message):
   ident = messages.StringField(1)
   download_url = messages.StringField(2)
   title = messages.StringField(3)
   size = messages.IntegerField(4)
-  format = messages.StringField(5)
-  messaging = messages.StringField(6)
-  region = messages.StringField(7)
   thumbnail_url = messages.StringField(8)
+  metadata = messages.MessageField(AssetMetadata, 9)
 
 
 class FoldersMessage(messages.Message):
@@ -119,6 +125,7 @@ class SettingsMessage(messages.Message):
   text_color = messages.StringField(24)
   text_on_brand_color = messages.StringField(25)
   keep_folders_open = messages.StringField(26)
+  allow_gmail_accounts = messages.StringField(27)
 
 
 class ResourceMessage(messages.Message):
@@ -136,7 +143,9 @@ class SyncMessage(messages.Message):
 
 class GetAssetGroupRequest(messages.Message):
   title = messages.StringField(1)
+  parent_key = messages.StringField(2)
 
 
 class GetAssetGroupResponse(messages.Message):
   assets = messages.MessageField(AssetMessage, 1, repeated=True)
+  folder = messages.MessageField(FolderMessage, 2)

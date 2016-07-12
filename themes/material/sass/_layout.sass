@@ -40,17 +40,23 @@ $header-height: 70px
       &-subtitle
         margin-top: 5px
 
-    &-bottom
-      font-size: $font-size-sm
-      padding: $pad-md
-      line-height: $line-height-sm
-
     &-bordered
       border-top: 1px solid $color-border
       border-bottom: 1px solid $color-border
       margin: $pad-md 0 0 0
       padding-top: $pad-md
       padding-bottom: $pad-md
+
+      &--menu
+        border-bottom: 0
+
+      &--bottom
+        border-bottom: none
+        border-top: 1px solid $color-border
+        font-size: $font-size-sm
+        line-height: $line-height-sm
+        margin-top: 0
+        padding: $pad-md
 
     .menu--hidden
       display: none

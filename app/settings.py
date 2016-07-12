@@ -37,4 +37,8 @@ class Settings(ndb.Model):
 
   def get_theme(self):
     form = self.get_form()
-    return form.theme or appengine_config.DEFAULT_THEME
+    return form.theme or appengine_config.CONFIG.get('theme') or appengine_config.DEFAULT_THEME
+
+  @property
+  def theme(self):
+    return self.get_theme()
