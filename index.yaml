@@ -23,6 +23,12 @@ indexes:
 
 - kind: Folder
   properties:
+  - name: draft
+  - name: parents
+  - name: weight
+
+- kind: Folder
+  properties:
   - name: parents
   - name: weight
 

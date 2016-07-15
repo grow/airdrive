@@ -458,7 +458,6 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
   if (this.form.language.length == 1) {
     this.selectedAsset.language = this.form.language[0];
   }
-  console.log(this.form.language.length);
 };
 
 
@@ -513,7 +512,6 @@ airpress.ng.FooterNavController = function($scope, $element) {
 
   var next = this.getSibling(true);
   var prev = this.getSibling();
-  console.log(this.next, this.prev);
   this.$scope.next = next;
   this.$scope.prev = prev;
 };
@@ -550,6 +548,7 @@ airpress.ng.FooterNavController.prototype.getSibling = function(opt_next, opt_ro
   if (!nextItemEl) {
     return;
   }
+  console.log(nextItemEl);
   var nextLinkEl = nextItemEl.querySelector('a');
   var title = nextLinkEl.textContent.trim();
   var url = nextLinkEl.href;

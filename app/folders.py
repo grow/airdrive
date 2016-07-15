@@ -23,7 +23,6 @@ class Cache(ndb.Model):
 
 def get_nav(include_draft=True):
   nav = memcache.get(NAV_CACHE_KEY + str(include_draft))
-  nav = None
   if nav is None:
     nav = create_nav(include_draft=include_draft)
   return nav
