@@ -27,34 +27,34 @@
 
   <h2>Users</h2>
 
-  <div class="push-sm--bottom">
-    <label>
-      <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
-      Send email notification to users upon response
-    </label>
-  </div>
-
-  <form>
-    <div class="form-field">
-      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(true, ctrl.sendEmailToApprovals)">Approve selected</a>
-      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(false, ctrl.sendEmailToApprovals)">Reject selected</a>
-      <a style="float: right" href="?format=csv" class="btn btn--inverted btn--sm">Download CSV</a>
+  <div ng-show="ctrl.approvals.length">
+    <div class="push-sm--bottom">
+      <label>
+        <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
+        Send email notification to users upon response
+      </label>
     </div>
-  </form>
 
-  <div ng-show="!ctrl.approvals && ctrl.loading">
-    Loading...
-  </div>
-  <table class="table" ng-show="ctrl.approvals">
-    <thead>
-      <th></th>
-      <th>Status</th>
-      <th>Email</th>
-      <th>Date</th>
-      <th>Response by</th>
-      <th>Action</th>
-    </thead>
-    <tbody>
+    <form>
+      <div class="form-field">
+        <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(true, ctrl.sendEmailToApprovals)">Approve selected</a>
+        <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(false, ctrl.sendEmailToApprovals)">Reject selected</a>
+        <a style="float: right" href="?format=csv" class="btn btn--inverted btn--sm">Download CSV</a>
+      </div>
+    </form>
+
+    <table class="table">
+      <thead>
+        <th>
+          <input type="checkbox" ng-model="approval.selected" ng-click="ctrl.toggleSelectAll()">
+        </th>
+        <th>Status</th>
+        <th>Email</th>
+        <th>Date</th>
+        <th>Response by</th>
+        <th>Action</th>
+      </thead>
+      <tbody>
         <tr ng-repeat="approval in ctrl.approvals">
           <td>
             <input type="checkbox" ng-model="approval.selected">
@@ -73,15 +73,14 @@
             <a href="javascript:" ng-click="ctrl.deleteApproval(approval.ident)">Delete</a>
           </td>
         </tr>
-        {#
-      {% else %}
-        <tr>
-          <td colspan="100">
-            No users have requested access to your site yet. Only domain users in {{config.CONFIG.domain}} can access your site. Once an external user requests access, administrators will receive an email notification and the access request will appear here.
-          </td>
-      {% endfor %}
-      #}
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+    <p ng-if="ctrl.hasMore">
+    <a href="javascript:" ng-click="ctrl.searchApprovals(ctrl.nextCursor)">More...</a>
+    </p>
+  </div>
+  <div ng-show="ctrl.loading">
+    {{macros.render_loading_spinner()}}
+  </div>
 </div>
 {% endblock %}

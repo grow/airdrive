@@ -65,7 +65,7 @@ class Page(models.BaseResourceModel):
 
   @webapp2.cached_property
   def parent(self):
-    return self.parents[0].get()
+    return self.parents[0].get() if self.parents else None
 
   @property
   def url(self):

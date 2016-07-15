@@ -7,6 +7,7 @@ airpress.main = function() {
          $interpolateProvider.startSymbol('[[').endSymbol(']]');
       }])
       .controller('FoldersController', airpress.ng.FoldersController)
+      .controller('FooterNavController', airpress.ng.FooterNavController)
       .controller('DownloadBarController', airpress.ng.DownloadBarController)
       .controller('AdminsController', airpress.ng.AdminsController)
       .controller('ApprovalController', airpress.ng.ApprovalController)
@@ -51,6 +52,7 @@ airpress.ng = airpress.ng || {};
 
 airpress.ng.ApprovalsController = function($scope) {
   this.$scope = $scope;
+  this.approvals = [];
   this.searchApprovals();
 };
 
@@ -124,12 +126,20 @@ airpress.ng.ApprovalsController.prototype.deleteApproval = function(ident) {
 };
 
 
-airpress.ng.ApprovalsController.prototype.searchApprovals = function() {
+airpress.ng.ApprovalsController.prototype.searchApprovals = function(opt_cursor) {
   this.loading = true;
-  airpress.rpc('admins.search_approvals', {}).done(
+  var kwargs = {};
+  if (opt_cursor) {
+    kwargs = {'cursor': opt_cursor};
+  }
+  airpress.rpc('admins.search_approvals', kwargs).done(
       function(resp) {
     this.loading = false;
-    this.approvals = resp['approvals'] || [];
+    if (resp['approvals']) {
+      this.approvals = this.approvals.concat(resp['approvals']);
+    }
+    this.hasMore = resp['has_more'];
+    this.nextCursor = resp['cursor'];
     this.$scope.$apply();
   }.bind(this));
 };
@@ -366,7 +376,6 @@ airpress.ng.DownloadBarController = function($scope, $element) {
   this.$scope = $scope;
   this.visible = false;
   this.selectedAsset = {};
-  this.updateForm_([]);
   this.assets = {};
   this.loaded = false;
   this.maskEl = document.querySelector('.downloadbar-mask');
@@ -390,6 +399,7 @@ airpress.ng.DownloadBarController = function($scope, $element) {
 airpress.ng.DownloadBarController.prototype.setVisible = function(visible, parentKey) {
   if (visible) {
       this.maskEl.classList.add('downloadbar-mask--visible');
+      this.updateForm_([]);
   } else {
       this.maskEl.classList.remove('downloadbar-mask--visible');
   }
@@ -406,8 +416,8 @@ airpress.ng.DownloadBarController.prototype.updateAsset_ = function(parentKey) {
     'parent_key': parentKey
   }).done(
       function(resp) {
-    this.selectedAsset.title = resp['folder']['title'];
     this.updateForm_(resp['assets']);
+    this.selectedAsset.title = resp['folder']['title'];
     this.loaded = true;
     this.$scope.$apply();
   }.bind(this));
@@ -415,6 +425,7 @@ airpress.ng.DownloadBarController.prototype.updateAsset_ = function(parentKey) {
 
 
 airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
+  this.selectedAsset = {};
   this.assets = assets;
   this.form = {
     dimensions: [],
@@ -425,6 +436,9 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     return;
   }
   this.assets.forEach(function(asset) {
+    if (!asset.metadata.dimensions || !asset.metadata.label || !asset.metadata.language) {
+      return;
+    }
     if (this.form.dimensions.indexOf(asset.metadata.dimensions) == -1) {
       this.form.dimensions.push(asset.metadata.dimensions);
     }
@@ -490,4 +504,61 @@ airpress.initTables = function() {
     }
   };
   buildToc();
+};
+
+
+airpress.ng.FooterNavController = function($scope, $element) {
+  this.el_ = $element[0];
+  this.$scope = $scope;
+
+  var next = this.getSibling(true);
+  var prev = this.getSibling();
+  console.log(this.next, this.prev);
+  this.$scope.next = next;
+  this.$scope.prev = prev;
+};
+
+
+airpress.ng.FooterNavController.prototype.getSibling = function(opt_next, opt_root) {
+  var selectedEl = document.querySelector('.menu-item--active');
+  var linkEl = opt_root || selectedEl.parentNode;
+  if (opt_next) {
+    var nextItemEl = linkEl.nextSibling;
+    if (nextItemEl.nodeType == 3) {  // Text node.
+      nextItemEl = nextItemEl.nextSibling;
+    }
+    if (!nextItemEl) {
+      var parentList = linkEl.parentNode;
+      nextItemEl = parentList.nextSibling;
+      if (nextItemEl.nodeType == 3) {
+        nextItemEl = nextItemEl.nextSibling;
+      }
+    }
+  } else {
+    var nextItemEl = linkEl.previousSibling;
+    if (nextItemEl.nodeType == 3) {  // Text node.
+      nextItemEl = nextItemEl.previousSibling;
+    }
+    if (!nextItemEl) {
+      var parentList = linkEl.parentNode;
+      nextItemEl = parentList.previousSibling;
+      if (nextItemEl.nodeType == 3) {
+        nextItemEl = nextItemEl.previousSibling;
+      }
+    }
+  }
+  if (!nextItemEl) {
+    return;
+  }
+  var nextLinkEl = nextItemEl.querySelector('a');
+  var title = nextLinkEl.textContent.trim();
+  var url = nextLinkEl.href;
+  var title = title.split('\n')[0];
+  if (url == 'javascript:') {
+    return this.getSibling(opt_next, nextItemEl);
+  }
+  return {
+    title: title,
+    url: url
+  }
 };

@@ -31,7 +31,7 @@
     }
   </style>
 </head>
-<body>
+<body {% if body_class %}class="{{body_class}}"{% endif %}>
   {% if enable_sidebar is not sameas false %}
     <script>
       airpress.menu.updateSidebar();
@@ -72,7 +72,7 @@
             {% if nav %}
               {% set items = nav[0]['folder']['children']['items'] %}
               {% for item in items|sort(attribute='weight') %}
-              {{macros.render_menu_tree(item, config.CONFIG, active_resource_id=(page or folder).resource_id)}}
+              {{macros.render_menu_tree(item, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
               {% endfor %}
             {% endif %}
           </ul>
@@ -86,7 +86,7 @@
                   {% if not has_access(each_folder['resource_id']) %}
                     {% continue %}
                   {% endif %}
-                  {{macros.render_menu_tree(each_folder, config.CONFIG, active_resource_id=(page or folder).resource_id)}}
+                  {{macros.render_menu_tree(each_folder, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
                 {% endfor %}
               </ul>
             </div>

@@ -1,35 +1,59 @@
+{% macro render_loading_spinner() %}
+  <div class="loading-spinner" title="0">
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     width="40px" height="40px" viewBox="0 0 40 40" enable-background="new 0 0 40 40" xml:space="preserve">
+    <path opacity="0.2" fill="#000" d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946
+      s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634
+      c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z"/>
+    <path fill="#000" d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0
+      C22.32,8.481,24.301,9.057,26.013,10.047z">
+      <animateTransform attributeType="xml"
+        attributeName="transform"
+        type="rotate"
+        from="0 20 20"
+        to="360 20 20"
+        dur="0.5s"
+        repeatCount="indefinite"/>
+      </path>
+    </svg>
+  </div>
+{% endmacro %}
+
 {% macro asset(path) -%}
 /_app/{{config.VERSION}}/config/{{path}}
 {%- endmacro %}
 
-{% macro render_menu_tree(resource, config, active_resource_id=None) %}
+{% macro render_menu_tree(resource, config, active_resource_id=None, is_admin=false) %}
   {% if 'folder' in resource and resource['folder'] %}
     {% set resource = resource['folder'] %}
   {% endif %}
-  {% if resource['is_parent'] or ('children' in resource and not resource['is_asset_folder'] and not resource['is_asset_container']) %}
-    {% set has_children = true %}
-    {% set url = "javascript:" %}
-  {% else %}
-    {% set has_children = false %}
-    {% set url = resource['url'] %}
-  {% endif %}
-  <li class="{{"menu-item-child--open" if resource['resource_id'] == active_resource_id or settings.form.keep_folders_open}} {{"menu-item-child--kept-open" if settings.form.keep_folders_open}}"><a
-    href="{{url}}"
-    class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource['resource_id'] == active_resource_id and not has_children}} "
-    >{{resource['title']}}
-    {% if not settings.form.keep_folders_open %}
-      {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
+  {% if not resource['draft'] or is_admin %}
+    {% if resource['is_parent'] or ('children' in resource and not resource['is_asset_folder'] and not resource['is_asset_container']) %}
+      {% set has_children = true %}
+      {% set url = "javascript:" %}
+    {% else %}
+      {% set has_children = false %}
+      {% set url = resource['url'] %}
     {% endif %}
-    </a></li>
-  {% if has_children %}
-    <ul class="menu-item--child {{"menu-item-child--open"
-      if (folder and resource['resource_id'] in folder.resource_id
-            or page and resource['resource_id'] in page.resource_id)
-          or settings.form.keep_folders_open}}">
-      {% for item in resource['children']['items']|sort(attribute='weight') %}
-        {{render_menu_tree(item, config, active_resource_id=active_resource_id)}}
-      {% endfor %}
-    </ul>
+    <li class="{{"menu-item-child--open" if resource['resource_id'] == active_resource_id or settings.form.keep_folders_open}} {{"menu-item-child--kept-open" if settings.form.keep_folders_open}}"><a
+      href="{{url}}"
+      class="{{"menu-item--folder" if has_children}} {{"menu-item--active" if resource['resource_id'] == active_resource_id and not has_children}} "
+      >{{resource['title']}}
+      {% if resource['draft'] %}<sm>draft</sm>{% endif %}
+      {% if not settings.form.keep_folders_open %}
+        {% if has_children %}<i class="material-icons">expand_more</i>{% endif %}
+      {% endif %}
+      </a></li>
+    {% if has_children %}
+      <ul class="menu-item--child {{"menu-item-child--open"
+        if (folder and resource['resource_id'] in folder.resource_id
+              or page and resource['resource_id'] in page.resource_id)
+            or settings.form.keep_folders_open}}">
+        {% for item in resource['children']['items'] %}
+          {{render_menu_tree(item, config, active_resource_id=active_resource_id, is_admin=is_admin)}}
+        {% endfor %}
+      </ul>
+    {% endif %}
   {% endif %}
 {% endmacro %}
 
@@ -106,4 +130,52 @@
     {{sync_snackbar()}}
   </div>
   {% endif %}
+{% endmacro %}
+
+
+{% macro render_footer_nav(resource, is_admin=false) %}
+  <div class="layout-main-footer">
+    <div class="layout-main-footer-part">
+      {% set prev = get_sibling(resource, next=false, is_admin=is_admin) %}
+      {% if prev %}
+        {% if prev.folder %}
+          {% set prev = prev['folder'] %}
+        {% endif %}
+        <a href="{{prev.url}}">
+          <span class="layout-main-footer-part-caption">Previous</span>
+          <span><i class="material-icons arrow-R">arrow_backward</i> {{prev.title}}</span>
+        </a>
+      {% endif %}
+    </div>
+    <div class="layout-main-footer-part layout-main-footer-part--next">
+      {% set next = get_sibling(resource, next=true, is_admin=is_admin) %}
+      {% if next %}
+        {% if next.folder %}
+          {% set next = next['folder'] %}
+        {% endif %}
+        <a href="{{next.url}}">
+          <span class="layout-main-footer-part-caption">Next</span>
+          <span>{{next.title}} <i class="material-icons arrow-R">arrow_forward</i></span>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+
+{% macro render_footer_nav_new(resource, is_admin=false) %}
+  <div class="layout-main-footer" ng-controller="FooterNavController" ng-cloak>
+    <div class="layout-main-footer-part">
+      <a href="[[prev.url]]" ng-if="prev">
+        <span class="layout-main-footer-part-caption">Previous</span>
+        <span><i class="material-icons arrow-R">arrow_backward</i> [[prev.title]]</span>
+      </a>
+    </div>
+    <div class="layout-main-footer-part layout-main-footer-part--next">
+      <a href="[[next.url]]" ng-if="next">
+        <span class="layout-main-footer-part-caption">Next</span>
+        <span>[[next.title]] <i class="material-icons arrow-R">arrow_forward</i></span>
+      </a>
+    </div>
+  </div>
 {% endmacro %}

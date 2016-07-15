@@ -94,9 +94,11 @@ class AdminService(airlock.Service):
                  messages.ApprovalsMessage)
   def search_approvals(self, request):
     self.require_admin()
-    ents, next_cursor, has_more = approvals.Approval.search()
+    ents, next_cursor, has_more = approvals.Approval.search(cursor=request.cursor)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in ents]
+    resp.has_more = has_more
+    resp.cursor = next_cursor.urlsafe() if next_cursor else None
     return resp
 
   @remote.method(messages.ApprovalsMessage,

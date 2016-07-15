@@ -46,30 +46,5 @@
 {% endblock %}
 
 {% block footer %}
-<div class="layout-main-footer">
-  <div class="layout-main-footer-part">
-    {% set prev = get_sibling(page or folder, next=false) %}
-    {% if prev %}
-      {% if prev.folder %}
-        {% set prev = prev['folder'] %}
-      {% endif %}
-      <a href="{{prev.url}}">
-        <span class="layout-main-footer-part-caption">Previous</span>
-        <span><i class="material-icons arrow-R">arrow_backward</i> {{prev.title}}</span>
-      </a>
-    {% endif %}
-  </div>
-  <div class="layout-main-footer-part layout-main-footer-part--next">
-    {% set next = get_sibling(page or folder, next=true) %}
-    {% if next %}
-      {% if next.folder %}
-        {% set next = next['folder'] %}
-      {% endif %}
-      <a href="{{next.url}}">
-        <span class="layout-main-footer-part-caption">Next</span>
-        <span>{{next.title}} <i class="material-icons arrow-R">arrow_forward</i></span>
-      </a>
-    {% endif %}
-  </div>
-</div>
+  {{macros.render_footer_nav(page or folder, is_admin=is_admin)}}
 {% endblock %}

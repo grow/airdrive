@@ -10,7 +10,7 @@ import csv
 import io
 import json
 
-PER_PAGE = 100
+PER_PAGE = 50
 
 
 class User(models.Model, airlock.User):
@@ -30,6 +30,7 @@ class Approval(models.BaseResourceModel):
       messages.ApprovalFormMessage, indexed_fields=['folders'])
   user_key = ndb.KeyProperty()
   user = ndb.StructuredProperty(User)
+  domain = ndb.StringProperty()
   updated_by_key = ndb.KeyProperty()
   updated_by = ndb.StructuredProperty(User)
   status = msgprop.EnumProperty(messages.Status, default=messages.Status.PENDING)
@@ -55,11 +56,16 @@ class Approval(models.BaseResourceModel):
     message.ident = self.ident
     if self.user:
         message.user = self.user.to_message()
+    elif not self.user and self.user_key:
+        ent = self.user_key.get()
+        if ent:
+            message.user = ent.to_message()
     message.status = self.status
     message.updated = self.updated
     message.form = self.form
     if self.updated_by:
       message.updated_by = self.updated_by.to_message()
+    message.domain = self.domain
     return message
 
   @classmethod
@@ -103,13 +109,12 @@ class Approval(models.BaseResourceModel):
     return ent
 
   @classmethod
-  def search(cls, query_message=None):
-    cursor = (datastore_query.Cursor(urlsafe=query_message.cursor)
-              if query_message and query_message.cursor else None)
+  def search(cls, cursor=None):
+    start_cursor = datastore_query.Cursor(urlsafe=cursor) if cursor else None
     query = cls.query()
     query = query.order(-cls.created)
     results, next_cursor, has_more = query.fetch_page(
-        PER_PAGE, start_cursor=cursor)
+        PER_PAGE, start_cursor=start_cursor)
     return (results, next_cursor, has_more)
 
   def approve(self, updated_by, email=True):

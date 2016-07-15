@@ -68,6 +68,8 @@ class Asset(models.BaseResourceModel):
     title = resp['title']  # Formatted: CB_US_STD_ATTRACT_HANGING_LANDSCAPE_48x24.ext
     base, ext = os.path.splitext(resp['title'])
     metadata.language = 'en'
+    metadata.base = base
+    metadata.ext = ext
 
     # Width and height.
     for part in base.split('_'):
@@ -88,6 +90,10 @@ class Asset(models.BaseResourceModel):
       metadata.label = 'Co-branding'
     elif '_CTA_' in base:
       metadata.label = 'Call-to-action'
+    elif '_CIRCULAR_' in base:
+      metadata.label = 'Circular'
+    elif '_SOCIALMEDIA_' in base:
+      metadata.label = 'Social media'
 
     self.metadata = metadata
 

@@ -6,6 +6,7 @@ from . import messages
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
 import datetime
+import logging
 import re
 import pickle
 import webapp2
@@ -13,32 +14,27 @@ import webapp2
 CONFIG = appengine_config.CONFIG
 MAIN_FOLDER_ID = CONFIG['folder']
 EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
-NAV_CACHE_KEY = 'nav-23456'
+NAV_CACHE_KEY = 'nav'
 
 
 class Cache(ndb.Model):
   content = ndb.TextProperty()
 
 
-def get_nav():
-#  nav_cache = Cache(id='nav').key.get()
-#  if nav_cache and nav_cache.content:
-#    return pickle.loads(nav_cache.content)
-  nav = memcache.get(NAV_CACHE_KEY)
+def get_nav(include_draft=True):
+  nav = memcache.get(NAV_CACHE_KEY + str(include_draft))
+  nav = None
   if nav is None:
-    nav = create_nav()
+    nav = create_nav(include_draft=include_draft)
   return nav
 
 
-def create_nav():
+def create_nav(include_draft=True):
   nav = []
-  root_folders = Folder.list(parent=MAIN_FOLDER_ID, use_cache=True)
+  root_folders = Folder.list(parent=MAIN_FOLDER_ID, use_cache=True, include_draft=include_draft)
   for root_folder in root_folders:
-    nav.append(update_nav(root_folder))
-  memcache.set(NAV_CACHE_KEY, nav)
-#  nav_cache = Cache(id='nav')
-#  nav_cache.content = pickle.dumps(nav)
-#  nav_cache.put()
+    nav.append(update_nav(root_folder, include_draft=include_draft))
+  memcache.set(NAV_CACHE_KEY + str(include_draft), nav)
   return nav
 
 
@@ -48,6 +44,8 @@ def update_nav_item(page):
   item['resource_type'] = page.resource_type
   item['resource_id'] = page.resource_id
   item['url'] = page.url
+  item['hidden'] = page.hidden
+  item['draft'] = page.draft
   item['is_asset_container'] = (
       page.resource_type == 'Folder'
       and page.is_asset_container)
@@ -60,61 +58,79 @@ def update_nav_item(page):
   return item
 
 
-def update_nav_pages(pages):
-  return [update_nav_item(item) for item in pages
-          if not item.draft]
-
-
-def update_nav(folder):
+def update_nav(folder, include_draft=True):
+  if folder.hidden or folder.internal or folder.draft and not include_draft:
+    return {}
   root = {}
-  if folder.draft or folder.internal:
-    root['folder'] = {}
-    return root['folder']
-  children = folder.list_children()
   root['weight'] = folder.weight
   root['folder'] = update_nav_item(folder)
   root['folder']['children'] = {}
+  children = folder.list_children(include_draft=include_draft)
   root['folder']['children']['folders'] = [
-      update_nav(sub_folder)
+      update_nav(sub_folder, include_draft=include_draft)
       for sub_folder in children['folders']
-      if not sub_folder.draft]
+      if not sub_folder.hidden]
   root['folder']['children']['pages'] = [
       update_nav_item(page)
       for page in children['pages']
-      if not page.draft]
-  root['folder']['children']['items'] = (
+      if not page.hidden]
+  items = (
       root['folder']['children']['folders']
       + root['folder']['children']['pages'])
+  items.sort(key=lambda item: item['weight'])
+  root['folder']['children']['items'] = items
   return root
 
 
-def get_sibling(page, next=True):
-  nav = get_nav()
+
+def get_sibling(page, next=True, is_admin=False, nav=None):
+  nav = get_nav(include_draft=bool(is_admin)) if nav is None else nav
   for n, folder in enumerate(nav):
     if 'folder' not in folder:
         continue
     page_items = folder['folder']['children']['items']
     for i, page_item in enumerate(page_items):
-      if page.resource_id == page_item.get('resource_id'):
-        if next:
-          if i + 1 == len(page_items):
-            if n + 1 == len(nav):
-              return None
-            if 'folder' in nav[n + 1]:
-              sibling = nav[n + 1]['folder']['children']
-              if sibling['items']:
-                return sibling['items'][0]
+      if isinstance(page, dict):
+        resource_id = page['resource_id']
+      else:
+        resource_id = page.resource_id
+      if resource_id != page_item.get('resource_id'):
+        continue
+      if next:
+        if i + 1 == len(page_items):
+          if n + 1 == len(nav):
             return None
-          return page_items[i + 1]
-        if i - 1 < 0:
-          if n - 1 < 0:
-            return None
-          if 'folder' in nav[n - 1]:
-            sibling = nav[n - 1]['folder']['children']
+          if 'folder' in nav[n + 1]:
+            sibling = nav[n + 1]['folder']['children']
             if sibling['items']:
-              return sibling['items'][-1]
+              result = sibling['items'][0]
+              return process_result(result, next=next)
           return None
-        return page_items[i - 1]
+        result = page_items[i + 1]
+        return process_result(result, next=next)
+      if i - 1 < 0:
+        if n - 1 < 0:
+          return None
+        if 'folder' in nav[n - 1]:
+          sibling = nav[n - 1]['folder']['children']
+          if sibling['items']:
+            result = sibling['items'][-1]
+            return process_result(result, next=next)
+        return None
+      result = page_items[i - 1]
+      return process_result(result, next=next)
+    for root in folder['folder']['children']['folders']:
+        return get_sibling(page, next=next, is_admin=is_admin, nav=root)
+
+
+def process_result(resource, next=True):
+  if 'folder' in resource and resource['folder']:
+      sub_resource = resource['folder']
+      if 'children' in sub_resource and not sub_resource['is_asset_folder'] and not sub_resource['is_asset_container']:
+          if next:
+              return process_result(sub_resource['children']['items'][0], next=next)
+          return sub_resource['children']['items'][-1]
+  return resource
 
 
 class Folder(models.BaseResourceModel):
@@ -135,8 +151,8 @@ class Folder(models.BaseResourceModel):
     ent.put()
 
   @classmethod
-  def list(self, parent=None, use_cache=True):
-    cache_key = 'Folder:List:{}'.format(MAIN_FOLDER_ID)
+  def list(self, parent=None, use_cache=True, include_draft=False):
+    cache_key = 'Folder:List:{}:{}'.format(MAIN_FOLDER_ID, str(include_draft))
     if use_cache and parent is None:
       ents = memcache.get(cache_key)
       if ents:
@@ -145,6 +161,8 @@ class Folder(models.BaseResourceModel):
     if parent:
       parent_key = ndb.Key('Folder', parent)
       query = query.filter(Folder.parents == parent_key)
+      if not include_draft:
+          query = query.filter(Folder.draft == False)
       query = query.order(Folder.weight)
     ents = query.fetch()
     memcache.set(cache_key, ents)
@@ -164,7 +182,7 @@ class Folder(models.BaseResourceModel):
   def is_overview_folder(self):
     return self.title.lower() in ['overview', 'welcome'] and self.weight == -1
 
-  def list_children(self):
+  def list_children(self, include_draft=True):
     children = {
         'items': [],
         'assets': [],
@@ -183,6 +201,7 @@ class Folder(models.BaseResourceModel):
     query = query.filter(Folder.parents == self.key)
     query = query.order(Folder.weight)
     children['folders'] = query.fetch()
+
     if children['pages']:
       children['items'] += children['pages']
     if children['folders']:
@@ -190,6 +209,13 @@ class Folder(models.BaseResourceModel):
     if children['items']:
       children['items'] = sorted(children['items'],
                                  key=lambda item: item.weight)
+
+    if not include_draft:
+        children['pages'] = [page for page in children['pages'] if not page.draft]
+        children['assets'] = [folder for folder in children['assets'] if not folder.draft]
+        children['folders'] = [folder for folder in children['folders'] if not folder.draft]
+        children['items'] = [item for item in children['items'] if not item.draft]
+
     return children
 
   @webapp2.cached_property
@@ -247,6 +273,7 @@ class Folder(models.BaseResourceModel):
     message.url = self.url
     message.resource_id = self.resource_id
     message.draft = self.draft
+    message.hidden = self.hidden
     return message
 
   def update(self, message):

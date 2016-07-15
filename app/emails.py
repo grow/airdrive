@@ -5,11 +5,10 @@ import appengine_config
 import jinja2
 import os
 import premailer
+import webapp2
 
 CONFIG = appengine_config.CONFIG
-_path = os.path.join(os.path.dirname(__file__), 'templates')
-_loader = jinja2.FileSystemLoader(_path)
-_env = jinja2.Environment(loader=_loader, autoescape=True, trim_blocks=True)
+SETTINGS = settings.Settings.singleton()
 
 
 class Emailer(object):
@@ -48,7 +47,7 @@ class Emailer(object):
 
   def _render(self, template_path):
     settings_obj = settings.Settings.singleton()
-    template = _env.get_template(template_path)
+    template = self.env.get_template(template_path)
     html = template.render({
         'config': appengine_config,
         'settings': settings_obj,
@@ -62,3 +61,14 @@ class Emailer(object):
     message.to = to
     message.html = html
     message.send()
+
+  @webapp2.cached_property
+  def env(self):
+    here = os.path.dirname(__file__)
+    path = os.path.join(os.path.dirname(__file__), 'templates')
+    theme_path = os.path.join(here, '..', 'themes', SETTINGS.get_theme(), 'emails')
+    loader = jinja2.FileSystemLoader([
+        theme_path,
+        path,
+    ])
+    return jinja2.Environment(loader=loader, autoescape=True, trim_blocks=True)

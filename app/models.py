@@ -10,7 +10,7 @@ class Model(ndb.Model):
     # a property `category_key` will return the corresponding category
     # when accessing `entity.category`.
     reference_key_name = '{}_key'.format(name)
-    if hasattr(self, reference_key_name) and not hasattr(self, name):
+    if hasattr(self, reference_key_name) and not name in self.__dict__:
       key = getattr(self, reference_key_name)
       return key.get() if key is not None else None
     return self.__getattribute__(name)
@@ -87,9 +87,6 @@ class BaseResourceModel(Model):
   template = ndb.StringProperty()
   is_parent = ndb.BooleanProperty()
   is_asset_container = ndb.BooleanProperty()
-  format = ndb.StringProperty()
-  messaging = ndb.StringProperty()
-  region = ndb.StringProperty()
   title_lower = ndb.StringProperty()
 
   @property

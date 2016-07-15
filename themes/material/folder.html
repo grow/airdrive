@@ -59,3 +59,7 @@
 
   </div>
 {% endblock %}
+
+{% block footer %}
+  {{macros.render_footer_nav_new(folder, is_admin=is_admin)}}
+{% endblock %}

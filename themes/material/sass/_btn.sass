@@ -19,7 +19,7 @@
   padding: 10px 20px
   position: relative
   text-align: center
-  text-decoration: none
+  text-decoration: none !important
   text-transform: uppercase
   transition: box-shadow .2s cubic-bezier(.4,0,1,1),background-color .2s cubic-bezier(.4,0,.2,1),color .2s cubic-bezier(.4,0,.2,1)
   vertical-align: middle
@@ -43,6 +43,12 @@
     font-size: $font-size-sm
     line-height: $line-height-sm
     padding: 5px 15px
+
+  &--xs
+    font-size: $font-size-sm
+    line-height: $line-height-sm
+    padding: 3px 10px 2px
+    text-transform: none
 
   &--inverted
     background: $color-text-on-brand

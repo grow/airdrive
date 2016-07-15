@@ -69,15 +69,6 @@ class Handler(airlock.Handler):
         self.redirect(self.urls.sign_in())
       return False
     return admins.Admin.is_admin(self.me.email)
-#    try:
-#      self.require_admin(admins.Admin.is_admin)
-#    except airlock.errors.ForbiddenError:
-#      if redirect:
-#        self.error(403)
-#        html = 'Forbbiden. <a href="{}">Sign out</a>.'.format(self.urls.sign_out())
-#        self.response.out.write(html)
-#      return False
-#    return True
 
   def render_template(self, path, params=None):
     params = params or {}
@@ -113,6 +104,7 @@ class FolderHandler(Handler):
       return
     params = {
         'folder': folder,
+        'is_admin': self.is_admin(redirect=False),
     }
     self.render_template('folder.html', params)
 
@@ -141,9 +133,10 @@ class PageHandler(Handler):
     })
     params = {
         'page': page,
+        'is_admin': self.is_admin(redirect=False),
         'pretty_html': rendered_html,
     }
-    template = page.template or page.parent.template or 'page.html'
+    template = page.template or (page.parent and page.parent.template) or 'page.html'
     self.render_template(template, params)
 
 

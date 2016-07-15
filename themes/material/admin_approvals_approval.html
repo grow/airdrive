@@ -3,13 +3,18 @@
 {% block main %}
   <h2>{{approval.user.email}}</h2>
 
-  <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-cloak>
+  <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-init="ctrl.sendEmailToApprovals = true" ng-cloak>
+    <fieldset>
+      <legend>Access control</legend>
+
     <div class="form-field">
-      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateStatus(true, ctrl.sendEmailToApprovals)">Approve</a>
-      <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateStatus(false, ctrl.sendEmailToApprovals)">Reject</a>
+      <a href="javascript:" class="btn btn--xs" ng-click="ctrl.updateStatus(true, ctrl.sendEmailToApprovals)">Approve</a>
+      <a href="javascript:" class="btn btn--xs" ng-click="ctrl.updateStatus(false, ctrl.sendEmailToApprovals)">Reject</a>
+    </div>
+    <div class="form-field">
       <label>
         <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
-        Send email notification to users upon response
+        Send email notification when approving or rejecting
       </label>
     </div>
     <ul>
@@ -22,10 +27,14 @@
         </span>
       </li>
     </ul>
-    <hr class="hr--sm">
-    <form class="form">
-      <h3>Access to folders</h3>
-      <a class="btn btn--sm" ng-click="ctrl.updateStatus(true, ctrl.sendEmailToApprovals)">Approve</a>
+
+  </fieldset>
+  <fieldset>
+    <legend>Folder access</legend>
+
+    <form class="form flush">
+      <p>Grant access on a folder-by-folder basis. This user will only have access to the following checked folders. If no checkboxes are checked, users will not have access to any folders.</p>
+      <a class="btn btn--xs" ng-click="ctrl.updateStatus(true, false)">Update access levels</a>
       <ul>
         {% for item in nav[1:] %}
           {% if 'folder' not in item %}
@@ -38,13 +47,16 @@
         {% endfor %}
       </ul>
     </form>
-    <hr class="hr--sm">
-    <form class="form" ng-submit="ctrl.updateForm()">
-      <h3>Form response</h3>
+
+  </fieldset>
+  <fieldset>
+    <legend>Approval form response details</legend>
+
+    <form class="form flush" ng-submit="ctrl.updateForm()">
       <div class="form-field">
-        <button type="submit" class="btn btn--inverted btn--sm">Update</button>
+        <button type="submit" class="btn btn--inverted btn--xs">Update</button>
       </div>
-      <table class="table" ng-show="ctrl.approval.form">
+      <table class="table table--sm" ng-show="ctrl.approval.form">
         <thead>
           <tr>
             <th>Question</th>
@@ -59,6 +71,8 @@
         </tbody>
       </table>
     </form>
+
+  </fieldset>
   </div>
 
 {% endblock %}

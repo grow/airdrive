@@ -29,6 +29,7 @@ class FolderMessage(messages.Message):
   url = messages.StringField(8)
   resource_id = messages.StringField(9)
   draft = messages.BooleanField(10)
+  hidden = messages.BooleanField(11)
 
 
 class AssetMetadata(messages.Message):
@@ -37,6 +38,8 @@ class AssetMetadata(messages.Message):
   language = messages.StringField(3)
   label = messages.StringField(4)
   dimensions = messages.StringField(5)
+  ext = messages.StringField(6)
+  base = messages.StringField(7)
 
 
 class AssetMessage(messages.Message):
@@ -74,6 +77,7 @@ class ApprovalMessage(messages.Message):
   form = messages.MessageField(ApprovalFormMessage, 5)
   status = messages.EnumField(Status, 6)
   ident = messages.StringField(7)
+  domain = messages.StringField(8)
 
 
 class ApprovalRequest(messages.Message):
@@ -95,6 +99,8 @@ class AdminMessage(messages.Message):
 class ApprovalsMessage(messages.Message):
   approvals = messages.MessageField(ApprovalMessage, 1, repeated=True)
   send_email = messages.BooleanField(2)
+  cursor = messages.StringField(3)
+  has_more = messages.BooleanField(4)
 
 
 class AdminsMessage(messages.Message):
@@ -126,6 +132,7 @@ class SettingsMessage(messages.Message):
   text_on_brand_color = messages.StringField(25)
   keep_folders_open = messages.StringField(26)
   allow_gmail_accounts = messages.StringField(27)
+  disable_domain_access = messages.StringField(28)
 
 
 class ResourceMessage(messages.Message):

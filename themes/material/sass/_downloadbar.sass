@@ -11,14 +11,14 @@
     display: block
 
 .downloadbar 
-  background: #44A3ED
+  background: #4BA6EF
   bottom: 0
+  box-shadow: 0 0 8px rgba(0, 0, 0, .25)
   color: black
   font: 400 16px/1 "Roboto","Helvetica",arial,sans-serif
   left: 0
   padding: 15px
   position: fixed
-  text-align: center
   transform: translateY(120px)
   transition: all 200ms ease
   opacity: 0
@@ -31,8 +31,16 @@
     visibility: visible
     transform: translateY(0)
 
+  .loading-spinner
+    svg path,
+    svg rect
+      fill: $color-brand-text
+
   a
     color: inherit
+
+  .contained
+    max-width: 1100px
 
   .downloadbar-col
     border-right: 1px solid rgba(0, 0, 0, .18);
@@ -43,6 +51,8 @@
     &:last-child
       border-right: none
       margin-left: 20px
+      margin-top: 8px
+      float: right;
 
     &--title
       font-weight: bold
@@ -84,3 +94,8 @@
       outline: none
       padding: 10px
       width: 100%
+      -webkit-appearance: none
+      -moz-appearance: none
+
+      &::-ms-expand
+        display: none

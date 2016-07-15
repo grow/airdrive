@@ -1,7 +1,9 @@
 from . import approvals
 from . import emails as emails_lib
 from . import messages
+from . import settings
 from . import models
+from . import admins
 from email import utils as email_utils
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
@@ -11,6 +13,9 @@ import csv
 import io
 import logging
 import webapp2
+
+
+SETTINGS = settings.Settings.singleton()
 
 
 class User(models.Model, airlock.User):
@@ -44,7 +49,9 @@ class User(models.Model, airlock.User):
 
   @property
   def has_access(self):
-    if self.is_domain_user:
+    if self.is_domain_user and not SETTINGS.form.disable_domain_access:
+      return True
+    if admins.Admin.is_admin(self.email):
       return True
     return approvals.Approval.user_has_access(self)
 
