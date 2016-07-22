@@ -34,7 +34,7 @@
   .loading-spinner
     svg path,
     svg rect
-      fill: $color-brand-text
+      fill: #000
 
   a
     color: inherit
@@ -79,8 +79,6 @@
         opacity: .15
         pointer-events: none
 
-    &--sm
-
     select
       background: none
       border-radius: 0
@@ -92,6 +90,7 @@
       height: 36px
       min-width: 120px
       outline: none
+      position: relative
       padding: 10px
       width: 100%
       -webkit-appearance: none
@@ -99,3 +98,15 @@
 
       &::-ms-expand
         display: none
+
+    .downloadbar-col-select
+      position: relative
+
+      &:after
+        content: '▾'
+        display: block
+        pointer-events: none
+        position: absolute
+        right: 7px
+        top: calc(50% - 9px)
+        vertical-align: middle

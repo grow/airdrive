@@ -15,6 +15,27 @@ THUMBNAIL_URL_FORMAT = 'https://drive.google.com/thumbnail?sz=w{size}&id={resour
 
 CONFIG = appengine_config.CONFIG
 
+FILENAME_IDENTIFIERS_TO_LOCALES = {
+    '_AR_': 'ar',
+    '_FR-CA_': 'fr-ca',
+    '_DE_': 'de',
+    '_ZH-CN_': 'zh-cn',
+    '_ZH-TW_': 'zh-tw',
+    '_NL_': 'nl',
+    '_EN-GB_': 'en-gb',
+    '_FR_': 'fr',
+    '_DE_': 'de',
+    '_IT_': 'it',
+    '_JA_': 'ja',
+    '_KO_': 'ko',
+    '_PL_': 'pl',
+    '_PT_': 'pt',
+    '_RU_': 'ru',
+    '_ES_': 'es',
+    '_TH_': 'th',
+    '_TR_': 'tr',
+}
+
 
 class Asset(models.BaseResourceModel):
   size = ndb.IntegerProperty()
@@ -67,9 +88,14 @@ class Asset(models.BaseResourceModel):
     metadata = messages.AssetMetadata()
     title = resp['title']  # Formatted: CB_US_STD_ATTRACT_HANGING_LANDSCAPE_48x24.ext
     base, ext = os.path.splitext(resp['title'])
-    metadata.language = 'en'
     metadata.base = base
     metadata.ext = ext
+
+    # Language.
+    for key, value in FILENAME_IDENTIFIERS_TO_LOCALES.iteritems():
+        if key in base:
+            metadata.language = value
+            break
 
     # Width and height.
     for part in base.split('_'):

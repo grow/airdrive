@@ -169,9 +169,10 @@ class HomepageHandler(Handler):
     folders = self.request.POST.getall('folder')
     if 'email_opt_in' in form_dict:
       form_dict['email_opt_in'] = True
-    approval_form_message = approvals.Approval.decode_form(form_dict)
-    approval_form_message.folders = folders
-    approvals.Approval.get_or_create(approval_form_message, self.me)
+    form = approvals.Approval.decode_form(form_dict)
+    form.folders = folders
+    approvals.Approval.get_or_create(
+        form, self.me, status=messages.Status.PENDING)
     self.get()
 
 

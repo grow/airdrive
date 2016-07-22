@@ -17,6 +17,10 @@ airpress.main = function() {
       .filter('prettyLanguage', function() {
          return function(identifier) {
            switch (identifier) {
+             case 'de':
+               return 'German';
+             case 'fr-ca':
+               return 'French (Canada)';
              case 'en':
                return 'English';
            }
@@ -26,6 +30,16 @@ airpress.main = function() {
 
   angular.bootstrap(document, ['airpress'])
   smoothScroll.init({offset: 40});
+  airpress.moveLayoutFooter();
+};
+
+
+airpress.moveLayoutFooter = function() {
+  var el = document.querySelector('.page-document .layout-main-footer');
+  if (!el) {
+    return;
+  }
+  el.parentNode.parentNode.appendChild(el);
 };
 
 
@@ -52,6 +66,7 @@ airpress.ng = airpress.ng || {};
 
 airpress.ng.ApprovalsController = function($scope) {
   this.$scope = $scope;
+  this.email = null;
   this.approvals = [];
   this.searchApprovals();
 };
@@ -59,8 +74,10 @@ airpress.ng.ApprovalsController = function($scope) {
 
 airpress.ng.ApprovalsController.prototype.createApprovals =
     function(users, sendEmail) {
+  var form = this.getFormWithFolders();
   airpress.rpc('admins.directly_add_users', {
     'users': users,
+    'form': form,
     'send_email': sendEmail
   }).done(
       function(resp) {
@@ -80,6 +97,45 @@ airpress.ng.ApprovalsController.prototype.createApprovals =
     this.$scope.$apply();
   }.bind(this));
 
+};
+
+
+airpress.ng.ApprovalsController.prototype.deleteSelectedApprovals =
+    function() {
+  var approvals = [];
+  this.approvals.forEach(function(approval) {
+    if (approval.selected) {
+      approvals.push(approval);
+    }
+  });
+  this.deleteApprovals(approvals);
+};
+
+
+airpress.ng.ApprovalsController.prototype.getFormWithFolders = function() {
+  var form = {};
+  var folders = [];
+  for (var choice in this.folderChoices) {
+    if (this.folderChoices[choice]) {
+      folders.push(choice);
+    }
+  }
+  form.folders = folders;
+  return form;
+};
+
+
+airpress.ng.ApprovalsController.prototype.importApprovals = function(sheetId) {
+  this.loadingImport = true;
+  var form = this.getFormWithFolders();
+  airpress.rpc('admins.import_approvals', {
+    'form': form,
+    'sheet_id': sheetId
+  }).done(function(resp) {
+    this.loadingImport = false;
+    this.importedApprovals = resp['approvals'];
+    this.$scope.$apply();
+  }.bind(this));
 };
 
 
@@ -110,38 +166,55 @@ airpress.ng.ApprovalsController.prototype.updateSelected =
 };
 
 
-airpress.ng.ApprovalsController.prototype.deleteApproval = function(ident) {
-  var approvals = [{
-    'ident': ident
-  }];
+airpress.ng.ApprovalsController.prototype.deleteApprovals = function(approvals) {
+  if (!window.confirm('Really delete ' + approvals.length + ' users?')) {
+    return;
+  }
+  var deletedIdents = [];
+  approvals.forEach(function(approval) {
+    deletedIdents.push(approval.ident);
+  });
   airpress.rpc('admins.delete_approvals', {
     'approvals': approvals
   }).done(
       function(resp) {
     this.approvals = this.approvals.filter(function(item) {
-      return item['ident'] != ident;
+      return deletedIdents.indexOf(item['ident']) == -1;
     });
     this.$scope.$apply();
   }.bind(this));
 };
 
 
-airpress.ng.ApprovalsController.prototype.searchApprovals = function(opt_cursor) {
+airpress.ng.ApprovalsController.prototype.searchApprovals = function(opt_cursor, opt_clear) {
   this.loading = true;
   var kwargs = {};
-  if (opt_cursor) {
-    kwargs = {'cursor': opt_cursor};
+  if (this.email) {
+    kwargs['email'] = this.email;
+  } else if (opt_cursor) {
+    kwargs['cursor'] = opt_cursor;
   }
   airpress.rpc('admins.search_approvals', kwargs).done(
       function(resp) {
     this.loading = false;
     if (resp['approvals']) {
+      if (this.email && !opt_cursor || opt_clear) {
+        this.approvals = [];
+      }
       this.approvals = this.approvals.concat(resp['approvals']);
     }
+    this.count = resp['count'];
     this.hasMore = resp['has_more'];
     this.nextCursor = resp['cursor'];
     this.$scope.$apply();
   }.bind(this));
+};
+
+
+airpress.ng.ApprovalsController.prototype.toggleSelectAll = function(selected) {
+  this.approvals.forEach(function(approval) {
+    approval.selected = selected;
+  });
 };
 
 
@@ -482,7 +555,8 @@ airpress.initTables = function() {
     var $table = $(table);
     if ($table) {
       var numCols = $(this).find('> tbody > tr:first-child > td').size();
-      if ($table.attr('class').indexOf('page-document-table') < 0) {
+      var numRows = $(this).find('tr').size();
+      if ($table.attr('class').indexOf('page-document-table')) {
         $(this).addClass('cols-' + numCols);
       }
     }

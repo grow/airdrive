@@ -3,61 +3,80 @@
 
 {% block main %}
 
-<h2>Direct add users</h2>
+<h2>Users</h2>
 
-<div ng-controller="ApprovalsController as ctrl" ng-cloak>
-  <form ng-submit="ctrl.submit(ctrl.emails, ctrl.sendEmail)" class="form">
-    <div class="form-field">
-      <label><input type="checkbox" ng-model="ctrl.sendEmail">Send email notification to added users</label>
-    </div>
-    <div class="form-field">
-      <textarea class="form-field-control form-field-control--wide" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
-    </div>
-    <div class="form-field">
-      <button class="btn btn--sm" type="submit" role="button">Add users</button>
-    </div>
-  </form>
-
-  <form class="form" enctype="multipart/form-data" method="post" action="/admin/importcsv">
-    <input type="file" name="file">
-    <button type="submit">Upload</button>
-  </form>
-
-  <hr>
-
-  <h2>Users</h2>
-
-  <div ng-show="ctrl.approvals.length">
-    <div class="push-sm--bottom">
-      <label>
-        <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
-        Send email notification to users upon response
-      </label>
-    </div>
-
-    <form>
+<div ng-controller="ApprovalsController as ctrl">
+  <form ng-submit="ctrl.submit(ctrl.emails, ctrl.sendEmail, ctrl.folderChoices)" class="form">
+    <fieldset>
+      <legend>Add users</legend>
       <div class="form-field">
-        <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(true, ctrl.sendEmailToApprovals)">Approve selected</a>
-        <a href="javascript:" class="btn btn--sm" ng-click="ctrl.updateSelected(false, ctrl.sendEmailToApprovals)">Reject selected</a>
-        <a style="float: right" href="?format=csv" class="btn btn--inverted btn--sm">Download CSV</a>
+        <label><input type="checkbox" ng-model="ctrl.sendEmail">Send email notification to added users</label>
       </div>
-    </form>
+      <b>Grant access to folders</b>
+      <ul>
+        {% for item in nav[1:] if 'folder' in item and item['folder'].weight != -1 %}
+          {% set folder = item['folder'] %}
+          <li><label><input type="checkbox" ng-model="ctrl.folderChoices['{{folder.resource_id}}']"> {{folder.title}}</label></li>
+        {% endfor %}
+      </ul>
+      <div class="form-field">
+        <textarea class="form-field-control form-field-control--wide" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
+      </div>
+      <div class="form-field">
+        <button class="btn btn--xs" type="submit" role="button">Add users</button>
+      </div>
 
-    <table class="table">
+      <label>
+        <div class="form-field">
+          <input type="text" ng-model="ctrl.sheetId" class="form-field-control" placeholder="Enter Google Sheets ID">
+        </div>
+        <div class="form-field">
+          <button class="btn btn--xs" type="button" ng-click="ctrl.importApprovals(ctrl.sheetId, ctrl.folderChoices)">Import from Google Sheets</button>
+        </div>
+      </label>
+      <div ng-show="ctrl.importedApprovals">
+        Imported [[ctrl.importedApprovals.length]] users. <a href="javascript:" ng-click="ctrl.searchApprovals(null, true)" >Refresh</a>
+      </div>
+      <div ng-show="ctrl.loadingImport">
+        {{macros.render_loading_spinner()}}
+      </div>
+    </fieldset>
+  </form>
+
+  <div ng-cloak>
+    <div class="form">
+      <div class="push-sm--bottom">
+        <label>
+          <input type="checkbox" ng-model="ctrl.sendEmailToApprovals">
+          Send email notification to users upon response
+        </label>
+      </div>
+      <div class="form-field">
+        <a href="javascript:" class="btn btn--xs" ng-click="ctrl.updateSelected(true, ctrl.sendEmailToApprovals)">Approve selected</a>
+        <form ng-submit="ctrl.searchApprovals(null, true)" style="display: inline-block">
+          <input type="text" ng-model="ctrl.email" class="form-field-control" placeholder="Search by email">
+        </form>
+        <span ng-if="ctrl.count">[[ctrl.count]] users total</span>
+        <a href="?format=csv" class="btn btn--right btn--inverted btn--xs">Download CSV</a>
+        <a ng-click="ctrl.deleteSelectedApprovals()" class="btn btn--right btn--inverted btn--xs">Delete</a>
+      </div>
+    </div>
+
+    <table class="table table--select">
       <thead>
         <th>
-          <input type="checkbox" ng-model="approval.selected" ng-click="ctrl.toggleSelectAll()">
+          <input type="checkbox" ng-model="ctrl.selectAll" ng-click="ctrl.toggleSelectAll(ctrl.selectAll)">
         </th>
         <th>Status</th>
         <th>Email</th>
+        <th>Folders</th>
         <th>Date</th>
         <th>Response by</th>
-        <th>Action</th>
       </thead>
       <tbody>
-        <tr ng-repeat="approval in ctrl.approvals">
+        <tr ng-repeat="approval in ctrl.approvals" ng-click="approval.selected = !approval.selected" data-num-folders="[[approval.form.folders.length]]">
           <td>
-            <input type="checkbox" ng-model="approval.selected">
+            <input type="checkbox" ng-model="approval.selected" style="pointer-events: none">
           </td>
           <td>
             [[approval.status]]
@@ -66,17 +85,17 @@
             <a target="_blank" ng-href="./[[approval.ident]]/">[[approval.user.email || approval.form.company_email]]</a>
           </td>
           <td>
+            [[approval.form.folders.length]]
+          </td>
+          <td>
             [[approval.created|date:"short"]]
           </td>
           <td>[[approval.updated_by.email]]</td>
-          <td>
-            <a href="javascript:" ng-click="ctrl.deleteApproval(approval.ident)">Delete</a>
-          </td>
         </tr>
       </tbody>
     </table>
     <p ng-if="ctrl.hasMore">
-    <a href="javascript:" ng-click="ctrl.searchApprovals(ctrl.nextCursor)">More...</a>
+      <a href="javascript:" ng-click="ctrl.searchApprovals(ctrl.nextCursor)">More...</a>
     </p>
   </div>
   <div ng-show="ctrl.loading">

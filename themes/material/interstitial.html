@@ -16,7 +16,7 @@
     {% else %}
       <h1 class="text-header--xl">{{settings.form.title}}</h1>
     {% endif %}
-    <p class="interstitial-body">{{settings.form.interstitial|safe}}</p>
+      <p class="interstitial-body">{{settings.form.interstitial|safe}}</p>
     {% if not me.registered %}
       <p class="push--top">
         <a href="{{urls.sign_in()}}&prompt=select_account" class="btn">Sign in</a>

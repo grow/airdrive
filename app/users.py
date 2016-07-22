@@ -1,9 +1,10 @@
+from . import admins
 from . import approvals
 from . import emails as emails_lib
 from . import messages
-from . import settings
 from . import models
-from . import admins
+from . import settings
+from . import sync
 from email import utils as email_utils
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
@@ -74,13 +75,13 @@ class User(models.Model, airlock.User):
     return resource_id in approved_folder_ids
 
   @classmethod
-  def direct_add_users(cls, emails, created_by=None, send_email=False):
+  def direct_add_users(cls, emails, created_by=None, send_email=False, form=None):
     approval_ents = []
     for email in emails:
       user_ent = cls.get_or_create_by_email(email)
-      approval_form_message = messages.ApprovalFormMessage()
+      form = form or messages.ApprovalFormMessage()
       approval_ent = approvals.Approval.create_and_approve(
-          approval_form_message,
+          form,
           user_ent,
           created_by=created_by)
       approval_ents.append(approval_ent)
@@ -94,26 +95,63 @@ class User(models.Model, airlock.User):
       return email_utils.parseaddr(email)[1]
 
   @classmethod
-  def import_from_csv(cls, content, updated_by):
+  def import_from_csv(cls, content, form, created_by, send_email=False):
     fp = io.BytesIO()
     fp.write(content)
     fp.seek(0)
     reader = csv.DictReader(fp)
     ents = []
+    emails_to_forms = {}
     for row in reader:
       valid_keys = []
       if 'email' not in row:
-          raise Exception('Email not found.')
+          continue
       email = cls.parse_email(row.pop('email', ''))
       for key in row.keys():
           if key in dir(messages.ApprovalFormMessage):
             valid_keys.append(key)
           else:
             del row[key]
-      form = messages.ApprovalFormMessage(**row)
+      new_form = messages.ApprovalFormMessage(**row)
+      if form:
+        new_form.folders = form.folders
+      emails_to_forms[email] = new_form
+
+    for email, form in emails_to_forms.iteritems():
       user = cls.get_or_create_by_email(email)
-      ent = approvals.Approval(
-          user_key=user.key, form=form, updated_by_key=updated_by.key,
-          status=messages.Status.APPROVED)
+      ent = approvals.Approval.get_or_create(
+          form=form,
+          user=user, created_by=created_by,
+          status=messages.Status.APPROVED,
+          send_email=send_email)
       ents.append(ent)
+
     return ents
+
+  @classmethod
+  def import_from_google_sheets(cls, sheet_id, created_by, form=None, gid=None,
+                                send_email=False):
+    content = cls.download_from_google_sheets(sheet_id=sheet_id, gid=gid)
+    return cls.import_from_csv(
+        content,
+        form=form,
+        created_by=created_by,
+        send_email=send_email)
+
+  @classmethod
+  def download_from_google_sheets(cls, sheet_id, gid=None):
+    service = sync.service
+    resp = service.files().get(fileId=sheet_id).execute()
+    if 'exportLinks' not in resp:
+      raise Exception('Nothing to export: {}'.format(sheet_id))
+    for mimetype, url in resp['exportLinks'].iteritems():
+        if not mimetype.endswith('csv'):
+            continue
+        if gid is not None:
+            url += '&gid={}'.format(gid)
+        resp, content = service._http.request(url)
+        if resp.status != 200:
+            text = 'Error {} downloading sheet: {}'
+            text = text.format(resp.status, sheet_id)
+            raise Exception(text)
+        return content

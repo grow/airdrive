@@ -5,15 +5,25 @@
   &--sm
     width: auto
 
+  &--select
+    tr:hover
+      td
+        background: rgba(255, 255, 255, .75)
+        cursor: default
+
   thead
     th,
     td
       text-align: left
 
+  &:not(.table--clean)
+    tr
+      td
+        border: 1px solid $color-border
+
   tr
     th,
     td
-      border: 1px solid $color-border
       padding: 3px 5px
 
       img
@@ -25,3 +35,9 @@
     margin: 0
     vertical-align: middle
     width: 17px
+
+  &.table--clean
+    tr
+      td,
+      th
+        vertical-align: top

@@ -101,6 +101,13 @@ class ApprovalsMessage(messages.Message):
   send_email = messages.BooleanField(2)
   cursor = messages.StringField(3)
   has_more = messages.BooleanField(4)
+  count = messages.IntegerField(5)
+
+
+class ApprovalsQueryMessage(messages.Message):
+  email = messages.StringField(1)
+  cursor = messages.StringField(3)
+  has_more = messages.BooleanField(4)
 
 
 class AdminsMessage(messages.Message):
@@ -114,6 +121,7 @@ class UsersMessage(messages.Message):
 class DirectlyAddUsersMessage(messages.Message):
   users = messages.MessageField(UserMessage, 1, repeated=True)
   send_email = messages.BooleanField(2)
+  form = messages.MessageField(ApprovalFormMessage, 3)
 
 
 class SettingsMessage(messages.Message):
@@ -156,3 +164,9 @@ class GetAssetGroupRequest(messages.Message):
 class GetAssetGroupResponse(messages.Message):
   assets = messages.MessageField(AssetMessage, 1, repeated=True)
   folder = messages.MessageField(FolderMessage, 2)
+
+
+class ImportApprovalsMessage(messages.Message):
+  sheet_id = messages.StringField(1)
+  sheet_gid = messages.StringField(2)
+  form = messages.MessageField(ApprovalFormMessage, 3)

@@ -5,7 +5,7 @@
 
   <div ng-controller="ApprovalController as ctrl" data-approval-ident="{{approval.ident}}" ng-init="ctrl.sendEmailToApprovals = true" ng-cloak>
     <fieldset>
-      <legend>Access control</legend>
+      <legend>Approval</legend>
 
     <div class="form-field">
       <a href="javascript:" class="btn btn--xs" ng-click="ctrl.updateStatus(true, ctrl.sendEmailToApprovals)">Approve</a>
@@ -18,7 +18,6 @@
       </label>
     </div>
     <ul>
-      <li><b>Name</b>: [[ctrl.approval.form.first_name]] [[ctrl.approval.form.last_name]]</li>
       <li><b>Status</b>: [[ctrl.approval.status]]</li>
       <li><b>Updated</b>:
         [[ctrl.approval.updated|date:"short"]]
@@ -30,19 +29,14 @@
 
   </fieldset>
   <fieldset>
-    <legend>Folder access</legend>
+    <legend>Folders</legend>
 
     <form class="form flush">
       <p>Grant access on a folder-by-folder basis. This user will only have access to the following checked folders. If no checkboxes are checked, users will not have access to any folders.</p>
       <a class="btn btn--xs" ng-click="ctrl.updateStatus(true, false)">Update access levels</a>
       <ul>
-        {% for item in nav[1:] %}
-          {% if 'folder' not in item %}
-            {% continue %}
-          {% endif %}
+        {% for item in nav[1:] if 'folder' in item and item['folder'].weight != -1 %}
           {% set folder = item['folder'] %}
-          {# Do not include "overview" folder. #}
-          {% if folder.weight == -1 %}{% continue %}{% endif %}
           <li><label><input type="checkbox" ng-change="ctrl.update(ctrl.approval, ctrl.folderChoices)" ng-model="ctrl.folderChoices['{{folder.resource_id}}']"> {{folder.title}}</label></li>
         {% endfor %}
       </ul>
@@ -50,19 +44,12 @@
 
   </fieldset>
   <fieldset>
-    <legend>Approval form response details</legend>
-
+    <legend>Form response</legend>
     <form class="form flush" ng-submit="ctrl.updateForm()">
       <div class="form-field">
         <button type="submit" class="btn btn--inverted btn--xs">Update</button>
       </div>
-      <table class="table table--sm" ng-show="ctrl.approval.form">
-        <thead>
-          <tr>
-            <th>Question</th>
-            <th>Response</th>
-          </tr>
-        </thead>
+      <table class="table--clean table table--sm" ng-show="ctrl.approval.form">
         <tbody>
           <tr ng-repeat="(key, val) in ctrl.approval.form" ng-if="key != 'folders'">
             <td>[[key]]</td>
@@ -71,7 +58,6 @@
         </tbody>
       </table>
     </form>
-
   </fieldset>
   </div>
 

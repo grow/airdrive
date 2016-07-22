@@ -1,5 +1,6 @@
 import airlock
 from . import emails
+from . import sync
 from . import messages
 from . import models
 from google.appengine.datastore import datastore_query
@@ -10,7 +11,7 @@ import csv
 import io
 import json
 
-PER_PAGE = 50
+PER_PAGE = 200
 
 
 class User(models.Model, airlock.User):
@@ -41,6 +42,7 @@ class Approval(models.BaseResourceModel):
       'company_email',
       'company_type',
       'country',
+      'email',
       'email_opt_in',
       'first_name',
       'folders',
@@ -56,10 +58,14 @@ class Approval(models.BaseResourceModel):
     message.ident = self.ident
     if self.user:
         message.user = self.user.to_message()
-    elif not self.user and self.user_key:
+    elif self.user_key:
         ent = self.user_key.get()
         if ent:
             message.user = ent.to_message()
+            # TODO: Remove this.
+            embedded_user = User(**ent.to_dict())
+            self.user = embedded_user
+            self.put()
     message.status = self.status
     message.updated = self.updated
     message.form = self.form
@@ -85,16 +91,23 @@ class Approval(models.BaseResourceModel):
     return self
 
   @classmethod
-  def get_or_create(cls, approval_form_message, user, send_email=True):
+  def get_or_create(cls, form, user, send_email=True,
+                    created_by=None, status=None):
     ent = cls.get(user)
     if ent:
       return ent
-    return cls.create(approval_form_message, user, send_email)
+    return cls.create(form, user, email=send_email,
+                      created_by=created_by, status=status)
 
   @classmethod
-  def create(cls, approval_form_message, user, email=True):
+  def create(cls, form, user, email=True, created_by=None,
+             status=None):
     embedded_user = User(**user.to_dict())
-    ent = cls(user_key=user.key, user=embedded_user, form=approval_form_message)
+    ent = cls(user_key=user.key, user=embedded_user, form=form,
+              status=status)
+    if created_by:
+      ent.updated_by = User(**created_by.to_dict())
+      ent.updated_by_key = created_by.key
     ent.put()
     if email:
       emailer = emails.Emailer(ent)
@@ -109,12 +122,15 @@ class Approval(models.BaseResourceModel):
     return ent
 
   @classmethod
-  def search(cls, cursor=None):
+  def search(cls, cursor=None, email=None, limit=None):
     start_cursor = datastore_query.Cursor(urlsafe=cursor) if cursor else None
     query = cls.query()
+    if email:
+        query = query.order(cls.user.email)
+        query = query.filter(cls.user.email == email)
     query = query.order(-cls.created)
     results, next_cursor, has_more = query.fetch_page(
-        PER_PAGE, start_cursor=start_cursor)
+        limit or PER_PAGE, start_cursor=start_cursor)
     return (results, next_cursor, has_more)
 
   def approve(self, updated_by, email=True):
@@ -185,12 +201,13 @@ class Approval(models.BaseResourceModel):
   @classmethod
   def to_csv(cls):
     header = cls._csv_header
-    ents, _, _ = cls.search()
+    ents, _, _ = cls.search(limit=5000)
     rows = []
     for ent in ents:
       ent.form = ent.form or messages.ApprovalFormMessage()
       encoded_form = json.loads(protojson.encode_message(ent.form))
       row = json.loads(protojson.encode_message(ent.to_message()))
+      row['email'] = ent.user.email
       if 'email_opt_in' not in row:
         row['email_opt_in'] = False
       for key in row.keys():
@@ -218,18 +235,6 @@ class Approval(models.BaseResourceModel):
         encoded_message)
 
   @classmethod
-  def import_from_csv(cls, content, updated_by):
-    fp = io.BytesIO()
-    fp.write(content)
-    fp.seek(0)
-    reader = csv.DictReader(fp)
-    ents = []
-    for row in reader:
-      form = messages.ApprovalFormMessage(**row)
-      email = users.User.parse_email(row['email'])
-      user = users.User.get_or_create_by_email(email)
-      ent = cls(user=user, form=form, updated_by_key=updated_by.key,
-                status=messages.Status.APPROVED)
-      ents.append(ent)
-    import logging
-    logging.info(ents)
+  def count(cls):
+    query = cls.query()
+    return query.count()

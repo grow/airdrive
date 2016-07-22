@@ -90,15 +90,18 @@ class AdminService(airlock.Service):
     resp.approvals = [ent.to_message() for ent in ents]
     return resp
 
-  @remote.method(messages.ApprovalsMessage,
+  @remote.method(messages.ApprovalsQueryMessage,
                  messages.ApprovalsMessage)
   def search_approvals(self, request):
     self.require_admin()
-    ents, next_cursor, has_more = approvals.Approval.search(cursor=request.cursor)
+    ents, next_cursor, has_more = approvals.Approval.search(
+        cursor=request.cursor, email=request.email)
+    count = approvals.Approval.count()
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in ents]
     resp.has_more = has_more
     resp.cursor = next_cursor.urlsafe() if next_cursor else None
+    resp.count = count
     return resp
 
   @remote.method(messages.ApprovalsMessage,
@@ -155,8 +158,9 @@ class AdminService(airlock.Service):
     emails = [users.User.parse_email(user.email)
               for user in request.users]
     send_email = request.send_email
+    form = request.form
     approval_ents = users.User.direct_add_users(
-        emails, created_by=self.me, send_email=send_email)
+        emails, created_by=self.me, send_email=send_email, form=form)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
     return resp
@@ -211,4 +215,17 @@ class AdminService(airlock.Service):
     MAIN_FOLDER_ID = CONFIG['folder']
     token = sync.download_resource(MAIN_FOLDER_ID, self.me)
     resp.token = token
+    return resp
+
+  @remote.method(messages.ImportApprovalsMessage,
+                 messages.ApprovalsMessage)
+  def import_approvals(self, request):
+    self.require_admin()
+    send_email = False
+    ents = users.User.import_from_google_sheets(
+        sheet_id=request.sheet_id, gid=request.sheet_gid,
+        form=request.form, created_by=self.me,
+        send_email=send_email)
+    resp = messages.ApprovalsMessage()
+    resp.approvals = [approval.to_message() for approval in ents]
     return resp

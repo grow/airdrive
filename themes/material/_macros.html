@@ -28,7 +28,10 @@
     {% set resource = resource['folder'] %}
   {% endif %}
   {% if not resource['draft'] or is_admin %}
-    {% if resource['is_parent'] or ('children' in resource and not resource['is_asset_folder'] and not resource['is_asset_container']) and not resource['draft'] %}
+    {% if resource['is_parent']
+        or ('children' in resource
+            and not resource['is_asset_folder']
+            and not resource['is_asset_container']) %}
       {% set has_children = true %}
       {% set url = "javascript:" %}
     {% else %}

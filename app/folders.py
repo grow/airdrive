@@ -30,7 +30,9 @@ def get_nav(include_draft=True):
 
 def create_nav(include_draft=True):
   nav = []
-  root_folders = Folder.list(parent=MAIN_FOLDER_ID, use_cache=True, include_draft=include_draft)
+  root_folders = Folder.list(
+      parent=MAIN_FOLDER_ID, use_cache=True,
+      include_draft=include_draft)
   for root_folder in root_folders:
     nav.append(update_nav(root_folder, include_draft=include_draft))
   memcache.set(NAV_CACHE_KEY + str(include_draft), nav)
@@ -118,8 +120,6 @@ def get_sibling(page, next=True, is_admin=False, nav=None):
         return None
       result = page_items[i - 1]
       return process_result(result, next=next)
-    for root in folder['folder']['children']['folders']:
-        return get_sibling(page, next=next, is_admin=is_admin, nav=root)
 
 
 def process_result(resource, next=True):

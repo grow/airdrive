@@ -128,6 +128,7 @@ def process_special_tags(html):
   html = re.sub('\[download\|([^\]]*)\](.*)\[/download\]', '{% with asset = get_asset("\\1") %}<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><a {% if asset %}href="{{asset.download_url}}"{% endif %} class="page-info-content-label">\\2</a><div class="page-info-content-filesize">{{asset.size|filesizeformat if asset else "Unavailable"}}</div></div></div>{% endwith %}', html, ALL)
   html = re.sub('\[page\|(.*)#(.*)\](.*)\[/page\]', '{% with page = get_page("\\1") or get_folder("\\1") %}<a href="{{page.url}}#\\2">\\3</a>{% endwith %}', html, ALL)
   html = re.sub('\[page\|([^\]]*)\]([^\[]*)\[/page\]', '{% with page = get_page("\\1") or get_folder("\\1") %}<a href="{{page.url}}">\\2</a>{% endwith %}', html, ALL)
+  html = re.sub('\[next\|([^\]]*)\]([^\[]*)\[/next\]', '{% with page = get_page("\\1") or get_folder("\\1") %}{% with caption = "\\2" %}{% include "_nav_bar.html" with context %}{% endwith %}{% endwith %}', html, ALL)
   html = re.sub('[^`]\[youtube\](.*)\[/youtube\]', '<div class="page-youtube-video"><iframe width="560" height="315" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe></div>', html, ALL)
   html = re.sub('\[download\](.*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><div class="page-info-content-label">\\1</div><div class="page-info-content-filesize">100 KB</div></div></div>', html, ALL)
   html = re.sub('\[assets\]([^\[]*)\[/assets\]', '<div class="page-info" data-asset-parentKey="\\1"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><a class="page-info-content-label">Download</a><div class="page-info-content-filesize"></div></div></div>', html, ALL)
@@ -263,7 +264,7 @@ def process_tables(soup, style_tag):
       process_image_tag('singlecolumnimage', table, cell, cell_str,
           attr='data-page-document-table--has-images')
       process_image_tag('fullwidthimage', table, cell, cell_str)
-#      process_image_tag('calloutimage', table, cell, cell_str)
+      process_image_tag('calloutimage', table, cell, cell_str)
 #      process_image_size_tag(table, cell, cell_str)
 
     # Process table header.

@@ -4,7 +4,6 @@
 
 {% block main %}
   <div class="contained contained--sm">
-
     {% if settings.form.interstitial_gmail_accounts
            and not settings.form.allow_gmail_accounts
            and me.domain == "gmail.com" %}
@@ -19,31 +18,24 @@
           You are signed in as <b>{{me.email}}</b> and your request to access the toolkit has been rejected. Please <a href="{{settings.form.contact_url}}">contact us</a> if you think this is in error.
         </p>
       {% else %}
-
         <p>Welcome, <b>{{me.email}}</b>. You must receive approval before you can access this site. Please fill out the form below.</p>
-
         <form class="form" action="" method="post">
-
           <div class="form-field">
             <label class="form-field-label">Your Google Account</label>
             <input class="form-field-control" type="text" required value="{{me.email}}" readonly>
           </div>
-
           <div class="form-field">
             <label class="form-field-label">First name</label>
             <input class="form-field-control" type="text" required name="first_name">
           </div>
-
           <div class="form-field">
             <label class="form-field-label">Last name</label>
             <input class="form-field-control" type="text" required name="last_name">
           </div>
-
           <div class="form-field">
             <label class="form-field-label">Company</label>
             <input class="form-field-control" type="text" required name="company">
           </div>
-
           {% if config.CONFIG.organization_types %}
           <div class="form-field">
             <label class="form-field-label">Organization type</label>
@@ -57,17 +49,14 @@
             </div>
           </div>
           {% endif %}
-
           <div class="form-field">
             <label class="form-field-label">Corporate email address</label>
             <input class="form-field-control" type="email" required name="company_email">
           </div>
-
           <div class="form-field">
             <label class="form-field-label">Job title</label>
             <input class="form-field-control" type="text" required name="job_title">
           </div>
-
           {% if config.CONFIG.regions %}
           <div class="form-field">
             <label class="form-field-label">Region</label>
@@ -81,7 +70,6 @@
             </div>
           </div>
           {% endif %}
-
           <div class="form-field">
             <label class="form-field-label">Country</label>
             <div>
@@ -93,40 +81,33 @@
               </select>
             </div>
           </div>
-
           <div class="form-field">
             <label class="form-field-label">Which, if any, of these restricted folders do you need to access?</label>
-            {% for item in nav[1:] %}
-              {% if 'folder' not in item %}
-              {% continue %}
-              {% endif %}
+            {% for item in nav[1:]
+                if 'folder' in item
+                and folder.weight != - 1
+                and not folder.draft %}
               {% set folder = item['folder'] %}
-              {# Do not include "overview" folder. #}
-              {% if folder.weight == -1 %}{% continue %}{% endif %}
               <div>
                 <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.title}}</label>
               </div>
             {% endfor %}
           </div>
-
           <div class="form-field">
             <label class="form-field-label">Why do you need access to this site? If you are requesting access to the restricted folders, why do you need access?</label>
             <textarea class="form-field-control" required name="justification"></textarea>
           </div>
-
           <div class="form-field">
             <label class="form-field-label">Email preference</label>
             <div>
               <label><input type="checkbox" name="email_opt_in"> I would like to receive occasional email updates.</label>
             </div>
           </div>
-
           <div class="form-field">
             <button type="submit" class="btn">
               Submit access request
             </button>
           </div>
-
         </form>
       {% endif %}
     {% endif %}
