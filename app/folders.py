@@ -137,6 +137,7 @@ class Folder(models.BaseResourceModel):
   build = ndb.IntegerProperty()
   parents = ndb.KeyProperty(repeated=True)
   color = ndb.StringProperty()
+  container = ndb.BooleanProperty()
 
   @classmethod
   def process(cls, resp):

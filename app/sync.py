@@ -208,7 +208,12 @@ def process_file_response(resp):
       unprocessed_content = get_file_content(resp)
       page.process_content(unprocessed_content)
   else:
-    gcs_path, gcs_thumbnail_path = replicate_asset_to_gcs(resp)
+    try:
+        gcs_path, gcs_thumbnail_path = replicate_asset_to_gcs(resp)
+    except:
+        text = 'Error replicating asset to GCS: {}'
+        logging.error(text.format(resp['title']))
+        raise
     assets.Asset.process(resp, gcs_path=gcs_path,
                          gcs_thumbnail_path=gcs_thumbnail_path)
 

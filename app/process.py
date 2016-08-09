@@ -129,6 +129,8 @@ def process_special_tags(html):
   html = re.sub('\[page\|(.*)#(.*)\](.*)\[/page\]', '{% with page = get_page("\\1") or get_folder("\\1") %}<a href="{{page.url}}#\\2">\\3</a>{% endwith %}', html, ALL)
   html = re.sub('\[page\|([^\]]*)\]([^\[]*)\[/page\]', '{% with page = get_page("\\1") or get_folder("\\1") %}<a href="{{page.url}}">\\2</a>{% endwith %}', html, ALL)
   html = re.sub('\[next\|([^\]]*)\]([^\[]*)\[/next\]', '{% with page = get_page("\\1") or get_folder("\\1") %}{% with caption = "\\2" %}{% include "_nav_bar.html" with context %}{% endwith %}{% endwith %}', html, ALL)
+  html = re.sub('\[callout\|(.*)#(.*)\|([^\]]*)\]([^\[]*)\[/callout\]', '{% with page = get_page("\\1") or get_folder("\\1") %}{% with bookmark = "\\2" %}{% with url = "\\3" %}{% with caption = "\\4" %}{% include "_callout.html" with context %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}', html, ALL)
+  html = re.sub('\[callout\|([^\|]*)\|([^\]]*)\]([^\[]*)\[/callout\]', '{% with page = get_page("\\1") or get_folder("\\1") %}{% with url = "\\2" %}{% with caption = "\\3" %}{% include "_callout.html" with context %}{% endwith %}{% endwith %}{% endwith %}', html, ALL)
   html = re.sub('[^`]\[youtube\](.*)\[/youtube\]', '<div class="page-youtube-video"><iframe width="560" height="315" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe></div>', html, ALL)
   html = re.sub('\[download\](.*)\[/download\]', '<div class="page-info"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><div class="page-info-content-label">\\1</div><div class="page-info-content-filesize">100 KB</div></div></div>', html, ALL)
   html = re.sub('\[assets\]([^\[]*)\[/assets\]', '<div class="page-info" data-asset-parentKey="\\1"><div class="page-info-icon"><i class="material-icons">file_download</i></div><div class="page-info-content"><a class="page-info-content-label">Download</a><div class="page-info-content-filesize"></div></div></div>', html, ALL)
@@ -138,7 +140,6 @@ def process_special_tags(html):
   html = re.sub('\[slides\|([^\]]*)\]', '<iframe class"frame-slides" frameborder="0" data-src="https://docs.google.com/presentation/d/\\1/embed?authuser=0" allowfullscreen></iframe>', html)
   html = re.sub('\[fullsizeimage\|(.*)\]', '<div class="page-image-container page-image-container--fullsize"><div class="page-image" style="background-image:url(\\1)"></div></div>', html, ALL)
   html = re.sub('\[fullwidthimage\|(.*)\]', '<div class="page-image-container page-image-container--fullwidth"><img src="\\1"></div>', html, ALL)
-  html = re.sub('\[calloutimage\|(.*)\]', '<div class="page-image-container page-image-container--callout"><img src="\\1"></div>', html, ALL)
   html = re.sub('\[thumbnails\|([^\]]*)\]', '{% with folder = get_folder("\\1") %}{% import "_macros.html" as macros with context %}{{macros.render_assets(folder.children[\'assets\'], folder=folder)}}{% endwith %}', html, ALL)
   html = re.sub('\`([^`]*)\`', '<code>\\1</code>', html)
   html = re.sub('</ol>[^<]*<ol>', '', html, ALL)
@@ -264,8 +265,7 @@ def process_tables(soup, style_tag):
       process_image_tag('singlecolumnimage', table, cell, cell_str,
           attr='data-page-document-table--has-images')
       process_image_tag('fullwidthimage', table, cell, cell_str)
-      process_image_tag('calloutimage', table, cell, cell_str)
-#      process_image_size_tag(table, cell, cell_str)
+      process_callout_image('callout', table, cell, cell_str)
 
     # Process table header.
     first_row = table.find('tr')
@@ -346,6 +346,23 @@ def clean_google_href(href):
     encoded_url = match.group(1)
     return urllib.unquote(encoded_url)
   return href
+
+
+def process_callout_image(name, table, cell, cell_str, attr=None):
+  # [callout|id]Caption[/callout]
+  regex = '.*\[callout\|([^\]]*)\]([^\[]*)\[/callout\].*'
+  match = re.match(regex, cell_str)
+  logging.info(cell_str)
+  if match:
+    groups = match.groups()
+    if attr:
+      table.attrs[attr] = 'true'
+    img = cell.find('img')
+    if img:
+      url = img.get('src')
+      img.decompose()
+      cell.string = '[callout|{id}|{url}]{caption}[/callout]'.format(
+          id=groups[0], url=url, caption=groups[1])
 
 
 def process_image_tag(name, table, cell, cell_str, attr=None):

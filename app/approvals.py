@@ -170,7 +170,7 @@ class Approval(models.BaseResourceModel):
   @classmethod
   def list_approvals_for_user(cls, user):
     query = cls.query()
-    query = query.filter(cls.user_key == user.key)
+    query = query.filter(ndb.OR(cls.user.email == user.email, cls.user_key == user.key))
     results = query.fetch()
     if results is None:
       return []

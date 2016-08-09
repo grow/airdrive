@@ -1,0 +1,9 @@
+<div class="callout">
+  <div class="callout__image">
+    <a href="{{page.url}}{{"#{}".format(bookmark) if bookmark}}"><img src="{{url}}"></a>
+  </div>
+  <div class="callout__link">
+    {# TODO: Replace dirty hack and fix escaping higher up. #}
+    <a href="{{page.url}}{{"#{}".format(bookmark) if bookmark}}">{{caption.replace('&amp;amp;', '&amp;')|safe}}</a>
+  </div>
+</div>

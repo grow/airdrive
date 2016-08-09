@@ -15,6 +15,21 @@ THUMBNAIL_URL_FORMAT = 'https://drive.google.com/thumbnail?sz=w{size}&id={resour
 
 CONFIG = appengine_config.CONFIG
 
+MESSAGING_IDENTIFIERS = {
+    '_ALL_': 'All',
+    '_CIRCULAR_': 'Circular',
+    '_CO-BRAND_': 'Co-branding',
+    '_CTA_': 'Call-to-action',
+    '_MAPS_': 'Maps',
+    '_MUSIC_': 'Music',
+    '_PHOTOS_': 'Photos',
+    '_PROMO_': 'Promotional',
+    '_SEARCH_': 'Search',
+    '_SOCIALMEDIA_': 'Social media',
+    '_STD_': 'Standard',
+    '_YOUTUBE_': 'YouTube',
+}
+
 FILENAME_IDENTIFIERS_TO_LOCALES = {
     '_AR_': 'ar',
     '_FR-CA_': 'fr-ca',
@@ -86,7 +101,8 @@ class Asset(models.BaseResourceModel):
 
   def set_metadata(self, resp):
     metadata = messages.AssetMetadata()
-    title = resp['title']  # Formatted: CB_US_STD_ATTRACT_HANGING_LANDSCAPE_48x24.ext
+    # Formatted: CB_US_STD_ATTRACT_HANGING_LANDSCAPE_48x24.ext
+    title = resp['title']
     base, ext = os.path.splitext(resp['title'])
     metadata.base = base
     metadata.ext = ext
@@ -95,6 +111,12 @@ class Asset(models.BaseResourceModel):
     for key, value in FILENAME_IDENTIFIERS_TO_LOCALES.iteritems():
         if key in base:
             metadata.language = value
+            break
+
+    # Meassaging.
+    for key, value in MESSAGING_IDENTIFIERS.iteritems():
+        if key in base:
+            metadata.label = value
             break
 
     # Width and height.
@@ -106,20 +128,6 @@ class Asset(models.BaseResourceModel):
         metadata.width = int(width)
         metadata.height = int(height)
         metadata.dimensions = '{}x{}'.format(width, height)
-
-    # Label.
-    if '_STD_' in base:
-      metadata.label = 'Standard'
-    elif '_PROMO_' in base:
-      metadata.label = 'Promotional'
-    elif '_CO-BRAND_' in base:
-      metadata.label = 'Co-branding'
-    elif '_CTA_' in base:
-      metadata.label = 'Call-to-action'
-    elif '_CIRCULAR_' in base:
-      metadata.label = 'Circular'
-    elif '_SOCIALMEDIA_' in base:
-      metadata.label = 'Social media'
 
     self.metadata = metadata
 

@@ -509,9 +509,10 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     return;
   }
   this.assets.forEach(function(asset) {
-    if (!asset.metadata.dimensions || !asset.metadata.label || !asset.metadata.language) {
+    if (!asset.metadata.dimensions || !asset.metadata.label) {
       return;
     }
+    asset.metadata.language = asset.metadata.language || 'en';
     if (this.form.dimensions.indexOf(asset.metadata.dimensions) == -1) {
       this.form.dimensions.push(asset.metadata.dimensions);
     }
@@ -534,7 +535,7 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
 };
 
 
-airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
+airpress.ng.DownloadBarController.prototype.getAsset = function() {
   if (!this.assets) {
     return;
   }
@@ -543,9 +544,19 @@ airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
     if (asset.metadata.dimensions == this.selectedAsset.dimensions
           && asset.metadata.label == this.selectedAsset.label
           && asset.metadata.language == this.selectedAsset.language) {
-      return asset.download_url;
+      return asset;
     }
   }
+};
+
+
+airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
+  var asset = this.getAsset();
+  if (!asset) {
+    return;
+  }
+  return asset.download_url;
+
 };
 
 

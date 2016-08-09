@@ -67,6 +67,7 @@ class ApprovalFormMessage(messages.Message):
   justification = messages.StringField(10)
   email_opt_in = messages.BooleanField(11)
   company_email = messages.StringField(12)
+  internal_contact_email = messages.StringField(13)
 
 
 class ApprovalMessage(messages.Message):

@@ -97,10 +97,10 @@
     {% for group in assets|groupby('basename') %}
       <div class="assets-asset">
         <div class="assets-asset-image">
-          {% set group_list = group.list|sort(attribute='title', reverse=true) %}
-          {% if group_list[0].title.endswith(('.eps', '.ai'))
+          {% set group_list = group.list|sort(attribute='title') %}
+          {% if group_list[0].title.endswith(('.eps', '.ai', '.psd'))
               and group_list[1]
-              and not group_list[1].title.endswith(('.eps', '.ai')) %}
+              and not group_list[1].title.endswith(('.eps', '.ai', '.psd', '.zip')) %}
             {% set thumbnail_item = group_list[1] %}
           {% elif group_list[0].title.endswith('.zip')
               and group_list[1]
@@ -108,10 +108,10 @@
             {% set thumbnail_item = group_list[1] %}
             {% do group_list.pop() %}
           {% else %}
-            {% set thumbnail_item = group.list[0] %}
+            {% set thumbnail_item = group_list[0] %}
           {% endif %}
           <div class="assets-asset-image-thumbnail">
-            <div class="assets-asset-image-thumbnail-image {% if thumbnail_item.title.endswith(('.zip', '.psd')) %}assets-asset-image-thumbnail-image--{{thumbnail_item.title.split('.')[-1]}}{% endif %}" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
+            <div data-thumbnail-item="{{thumbnail_item.title}}" class="assets-asset-image-thumbnail-image {% if thumbnail_item.title.endswith(('.zip', '.psd')) %}assets-asset-image-thumbnail-image--{{thumbnail_item.title.split('.')[-1]}}{% endif %}" style="background-image: url({{thumbnail_item.thumbnail_url}})"></div>
           </div>
         </div>
         <div class="assets-asset-meta">
