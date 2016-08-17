@@ -2,30 +2,47 @@ from . import assets
 from . import folders
 from . import models
 from . import pages
-from google.appengine.api import urlfetch
+from google.appengine.api import app_identity
 from google.appengine.api import channel
 from google.appengine.api import memcache
+from google.appengine.api import urlfetch
 from google.appengine.ext import deferred
-from google.appengine.api import app_identity
 from googleapiclient import discovery
 from googleapiclient import errors
+from googleapiclient import http
 from oauth2client import appengine
 from oauth2client import client
 import appengine_config
+import cStringIO
 import cloudstorage as gcs
 import httplib2
 import json
 import logging
 import os
+import time
 
 BUCKET = app_identity.get_default_gcs_bucket_name()
 
 CONFIG = appengine_config.CONFIG
 
 SCOPE = [
+    'https://www.googleapis.com/auth/devstorage.full_control',
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/userinfo.email',
 ]
+
+CHUNKSIZE = 10 * 1024 * 1024
+NUM_RETRIES = 2
+BACKOFF = 2  # Seconds.
+ERRORS_TO_RETRY = (IOError, httplib2.HttpLib2Error)
+
+
+class Error(Exception):
+  pass
+
+
+class UploadRequiredError(Error):
+  pass
 
 
 def get_credentials():
@@ -44,15 +61,30 @@ def get_credentials():
 if appengine_config.OFFLINE:
   service = None
 else:
-  http = httplib2.Http()
+  service_http = httplib2.Http()
   credentials = get_credentials()
-  credentials.authorize(http)
-  service = discovery.build('drive', 'v2', http=http)
+  credentials.authorize(service_http)
+  service = discovery.build('drive', 'v2', http=service_http)
+
 
 
 def get_service():
   global service
   return service
+
+
+def get_drive3_service():
+  http = httplib2.Http()
+  credentials = get_credentials()
+  credentials.authorize(http)
+  return discovery.build('drive', 'v3', http=http)
+
+
+def get_storage_service():
+  http = httplib2.Http()
+  credentials = get_credentials()
+  credentials.authorize(http)
+  return discovery.build('storage', 'v1', http=http)
 
 
 def update_channel(user, message):
@@ -159,46 +191,71 @@ def replicate_asset_to_gcs(resp):
         fp.close()
 
   # Download asset.
-  service = get_service()
   title_slug = models.BaseResourceModel.generate_slug(resp['title'])
   path = 'assets/{}/asset-{}-{}'
   path = path.format(CONFIG['folder'], resp['id'], title_slug)
   bucket_path = '/{}/{}'.format(BUCKET, path)
   if not appengine_config.DEV_SERVER:
     try:
-      gcs.stat(bucket_path)
-    except gcs.NotFoundError:
-      download_resp, content = service._http.request(resp['downloadUrl'])
-      if download_resp.status != 200:
-        logging.error('Received {} from {}: {}'.format(
-            download_resp.status, resp['downloadUrl'],
-            content))
-        raise
-      fp = gcs.open(bucket_path, 'w', content_type)
-      fp.write(content)
-      fp.close()
+      stat = gcs.stat(bucket_path)
+      if stat.etag != resp['etag']:
+        raise UploadRequiredError()
+      raise UploadRequiredError()
+    except (gcs.NotFoundError, UploadRequiredError):
+      fp = download_asset_in_parts(service, resp['id'])
+      write_gcs_file(path, BUCKET, fp, resp['mimeType'])
   return bucket_path, thumbnail_bucket_path
 
 
-def ensure_asset_is_public(resp):
-  owned_by_app = False
-  for owner in resp['owners']:
-    if owner['emailAddress'] == CONFIG['service_account']:
-      owned_by_app = True
-  if owned_by_app:
-    return resp
-  service = get_service()
-  copied_file = {
-      'parents': resp['parents'],
-      'title': resp['title']
-  }
-  new_resp = service.files().copy(
-      fileId=resp['id'],
-      body=copied_file).execute()
-  service.files().trash(fileId=resp['id']).execute()
-  logging.info('Duplicated: {}'.format(resp['title']))
-  return new_resp
+def download_asset_in_parts(service, file_id):
+  drive3 = get_drive3_service()
+  fp = cStringIO.StringIO()
+  request = drive3.files().get_media(fileId=file_id)
+  req = http.MediaIoBaseDownload(fp, request, chunksize=CHUNKSIZE)
+  done = False
+  connections = 0
+  while done is False:
+    try:
+      status, done = req.next_chunk()
+      backoff = BACKOFF
+      connections += 1
+      continue
+    except ERRORS_TO_RETRY as e:
+      logging.warn('Drive download encountered error to retry: %s' % e)
+    retries += 1
+    if retries > NUM_RETRIES:
+        raise ValueError('Hit max retry attempts with error: %s' % e)
+    time.sleep(backoff)
+    backoff *= 2
+  fp.seek(0)
+  logging.info('Downloaded in %s tries: %s', connections, file_id)
+  return fp
 
+
+def write_gcs_file(path, bucket, fp, mimetype):
+  storage_service = get_storage_service()
+  media = http.MediaIoBaseUpload(
+      fp, mimetype=mimetype, chunksize=CHUNKSIZE, resumable=True)
+  req = storage_service.objects().insert(
+      media_body=media, name=path, bucket=bucket)
+  resp = None
+  backoff = BACKOFF
+  retries = 0
+  connections = 0
+  while resp is None:
+    try:
+      _, resp = req.next_chunk()
+      backoff = BACKOFF  # Reset backoff.
+      connections += 1
+      continue
+    except ERRORS_TO_RETRY as e:
+      logging.warn('GCS upload encountered error to retry: %s' % e)
+    retries += 1
+    if retries > NUM_RETRIES:
+        raise ValueError('Hit max retry attempts with error: %s' % e)
+    time.sleep(backoff)
+    backoff *= 2
+  logging.info('Uploaded in %s tries: %s' % (connections, path))
 
 
 def process_file_response(resp):

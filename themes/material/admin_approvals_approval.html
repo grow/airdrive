@@ -35,7 +35,7 @@
       <p>Grant access on a folder-by-folder basis. This user will only have access to the following checked folders. If no checkboxes are checked, users will not have access to any folders.</p>
       <a class="btn btn--xs" ng-click="ctrl.updateStatus(true, false)">Update access levels</a>
       <ul>
-        {% for item in nav[1:] if 'folder' in item and item['folder'].weight != -1 %}
+        {% for item in top_folders %}
           {% set folder = item['folder'] %}
           <li><label><input type="checkbox" ng-change="ctrl.update(ctrl.approval, ctrl.folderChoices)" ng-model="ctrl.folderChoices['{{folder.resource_id}}']"> {{folder.title}}</label></li>
         {% endfor %}

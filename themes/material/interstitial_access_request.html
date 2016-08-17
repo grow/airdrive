@@ -83,10 +83,7 @@
           </div>
           <div class="form-field">
             <label class="form-field-label">Which, if any, of these restricted folders do you need to access?</label>
-            {% for item in nav[1:]
-                if 'folder' in item
-                and folder.weight != - 1
-                and not folder.draft %}
+            {% for item in top_folders %}
               {% set folder = item['folder'] %}
               <div>
                 <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.title}}</label>

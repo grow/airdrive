@@ -53,6 +53,7 @@ def update_nav_item(page):
   item['is_asset_folder'] = (
       page.resource_type == 'Folder'
       and page.is_asset_folder)
+  item['top'] = page.top
   item['title'] = page.title
   item['is_parent'] = page.is_parent
   item['weight'] = page.weight
@@ -181,6 +182,23 @@ class Folder(models.BaseResourceModel):
   @property
   def is_overview_folder(self):
     return self.title.lower() in ['overview', 'welcome'] and self.weight == -1
+
+  @classmethod
+  def list_top(cls, include_draft=False):
+    top_items = []
+    nav = get_nav(include_draft=include_draft)
+
+    def process_sub_items(sub_items):
+      for item in sub_items:
+        if 'folder' in item and item['folder'].get('top'):
+          top_items.append(item)
+
+    for item in nav[1:]:
+      if 'folder' in item:
+        top_items.append(item)
+        process_sub_items(item['folder']['children']['folders'])
+
+    return top_items
 
   def list_children(self, include_draft=True):
     children = {

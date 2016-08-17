@@ -105,6 +105,7 @@ def process_special_tags(html):
   html = re.sub('(?:[^`]?)\[h2\|center\]([^\[]+)\[/h2\]', '<h2 class="text--centered">\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\|center\]([^\[]+)\[/h3\]', '<h3 class="text--centered">\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
+  html = re.sub('\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
   html = re.sub('(?:[^`]?)\[h5\]([^\[]+)\[/h5\]', '<h5>\\1</h5>', html, ALL)
   html = re.sub('(?:[^`]?)\[caption\]([^\[]+)\[/caption\]', '<div class="caption"><div class="caption-text">\\1</div></div>', html, ALL)

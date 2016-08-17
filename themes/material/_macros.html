@@ -102,11 +102,11 @@
               and group_list[1]
               and not group_list[1].title.endswith(('.eps', '.ai', '.psd', '.zip')) %}
             {% set thumbnail_item = group_list[1] %}
-          {% elif group_list[0].title.endswith('.zip')
+          {% elif group_list[-1].title.endswith('.zip')
               and group_list[1]
-              and not group_list[1].title.endswith('.zip') %}
-            {% set thumbnail_item = group_list[1] %}
-            {% do group_list.pop() %}
+              and not group_list[0].title.endswith('.zip') %}
+            {% set thumbnail_item = group_list[0] %}
+            {% do group_list.pop(0) %}
           {% else %}
             {% set thumbnail_item = group_list[0] %}
           {% endif %}
@@ -130,6 +130,7 @@
   {% if folder and is_admin %}
   <div ng-controller="SyncController as ctrl">
     <a href="javascript:" ng-click="ctrl.sync('{{folder.resource_id}}')">Sync {{folder.title}}</a>
+    - <a href="{{folder.edit_url}}">Edit {{folder.title}}</a>
     {{sync_snackbar()}}
   </div>
   {% endif %}

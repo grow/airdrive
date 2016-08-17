@@ -14,7 +14,7 @@
       </div>
       <b>Grant access to folders</b>
       <ul>
-        {% for item in nav[1:] if 'folder' in item and item['folder'].weight != -1 %}
+        {% for item in top_folders %}
           {% set folder = item['folder'] %}
           <li><label><input type="checkbox" ng-model="ctrl.folderChoices['{{folder.resource_id}}']"> {{folder.title}}</label></li>
         {% endfor %}

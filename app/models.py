@@ -88,6 +88,7 @@ class BaseResourceModel(Model):
   is_parent = ndb.BooleanProperty()
   is_asset_container = ndb.BooleanProperty()
   title_lower = ndb.StringProperty()
+  top = ndb.BooleanProperty()
 
   @property
   def resource_type(self):
@@ -130,11 +131,12 @@ class BaseResourceModel(Model):
     color = color_matches[0] if color_matches else None
     internal = '[internal]' in title.lower()
     is_parent = '[parent]' in title.lower()
+    is_top = '[top]' in title.lower()
     is_asset_container = '[assets]' in title.lower()
     cleaned_title = re.sub('\[[^\]]*\]', '', title).strip()
     title_lower = cleaned_title.lower()
-    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower)
+    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top = (
         self._parse_title(unprocessed_title))
