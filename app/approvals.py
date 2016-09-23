@@ -10,6 +10,7 @@ from protorpc import protojson
 import csv
 import io
 import json
+import logging
 
 PER_PAGE = 200
 
@@ -47,6 +48,7 @@ class Approval(models.BaseResourceModel):
       'first_name',
       'folders',
       'job_title',
+      'internal_contact_email',
       'justification',
       'last_name',
       'region',
@@ -65,10 +67,16 @@ class Approval(models.BaseResourceModel):
             # TODO: Remove this.
             embedded_user = User(**ent.to_dict())
             self.user = embedded_user
-            self.put()
+            try:
+                self.put()
+            except:
+                logging.error("Couldn't migrate legacy user.")
     message.status = self.status
     message.updated = self.updated
-    message.form = self.form
+    try:
+        message.form = self.form
+    except:
+        logging.error("Couldn't decode form.")
     if self.updated_by:
       message.updated_by = self.updated_by.to_message()
     message.domain = self.domain
@@ -78,10 +86,19 @@ class Approval(models.BaseResourceModel):
   def get(cls, user):
     query = cls.query()
     query = query.filter(cls.user_key == user.key)
-    return query.get()
+    result = query.get()
+    if result:
+      return result
+    query = cls.query()
+    query = query.filter(cls.user.email == user.email)
+    result = query.get()
+    return result
 
   def update(self, message, updated_by):
-    self.form = message.form
+    return self._update(message.form, updated_by)
+
+  def _update(self, form, updated_by):
+    self.form = form
     if self.form.folders:
       self.form.folders = list(set(self.form.folders))
     embedded_user = User(**updated_by.to_dict())
@@ -95,6 +112,8 @@ class Approval(models.BaseResourceModel):
                     created_by=None, status=None):
     ent = cls.get(user)
     if ent:
+      if form:
+        ent._update(form, created_by)
       return ent
     return cls.create(form, user, email=send_email,
                       created_by=created_by, status=status)
@@ -134,6 +153,8 @@ class Approval(models.BaseResourceModel):
     return (results, next_cursor, has_more)
 
   def approve(self, updated_by, email=True):
+#    self.form.folders[0] = str(self.form.folders[0])
+#    self.form = messages.ApprovalFormMessage()
     self.status = messages.Status.APPROVED
     embedded_user = User(**updated_by.to_dict())
     self.updated_by = embedded_user
@@ -170,7 +191,9 @@ class Approval(models.BaseResourceModel):
   @classmethod
   def list_approvals_for_user(cls, user):
     query = cls.query()
-    query = query.filter(ndb.OR(cls.user.email == user.email, cls.user_key == user.key))
+    query = query.filter(ndb.OR(
+        cls.user.email == user.email,
+        cls.user_key == user.key))
     results = query.fetch()
     if results is None:
       return []
@@ -204,8 +227,12 @@ class Approval(models.BaseResourceModel):
     ents, _, _ = cls.search(limit=5000)
     rows = []
     for ent in ents:
-      ent.form = ent.form or messages.ApprovalFormMessage()
-      encoded_form = json.loads(protojson.encode_message(ent.form))
+      encoded_form = None
+      try:
+          ent.form = ent.form or messages.ApprovalFormMessage()
+          encoded_form = json.loads(protojson.encode_message(ent.form))
+      except:
+          logging.error("Couldn't decode form.")
       row = json.loads(protojson.encode_message(ent.to_message()))
       row['email'] = ent.user.email
       if 'email_opt_in' not in row:
@@ -213,7 +240,8 @@ class Approval(models.BaseResourceModel):
       for key in row.keys():
         if key not in header:
           del row[key]
-      row.update(encoded_form)
+      if encoded_form:
+          row.update(encoded_form)
       for key in row:
         if isinstance(row[key], unicode):
           row[key] = row[key].encode('utf-8')

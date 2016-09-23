@@ -81,15 +81,17 @@
               </select>
             </div>
           </div>
-          <div class="form-field">
-            <label class="form-field-label">Which, if any, of these restricted folders do you need to access?</label>
-            {% for item in top_folders %}
-              {% set folder = item['folder'] %}
-              <div>
-                <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.title}}</label>
-              </div>
-            {% endfor %}
-          </div>
+          {% if top_folders %}
+            <div class="form-field">
+              <label class="form-field-label">Which, if any, of these restricted folders do you need to access?</label>
+              {% for item in top_folders %}
+                {% set folder = item['folder'] %}
+                <div>
+                  <label><input type="checkbox" name="folder" value="{{folder.resource_id}}"> {{folder.publicname or folder.title}}</label>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
           <div class="form-field">
             <label class="form-field-label">Why do you need access to this site? If you are requesting access to the restricted folders, why do you need access?</label>
             <textarea class="form-field-control" required name="justification"></textarea>

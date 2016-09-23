@@ -1,5 +1,6 @@
 import appengine_config
 from . import models
+from . import messages
 from . import process
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
@@ -93,6 +94,18 @@ class Page(models.BaseResourceModel):
     html = process.process_html(self.unprocessed_html)
     memcache.set(self._html_cache_key, html)
     return html
+
+  def to_message(self):
+    message = messages.PageMessage()
+    message.ident = self.ident
+    message.title = self.title
+    message.edit_url = self.edit_url
+    message.url = self.url
+    message.draft = self.draft
+    message.sync_url = self.sync_url
+    message.synced = self.synced
+    message.resource_id = self.resource_id
+    return message
 
 def render_folder(tag_name, resource_id, *args, **kwargs):
   return '{{render_mosaic({})}}'.format(resource_id)

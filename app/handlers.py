@@ -26,7 +26,6 @@ import webapp2
 
 
 CONFIG = appengine_config.CONFIG
-MAIN_FOLDER_ID = CONFIG['folder']
 SETTINGS = settings.Settings.singleton()
 
 _here = os.path.dirname(__file__)
@@ -125,7 +124,13 @@ class PageHandler(Handler):
       self.error(404)
       return
     html = page.get_processed_html()
-    content_template = JINJA.from_string(html)
+    try:
+        content_template = JINJA.from_string(html)
+    except:
+        if isinstance(html, unicode):
+            html = html.encode('utf-8')
+        logging.exception('Error parsing template.')
+        logging.error(html)
     rendered_html = content_template.render({
         'asset': lambda *args, **kwargs: None,
         'get_asset': assets.Asset.get,
@@ -145,13 +150,14 @@ class PageHandler(Handler):
 class MainFolderHandler(Handler):
 
   def get(self, folder_slug):
+    root_folder_id = sync.get_root_folder_id()
     if not self.me.is_registered:
       self.redirect(self.urls.sign_in())
       return
     if not self.me.has_access:
       self.redirect('/')
       return
-    folder = folders.Folder.get_by_slug(folder_slug, parent=MAIN_FOLDER_ID)
+    folder = folders.Folder.get_by_slug(folder_slug, parent=root_folder_id)
     if folder is None:
       self.error(404)
       return
@@ -271,11 +277,12 @@ class AdminSettingsHandler(Handler):
   def get(self):
     if not self.is_admin():
       return
+    root_folder_id = sync.get_root_folder_id()
     params = {}
     params['admin_page'] = True
     params['approvals'] = approvals.Approval.search()
     params['admins'] = admins.Admin.list()
-    params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
+    params['folder'] = folders.Folder.get(root_folder_id)
     params['assets'] = assets.Asset.search_by_downloads()
     params['settings'] = self.settings
     self.render_template('admin_settings.html', params)
@@ -291,11 +298,12 @@ class AdminHandler(Handler):
       self.response.headers['Content-Type'] = 'text/csv'
       self.response.out.write(content)
       return
+    root_folder_id = sync.get_root_folder_id()
     params = {}
     params['admin_page'] = True
     params['approvals'] = approvals.Approval.search()
     params['admins'] = admins.Admin.list()
-    params['folder'] = folders.Folder.get(MAIN_FOLDER_ID)
+    params['folder'] = folders.Folder.get(root_folder_id)
     params['assets'] = assets.Asset.search_by_downloads()
     try:
       self.render_template('admin_{}.html'.format(template), params)
@@ -306,7 +314,10 @@ class AdminHandler(Handler):
 
 class SyncHandler(Handler):
 
-  def get(self, resource_id=MAIN_FOLDER_ID):
+  def get(self, resource_id=None):
+    if resource_id is None:
+      root_folder_id = sync.get_root_folder_id()
+      resource_id = root_folder_id
     if not self.is_admin():
       return
     try:

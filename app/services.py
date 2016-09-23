@@ -9,6 +9,7 @@ from . import sync
 from . import users
 from protorpc import remote
 import airlock
+import json
 from google.appengine.ext import ndb
 
 
@@ -159,6 +160,12 @@ class AdminService(airlock.Service):
               for user in request.users]
     send_email = request.send_email
     form = request.form
+#    import logging
+#    logging.info('abc')
+#    logging.info(form)
+#    if form.folders:
+#        for i, folder in enumerate(form.folders):
+#            form.folders[i] = str(folder)
     approval_ents = users.User.direct_add_users(
         emails, created_by=self.me, send_email=send_email, form=form)
     resp = messages.ApprovalsMessage()
@@ -211,9 +218,8 @@ class AdminService(airlock.Service):
   def sync_all(self, request):
     self.require_admin()
     resp = messages.SyncMessage()
-    CONFIG = appengine_config.CONFIG
-    MAIN_FOLDER_ID = CONFIG['folder']
-    token = sync.download_resource(MAIN_FOLDER_ID, self.me)
+    root_folder_id = sync.get_root_folder_id()
+    token = sync.download_resource(root_folder_id, self.me)
     resp.token = token
     return resp
 
@@ -228,4 +234,13 @@ class AdminService(airlock.Service):
         send_email=send_email)
     resp = messages.ApprovalsMessage()
     resp.approvals = [approval.to_message() for approval in ents]
+    return resp
+
+  @remote.method(messages.GetSyncTreeRequest,
+                 messages.GetSyncTreeResponse)
+  def get_sync_tree(self, request):
+    self.require_admin()
+    sync_tree = folders.Folder.get_sync_tree()
+    resp = messages.GetSyncTreeResponse()
+    resp.sync_tree = json.dumps(sync_tree)
     return resp

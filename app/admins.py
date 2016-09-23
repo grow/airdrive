@@ -1,5 +1,7 @@
 from . import messages
 from . import models
+from . import folders
+from . import sync
 from google.appengine.ext import ndb
 import appengine_config
 
@@ -9,6 +11,7 @@ class Admin(models.Model):
   created = ndb.DateTimeProperty(auto_now_add=True)
   created_by_key = ndb.KeyProperty()
   receives_email = ndb.BooleanProperty(default=False)
+#  folders = ndb.StructuredProperty(folders.Folder, repeated=True)
 
   @classmethod
   def is_admin(cls, email):
@@ -30,6 +33,8 @@ class Admin(models.Model):
     for message in messages:
       ent = cls.create(message.email, created_by=created_by)
       created.append(ent)
+    emails = cls.list_emails()
+    sync.share_root_folder(emails)
     return created
 
   @classmethod
@@ -41,6 +46,7 @@ class Admin(models.Model):
     ent.email = email
     ent.created_by_key = created_by.key
     ent.put()
+    sync.share_root_folder([email])
     return ent
 
   def update(self, message):

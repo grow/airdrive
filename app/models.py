@@ -18,7 +18,8 @@ class Model(ndb.Model):
   @classmethod
   def get(cls, ident):
     key = ndb.Key(cls.__name__, ident)
-    return key.get()
+    ent = key.get()
+    return ent
 
   @classmethod
   def get_or_instantiate(cls, ident):
@@ -89,6 +90,8 @@ class BaseResourceModel(Model):
   is_asset_container = ndb.BooleanProperty()
   title_lower = ndb.StringProperty()
   top = ndb.BooleanProperty()
+  linkcolor = ndb.StringProperty()
+  publicname = ndb.StringProperty()
 
   @property
   def resource_type(self):
@@ -129,14 +132,18 @@ class BaseResourceModel(Model):
     template = template_matches[0] if template_matches else None
     color_matches = re.findall('\[color\|([^\]]*)\]', title.lower())
     color = color_matches[0] if color_matches else None
+    linkcolor_matches = re.findall('\[linkcolor\|([^\]]*)\]', title.lower())
+    linkcolor = linkcolor_matches[0] if linkcolor_matches else None
+    publicname = re.findall('\[publicname\|([^\]]*)\]', title)
+    publicname = template_matches[0] if template_matches else None
     internal = '[internal]' in title.lower()
     is_parent = '[parent]' in title.lower()
     is_top = '[top]' in title.lower()
     is_asset_container = '[assets]' in title.lower()
     cleaned_title = re.sub('\[[^\]]*\]', '', title).strip()
     title_lower = cleaned_title.lower()
-    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top)
+    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top, linkcolor, publicname)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top, self.linkcolor, self.publicname = (
         self._parse_title(unprocessed_title))

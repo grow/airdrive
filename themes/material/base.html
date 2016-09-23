@@ -29,6 +29,18 @@
       {% endif %}
       --color-text-on-brand: {{settings.form.text_on_brand_color or "#fff"}};
     }
+    {% if page and (page.linkcolor or page.parent.linkcolor) %}
+      .page-info[data-asset-parentkey] a,
+      .page-document .toc a,
+      a.page-info-content-label,
+      .layout-side ul li a.menu-item--active, 
+      .page-document a {
+        color: {{page.linkcolor or page.parent.linkcolor}} !important;
+      }
+      .toc {
+        border-left: 5px solid {{page.linkcolor or page.parent.linkcolor}};
+      }
+    {% endif %}
   </style>
 </head>
 <body {% if body_class %}class="{{body_class}}"{% endif %}>
@@ -145,3 +157,4 @@
     });
   </script>
   {% endif %}
+  <!-- {{me.email}} -->

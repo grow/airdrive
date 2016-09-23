@@ -29,9 +29,10 @@
       <label>
         <div class="form-field">
           <input type="text" ng-model="ctrl.sheetId" class="form-field-control" placeholder="Enter Google Sheets ID">
+          <input type="text" ng-model="ctrl.sheetGid" class="form-field-control" placeholder="GID">
         </div>
         <div class="form-field">
-          <button class="btn btn--xs" type="button" ng-click="ctrl.importApprovals(ctrl.sheetId, ctrl.folderChoices)">Import from Google Sheets</button>
+          <button class="btn btn--xs" type="button" ng-click="ctrl.importApprovals(ctrl.sheetId, ctrl.sheetGid)">Import from Google Sheets</button>
         </div>
       </label>
       <div ng-show="ctrl.importedApprovals">

@@ -6,6 +6,9 @@ import webapp2
 import yaml
 
 
+CONFIG = appengine_config.CONFIG
+
+
 class Settings(ndb.Model):
   form = msgprop.MessageProperty(
       messages.SettingsMessage, default=messages.SettingsMessage())
@@ -37,7 +40,9 @@ class Settings(ndb.Model):
 
   def get_theme(self):
     form = self.get_form()
-    return form.theme or appengine_config.CONFIG.get('theme') or appengine_config.DEFAULT_THEME
+    return form.theme \
+        or appengine_config.CONFIG.get('theme') \
+        or appengine_config.DEFAULT_THEME
 
   @property
   def theme(self):

@@ -2,6 +2,7 @@ from . import assets
 from . import folders
 from . import models
 from . import pages
+from . import settings
 from google.appengine.api import app_identity
 from google.appengine.api import channel
 from google.appengine.api import memcache
@@ -150,7 +151,7 @@ def process_folder_response(resp, user):
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   for child in child_resource_responses:
-    deferred.defer(download_resource, child['id'], user)
+    deferred.defer(download_resource, child['id'], user, _queue='sync')
 
 
 def get_file_content(resp):
@@ -299,7 +300,13 @@ def create_root_folder():
   }
   resp = service.files().insert(body=data, fields='id').execute()
   file_id = resp['id']
-  for email in admins.Admin.list_emails():
+  logging.info('Created root folder: {}'.format(file_id))
+  return file_id
+
+
+def share_root_folder(emails):
+  file_id = get_root_folder_id()
+  for email in emails:
     permission = {
         'type': 'user',
         'role': 'writer',
@@ -310,3 +317,16 @@ def create_root_folder():
         body=permission,
         fields='id',
     ).execute()
+    logging.info('Shared root folder with -> {}'.format(email))
+
+
+def get_root_folder_id():
+  if 'folder' in CONFIG:
+    return CONFIG['folder']
+  settings_obj = settings.Settings.singleton()
+  if settings_obj.form.root_folder_id:
+    return settings_obj.form.root_folder_id
+  file_id = create_root_folder()
+  settings_obj.form.root_folder_id = file_id
+  settings_obj.put()
+  return file_id

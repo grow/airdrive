@@ -6,7 +6,7 @@
   <blockquote>
     <b>{{approval.user.email}}</b>
   </blockquote>
-  <p class="centered"><a class="btn" href="{{config.BASE_URL}}/admin/approvals/">Review access requests</a></p>
+  <p class="centered"><a class="btn" href="{{config.BASE_URL}}/admin/approvals/{{approval.ident}}/">Review access request</a></p>
   <p>
     <table style="margin-bottom: 20px">
       {% for key, val in approval.serialized_form.iteritems() %}

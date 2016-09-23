@@ -4,12 +4,11 @@
 <div ng-controller="FoldersController as ctrl" ng-cloak>
   <div class="form">
     <h2>Root folder</h2>
-    <p>Ensure <b>{{config.CONFIG.service_account}}</b> and <b>{{config.APP_SERVICE_ACCOUNT}}</b> has <b>edit access</b> to this folder.</p>
     <div class="form-field">
-      <input class="form-field-control" value="{{config.CONFIG.folder}}" readonly>
+      <input class="form-field-control" value="{{settings.form.root_folder_id}}" readonly>
     </div>
     <div class="form-field">
-      <a class="btn btn--sm" href="https://drive.google.com/drive/folders/{{config.CONFIG.folder}}">Open in Google Drive</a>
+      <a class="btn btn--sm" href="https://drive.google.com/drive/folders/{{settings.form.root_folder_id}}">Open in Google Drive</a>
       <a class="btn btn--sm" href="javascript:" ng-click="ctrl.syncAll()">Sync root folder</a>
     </div>
   </div>
@@ -20,23 +19,35 @@
       <tr>
         <th>Synced</th>
         <th>Title</th>
-        <th>Order</th>
         <th>Action</th>
       </tr>
     </thead>
-    <tr ng-repeat="folder in ctrl.folders" class="form">
-      <td>[[folder.synced]]</td>
-      <td>
-        <a href="[[folder.url]]">[[folder.title]]</a>
-        <span ng-if="folder.draft">[draft]</span>
-      </td>
-      <td>[[folder.weight]]</td>
-      <td>
-        <a href="[[folder.edit_url]]">Edit</a>
-        | <a href="javascript:" ng-click="ctrl.delete(folder.resource_id)">Delete</a>
-        | <a href="javascript:" ng-click="ctrl.sync(folder.resource_id)">Sync</a>
-      </td>
-    </tr>
+    <tbody ng-repeat="folder in ctrl.folders">
+      <tr class="form">
+        <td>[[folder.synced|date:"short"]]</td>
+        <td>
+          <b><a href="[[folder.url]]">[[folder.title]]</a></b>
+          <span ng-if="folder.draft">[draft]</span>
+        </td>
+        <td>
+          <a href="[[folder.edit_url]]">Edit</a>
+          | <a href="javascript:" ng-click="ctrl.delete(folder.resource_id)">Delete</a>
+          | <a href="javascript:" ng-click="ctrl.sync(folder.resource_id)">Sync</a>
+        </td>
+      </tr>
+      <tr ng-repeat="page in folder.pages" class="form">
+        <td>[[page.synced|date:"short"]]</td>
+        <td>
+          <a href="[[page.url]]">└ [[page.title]]</a>
+          <span ng-if="page.draft">[draft]</span>
+        </td>
+        <td>
+          <a href="[[page.edit_url]]">Edit</a>
+          | <a href="javascript:" ng-click="ctrl.delete(page.resource_id)">Delete</a>
+          | <a href="javascript:" ng-click="ctrl.sync(page.resource_id)">Sync</a>
+        </td>
+      </tr>
+    </tbody>
     {#
     <tr>
       <td colspan="100">

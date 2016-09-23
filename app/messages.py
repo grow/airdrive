@@ -18,6 +18,17 @@ class UserMessage(messages.Message):
   status = messages.EnumField(Status, 6)
 
 
+class PageMessage(messages.Message):
+  ident = messages.StringField(1)
+  title = messages.StringField(2)
+  synced = message_types.DateTimeField(4)
+  edit_url = messages.StringField(6)
+  sync_url = messages.StringField(7)
+  url = messages.StringField(8)
+  resource_id = messages.StringField(9)
+  draft = messages.BooleanField(10)
+
+
 class FolderMessage(messages.Message):
   ident = messages.StringField(1)
   title = messages.StringField(2)
@@ -30,6 +41,7 @@ class FolderMessage(messages.Message):
   resource_id = messages.StringField(9)
   draft = messages.BooleanField(10)
   hidden = messages.BooleanField(11)
+  pages = messages.MessageField(PageMessage, 12, repeated=True)
 
 
 class AssetMetadata(messages.Message):
@@ -40,6 +52,7 @@ class AssetMetadata(messages.Message):
   dimensions = messages.StringField(5)
   ext = messages.StringField(6)
   base = messages.StringField(7)
+  variant = messages.StringField(8)
 
 
 class AssetMessage(messages.Message):
@@ -95,6 +108,7 @@ class AdminMessage(messages.Message):
   created_by = messages.MessageField(UserMessage, 3)
   receives_email = messages.BooleanField(4)
   ident = messages.StringField(5)
+  folders = messages.MessageField(FolderMessage, 6, repeated=True)
 
 
 class ApprovalsMessage(messages.Message):
@@ -142,6 +156,8 @@ class SettingsMessage(messages.Message):
   keep_folders_open = messages.StringField(26)
   allow_gmail_accounts = messages.StringField(27)
   disable_domain_access = messages.StringField(28)
+  root_folder_id = messages.StringField(29)
+  site_id = messages.StringField(1)
 
 
 class ResourceMessage(messages.Message):
@@ -171,3 +187,11 @@ class ImportApprovalsMessage(messages.Message):
   sheet_id = messages.StringField(1)
   sheet_gid = messages.StringField(2)
   form = messages.MessageField(ApprovalFormMessage, 3)
+
+
+class GetSyncTreeRequest(messages.Message):
+  pass
+
+
+class GetSyncTreeResponse(messages.Message):
+  sync_tree = messages.StringField(1)

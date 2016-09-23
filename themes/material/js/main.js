@@ -22,7 +22,17 @@ airpress.main = function() {
              case 'fr-ca':
                return 'French (Canada)';
              case 'en':
-               return 'English';
+               return 'English (US)';
+             case 'en-au':
+              return 'English (Australia)';
+             case 'en-gb':
+              return 'English (UK)';
+             case 'en-ca':
+              return 'English (Canada)';
+             case 'en-in':
+              return 'English (India)';
+             case 'fr-ca':
+              return 'French (Canada)';
            }
            return identifier;
         }
@@ -125,11 +135,12 @@ airpress.ng.ApprovalsController.prototype.getFormWithFolders = function() {
 };
 
 
-airpress.ng.ApprovalsController.prototype.importApprovals = function(sheetId) {
+airpress.ng.ApprovalsController.prototype.importApprovals = function(sheetId, sheetGid) {
   this.loadingImport = true;
   var form = this.getFormWithFolders();
   airpress.rpc('admins.import_approvals', {
     'form': form,
+    'sheet_gid': sheetGid,
     'sheet_id': sheetId
   }).done(function(resp) {
     this.loadingImport = false;
@@ -490,7 +501,9 @@ airpress.ng.DownloadBarController.prototype.updateAsset_ = function(parentKey) {
   }).done(
       function(resp) {
     this.updateForm_(resp['assets']);
-    this.selectedAsset.title = resp['folder']['title'];
+    if (resp['folder']) {
+      this.selectedAsset.title = resp['folder']['title'];
+    }
     this.loaded = true;
     this.$scope.$apply();
   }.bind(this));
@@ -503,6 +516,7 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
   this.form = {
     dimensions: [],
     label: [],
+    variant: [],
     language: [],
   };
   if (!this.assets) {
@@ -522,7 +536,13 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     if (this.form.language.indexOf(asset.metadata.language) == -1) {
       this.form.language.push(asset.metadata.language);
     }
+    if (this.form.variant.indexOf(asset.metadata.variant) == -1) {
+      this.form.variant.push(asset.metadata.variant);
+    }
   }.bind(this));
+  if (this.form.variant.length == 1) {
+    this.selectedAsset.variant = this.form.variant[0];
+  }
   if (this.form.label.length == 1) {
     this.selectedAsset.label = this.form.label[0];
   }

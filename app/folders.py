@@ -3,6 +3,7 @@ from . import assets
 from . import models
 from . import pages
 from . import messages
+from . import settings
 from google.appengine.api import memcache
 from google.appengine.ext import ndb
 import datetime
@@ -12,7 +13,6 @@ import pickle
 import webapp2
 
 CONFIG = appengine_config.CONFIG
-MAIN_FOLDER_ID = CONFIG['folder']
 EDIT_URL_FORMAT = "https://drive.google.com/drive/folders/{resource_id}"
 NAV_CACHE_KEY = 'nav'
 
@@ -29,9 +29,11 @@ def get_nav(include_draft=True):
 
 
 def create_nav(include_draft=True):
+  from . import sync
+  root_folder_id = sync.get_root_folder_id()
   nav = []
   root_folders = Folder.list(
-      parent=MAIN_FOLDER_ID, use_cache=True,
+      parent=root_folder_id, use_cache=True,
       include_draft=include_draft)
   for root_folder in root_folders:
     nav.append(update_nav(root_folder, include_draft=include_draft))
@@ -127,9 +129,10 @@ def process_result(resource, next=True):
   if 'folder' in resource and resource['folder']:
       sub_resource = resource['folder']
       if 'children' in sub_resource and not sub_resource['is_asset_folder'] and not sub_resource['is_asset_container']:
-          if next:
-              return process_result(sub_resource['children']['items'][0], next=next)
-          return sub_resource['children']['items'][-1]
+          if sub_resource['children']['items']:
+              if next:
+                  return process_result(sub_resource['children']['items'][0], next=next)
+              return sub_resource['children']['items'][-1]
   return resource
 
 
@@ -153,7 +156,9 @@ class Folder(models.BaseResourceModel):
 
   @classmethod
   def list(self, parent=None, use_cache=True, include_draft=False):
-    cache_key = 'Folder:List:{}:{}'.format(MAIN_FOLDER_ID, str(include_draft))
+    from . import sync
+    root_folder_id = sync.get_root_folder_id()
+    cache_key = 'Folder:List:{}:{}'.format(root_folder_id, str(include_draft))
     if use_cache and parent is None:
       ents = memcache.get(cache_key)
       if ents:
@@ -171,7 +176,9 @@ class Folder(models.BaseResourceModel):
 
   @classmethod
   def clear_cache(cls):
-    cache_key = 'Folder:List:{}'.format(MAIN_FOLDER_ID)
+    from . import sync
+    root_folder_id = sync.get_root_folder_id()
+    cache_key = 'Folder:List:{}'.format(root_folder_id)
     memcache.delete(cache_key)
 
   @property
@@ -260,9 +267,11 @@ class Folder(models.BaseResourceModel):
 
   @classmethod
   def get_homepage(cls):
+    from . import sync
+    root_folder_id = sync.get_root_folder_id()
     query = cls.query()
     query = query.filter(cls.weight == -1)
-    parent_key = ndb.Key(cls.__name__, MAIN_FOLDER_ID)
+    parent_key = ndb.Key(cls.__name__, root_folder_id)
     query = query.filter(cls.parents == parent_key)
     folder = query.get()
     if folder is None:
@@ -292,8 +301,33 @@ class Folder(models.BaseResourceModel):
     message.resource_id = self.resource_id
     message.draft = self.draft
     message.hidden = self.hidden
+    children = self.list_children()
+    if children['pages']:
+        message.pages = []
+        for child in children['pages']:
+            message.pages.append(child.to_message())
     return message
 
   def update(self, message):
     self.color = message.color
     self.put()
+
+  @classmethod
+  def get_sync_tree(cls):
+    from . import sync
+    root_folder_id = sync.get_root_folder_id()
+    service = sync.get_service()
+    page_token = None
+    childs = []
+    while True:
+      params = {}
+      if page_token:
+        params['pageToken'] = page_token
+      children = service.children().list(
+          folderId=root_folder_id, **params).execute()
+      for child in children.get('items', []):
+        childs.append(child)
+      page_token = children.get('nextPageToken')
+      if not page_token:
+        break
+    return childs
