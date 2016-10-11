@@ -99,6 +99,10 @@
         <div class="assets-asset-image">
           {% set group_list = group.list|sort(attribute='title') %}
           {% if group_list[0].title.endswith(('.eps', '.ai', '.psd', '.psb', '.html'))
+              and group_list|length == 3
+              and not group_list[2].title.endswith(('.eps', '.ai', '.psd', '.zip', '.psb', '.html')) %}
+            {% set thumbnail_item = group_list[2] %}
+          {% elif group_list[0].title.endswith(('.eps', '.ai', '.psd', '.psb', '.html'))
               and group_list[1]
               and not group_list[1].title.endswith(('.eps', '.ai', '.psd', '.zip', '.psb', '.html')) %}
             {% set thumbnail_item = group_list[1] %}

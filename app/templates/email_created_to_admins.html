@@ -7,9 +7,17 @@
     <b>{{approval.user.email}}</b>
   </blockquote>
   <p class="centered"><a class="btn" href="{{config.BASE_URL}}/admin/approvals/{{approval.ident}}/">Review access request</a></p>
+  {% if approval.serialized_form.folders %}
+  <p><b>Folders</b></p>
+  <ul>
+    {% for folder in approval.folders %}
+       <li>{{folder.title}}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <p>
     <table style="margin-bottom: 20px">
-      {% for key, val in approval.serialized_form.iteritems() %}
+      {% for key, val in approval.serialized_form.iteritems() if key != "folders" %}
       <tr>
         <td style="width: 140px"><b>{{key}}</b></td>
         <td>{{val}}</td>

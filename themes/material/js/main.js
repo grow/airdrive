@@ -21,6 +21,32 @@ airpress.main = function() {
                return 'German';
              case 'fr-ca':
                return 'French (Canada)';
+             case 'en-nz':
+               return 'English (New Zealand)';
+             case 'es':
+               return 'Spanish';
+             case 'fi':
+               return 'Finnish';
+             case 'fr':
+               return 'French (France)';
+             case 'it':
+               return 'Italian';
+             case 'nl':
+               return 'Dutch';
+             case 'no':
+               return 'Norwegian';
+             case 'se':
+               return 'Swedish';
+             case 'sv':
+               return 'Swedish';
+             case 'ja':
+               return 'Japanese';
+             case 'jp':
+               return 'Japanese';
+             case 'dk':
+               return 'Danish';
+             case 'da':
+               return 'Danish';
              case 'en':
                return 'English (US)';
              case 'en-au':
@@ -305,6 +331,9 @@ airpress.ng.AdminsController.prototype.deleteAdmin = function(ident) {
 airpress.ng.FoldersController = function($scope) {
   this.$scope = $scope;
   this.searchFolders();
+  airpress.rpc('admins.get_sync_tree', {}).done(function(resp) {
+    console.log(resp);
+  }.bind(this));
 };
 
 

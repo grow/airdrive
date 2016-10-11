@@ -7,6 +7,7 @@ from google.appengine.api import app_identity
 from google.appengine.api import channel
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
+from google.appengine.api import urlfetch_errors
 from google.appengine.ext import deferred
 from googleapiclient import discovery
 from googleapiclient import errors
@@ -16,6 +17,7 @@ from oauth2client import client
 import appengine_config
 import cStringIO
 import cloudstorage as gcs
+import httplib
 import httplib2
 import json
 import logging
@@ -32,10 +34,15 @@ SCOPE = [
     'https://www.googleapis.com/auth/userinfo.email',
 ]
 
-CHUNKSIZE = 10 * 1024 * 1024
+CHUNKSIZE = 10 * 1024 * 1024  # 20 MB per request.
+GCS_UPLOAD_CHUNKSIZE = 10 * 1024 * 1024
 NUM_RETRIES = 2
-BACKOFF = 2  # Seconds.
-ERRORS_TO_RETRY = (IOError, httplib2.HttpLib2Error)
+BACKOFF = 4  # Seconds.
+
+# KeyError: 'range'
+# lib/googleapiclient/http.py", line 902, in _process_response
+# self.resumable_progress = int(resp['range'].split('-')[1]) + 1
+ERRORS_TO_RETRY = (IOError, httplib2.HttpLib2Error, urlfetch_errors.DeadlineExceededError, KeyError)
 
 
 class Error(Exception):
@@ -127,17 +134,23 @@ def download_folder(resource_id, process_deletes=True):
   return child_resource_responses
 
 
-def download_resource(resource_id, user=None, create_channel=False):
+def download_resource(resource_id, user=None, create_channel=False, queue='sync'):
   service = get_service()
   resp = service.files().get(fileId=resource_id).execute()
-  if resp['mimeType'] == 'application/vnd.google-apps.folder':
+  if 'mimeType' not in resp:
+    logging.error('Received {}'.format(resp))
+    return
+  title = resp['title']
+  if isinstance(title, unicode):
+    title = title.encode('utf-8')
+  if resp.get('mimeType', '') == 'application/vnd.google-apps.folder':
     text = 'Processing folder: {} ({})'
-    message = text.format(resp['title'], resource_id)
+    message = text.format(title, resource_id)
     update_channel(user, message)
-    process_folder_response(resp, user)
+    process_folder_response(resp, user, queue=queue)
   else:
     text = 'Processing file: {} ({})'
-    message = text.format(resp['title'], resource_id)
+    message = text.format(title, resource_id)
     update_channel(user, message)
     process_file_response(resp)
   folders.create_nav()
@@ -146,12 +159,12 @@ def download_resource(resource_id, user=None, create_channel=False):
     return token
 
 
-def process_folder_response(resp, user):
+def process_folder_response(resp, user, queue='sync'):
   folders.Folder.process(resp)
   resource_id = resp['id']
   child_resource_responses = download_folder(resp['id'])
   for child in child_resource_responses:
-    deferred.defer(download_resource, child['id'], user, _queue='sync')
+    deferred.defer(download_resource, child['id'], user, queue=queue, _queue=queue)
 
 
 def get_file_content(resp):
@@ -165,6 +178,7 @@ def get_file_content(resp):
 
 
 def replicate_asset_to_gcs(resp):
+  root_folder_id = get_root_folder_id()
   content_type = resp['mimeType']
   thumbnail_bucket_path = None
 
@@ -172,7 +186,7 @@ def replicate_asset_to_gcs(resp):
   if 'thumbnailLink' in resp:
     title_slug = models.BaseResourceModel.generate_slug(resp['title'])
     thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(
-        CONFIG['folder'], resp['id'], title_slug)
+        root_folder_id, resp['id'], title_slug)
     thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
     if not appengine_config.DEV_SERVER:
       try:
@@ -194,7 +208,7 @@ def replicate_asset_to_gcs(resp):
   # Download asset.
   title_slug = models.BaseResourceModel.generate_slug(resp['title'])
   path = 'assets/{}/asset-{}-{}'
-  path = path.format(CONFIG['folder'], resp['id'], title_slug)
+  path = path.format(root_folder_id, resp['id'], title_slug)
   bucket_path = '/{}/{}'.format(BUCKET, path)
   if not appengine_config.DEV_SERVER:
     try:
@@ -236,7 +250,7 @@ def download_asset_in_parts(service, file_id):
 def write_gcs_file(path, bucket, fp, mimetype):
   storage_service = get_storage_service()
   media = http.MediaIoBaseUpload(
-      fp, mimetype=mimetype, chunksize=CHUNKSIZE, resumable=True)
+      fp, mimetype=mimetype, chunksize=GCS_UPLOAD_CHUNKSIZE, resumable=True)
   req = storage_service.objects().insert(
       media_body=media, name=path, bucket=bucket)
   resp = None

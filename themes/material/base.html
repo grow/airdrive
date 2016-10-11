@@ -80,17 +80,19 @@
       </div>
       {% block side %}
 
+          {% set has_top_menu = false %}
+          {% if nav and 'folder' in nav[0] %}
           <ul class="menu menu--hidden">
-            {% if nav %}
-              {% set items = nav[0]['folder']['children']['items'] %}
-              {% for item in items|sort(attribute='weight') %}
-              {{macros.render_menu_tree(item, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
-              {% endfor %}
-            {% endif %}
+            {% set has_top_menu = true %}
+            {% set items = nav[0]['folder']['children']['items'] %}
+            {% for item in items|sort(attribute='weight') %}
+            {{macros.render_menu_tree(item, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
+            {% endfor %}
           </ul>
+          {% endif %}
 
           {% if nav|length > 1 and nav[1:] %}
-            <div class="layout-side-bordered layout-side-bordered--menu">
+            <div class="{{"layout-side-bordered" if has_top_menu}} layout-side-bordered--menu">
               <ul class="menu menu--hidden">
                 {% for nav_item in nav[1:] %}
                   {% if not nav_item.folder %}{% continue %}{% endif %}

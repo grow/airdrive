@@ -69,7 +69,7 @@ class User(models.Model, airlock.User):
     return self.domain == appengine_config.CONFIG['domain']
 
   def has_access_to_folder(self, resource_id):
-    if self.is_domain_user:
+    if self.is_domain_user or admins.Admin.is_admin(self.email):
       return True
     approved_folder_ids = self.list_approved_folders
     return resource_id in approved_folder_ids

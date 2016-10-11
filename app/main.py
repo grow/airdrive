@@ -45,9 +45,13 @@ class RedirectMiddleware(object):
         if 'redirect_domain' in CONFIG:
             redirect_from = CONFIG['redirect_domain']['from']
             redirect_to = CONFIG['redirect_domain']['to']
+            to_root = CONFIG['redirect_domain'].get('to_root')
             if redirect_from == os.getenv('HTTP_HOST', ''):
                 status = '302 Found'
-                url = redirect_to + os.getenv('PATH_INFO', '')
+                if to_root:
+                    url = redirect_to
+                else:
+                    url = redirect_to + os.getenv('PATH_INFO', '')
                 response_headers = [('Location', url)]
                 start_response(status, response_headers)
                 return []

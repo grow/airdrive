@@ -58,6 +58,10 @@ def get_config_content(name):
 
 class Handler(airlock.Handler):
 
+#  @webapp2.cached_property
+#  def me(self):
+#    return app_users.User.get_by_email('user@example.com')
+
   @property
   def settings(self):
     return settings.Settings.singleton()
@@ -321,7 +325,7 @@ class SyncHandler(Handler):
     if not self.is_admin():
       return
     try:
-      sync.download_resource(resource_id, self.me)
+      sync.download_resource(resource_id, self.me, queue='default')
     except Exception as e:
       logging.exception('Sync error.')
       self.response.status = 500

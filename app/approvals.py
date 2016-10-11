@@ -266,3 +266,8 @@ class Approval(models.BaseResourceModel):
   def count(cls):
     query = cls.query()
     return query.count()
+
+  @property
+  def folders(self):
+    from . import folders
+    return [folders.Folder.get(ident) for ident in self.form.folders]
