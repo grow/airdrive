@@ -140,7 +140,7 @@ def process_special_tags(html):
   html = re.sub('\[singlecolumnimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--singlecolumn"><div class="page-image" style="background-image:url(\\1)"></div></div>', html)
   html = re.sub('\[heroimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--hero"><img class="page-image--hero" src="\\1"></div>', html)
   html = re.sub('\[bgimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--bg"><div class="page-image page-image--bg" style="background-image: url(\\1)"></div></div>', html)
-  html = re.sub('\[slides\|([^\]]*)\]', '<iframe class"frame-slides" frameborder="0" data-src="https://docs.google.com/presentation/d/\\1/embed?authuser=0" allowfullscreen></iframe>', html)
+  html = re.sub('\[slides\|([^\]]*)\]', '<iframe class"frame-slides" frameborder="0" src="https://docs.google.com/presentation/d/\\1/embed?authuser=0" allowfullscreen></iframe>', html)
   html = re.sub('\[fullsizeimage\|(.*)\]', '<div class="page-image-container page-image-container--fullsize"><div class="page-image" style="background-image:url(\\1)"></div></div>', html, ALL)
   html = re.sub('\[fullwidthimage\|(.*)\]', '<div class="page-image-container page-image-container--fullwidth"><img src="\\1"></div>', html, ALL)
   html = re.sub('\[thumbnails\|([^\]]*)\]', '{% with folder = get_folder("\\1") %}{% import "_macros.html" as macros with context %}{{macros.render_assets(folder.children[\'assets\'], folder=folder)}}{% endwith %}', html, ALL)
