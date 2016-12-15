@@ -10,6 +10,9 @@ import yaml
 from app import monkeypatch
 monkeypatch.patch()
 
+from google.appengine.api import urlfetch
+urlfetch.set_default_fetch_deadline(60)
+
 DEV_SERVER = os.getenv('SERVER_SOFTWARE').startswith('Dev')
 OFFLINE = False
 

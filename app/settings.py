@@ -47,3 +47,8 @@ class Settings(ndb.Model):
   @property
   def theme(self):
     return self.get_theme()
+
+  @property
+  def title(self):
+    form = self.get_form()
+    return form.title or appengine_config.CONFIG.get('title', 'Toolkit')

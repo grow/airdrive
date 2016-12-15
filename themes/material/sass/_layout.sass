@@ -17,12 +17,12 @@ $header-height: 70px
 
     &-top
       border-bottom: 1px solid $color-border
-      font-size: $font-size-sm
-      margin-bottom: $pad-md
-      // height: $header-height
       box-sizing: border-box
-      padding: $pad-md * .75 $pad-md
-      line-height: $header-height - 2 * $pad-md
+      font-size: $font-size-sm
+      line-height: $header-height - 2
+      margin-bottom: $pad-md
+      min-height: $header-height - 2
+      padding: 0 $pad-md
 
       a
         color: $color-text
@@ -31,6 +31,9 @@ $header-height: 70px
 
         &:hover
           text-decoration:none
+
+        img
+          max-width: 90%
 
       &-logo
         vertical-align: middle
@@ -55,7 +58,6 @@ $header-height: 70px
         border-top: 1px solid $color-border
         font-size: $font-size-sm
         line-height: $line-height-sm
-        margin-top: 0
         padding: $pad-md
 
     .menu--hidden
@@ -146,6 +148,18 @@ $header-height: 70px
 
   &-side + &-main
     left: $side-width
+
+  &-main-bar
+    background: #eee
+    left: 270px
+    position: fixed
+    top: $header-height
+    width: 100%
+    z-index: 0
+
+    &-content
+      margin: 0 auto
+      padding: ($pad-sm + 2) $pad-xx $pad-sm
 
   &-main
     left: 0
@@ -251,6 +265,7 @@ $header-height: 70px
 
   &--wide
     .layout-main-header,
+    .layout-main-bar,
     .layout-main-content
       left: 0
       margin-left: 0
@@ -263,6 +278,9 @@ $header-height: 70px
   .layout-main-content,
   .layout-main-footer
     margin-left: 0
+
+  .layout-main-bar
+    left: 0
 
   .layout-main-header
     left: 0

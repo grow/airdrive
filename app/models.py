@@ -140,7 +140,7 @@ class BaseResourceModel(Model):
     is_parent = '[parent]' in title.lower()
     is_top = '[top]' in title.lower()
     is_asset_container = '[assets]' in title.lower()
-    cleaned_title = re.sub('\[[^\]]*\]', '', title).strip()
+    cleaned_title = re.sub('\[[^\]]*\]', '', title).replace('.docx', '').strip()
     title_lower = cleaned_title.lower()
     return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top, linkcolor, publicname)
 

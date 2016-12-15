@@ -109,8 +109,9 @@ def process_special_tags(html):
   html = re.sub('\[h5\]([^\[]+)\[/h5\]', '<h5>\\1</h5>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
   html = re.sub('(?:[^`]?)\[h5\]([^\[]+)\[/h5\]', '<h5>\\1</h5>', html, ALL)
+  html = re.sub('\[caption\|check\]([^\[]*)\[/caption\]', '<div class="caption caption--check"><div class="caption-bar"></div><div class="caption-label">Check</div><div class="caption-text">\\1</div></div>', html, ALL)
   html = re.sub('(?:[^`]?)\[caption\]([^\[]+)\[/caption\]', '<div class="caption"><div class="caption-text">\\1</div></div>', html, ALL)
-  html = re.sub('(?:[^`]?)\[caption\]([^\[]+)\[/caption\]', '<div class="caption"><div class="caption-text">\\1</div></div>', html, ALL)
+  html = re.sub('(?:[^`]?)\[bar\]([^\[]+)\[/bar\]', '<div class="layout-main-bar"><div class="layout-main-bar-content">\\1</div></div>', html, ALL)
   html = re.sub('[^`]\[caption\|dont\]([^\[]*)\[/caption\]', '<div class="caption caption--dont"><div class="caption-bar"></div><div class="caption-label">Don\'t</div><div class="caption-text">\\1</div></div>', html, ALL)
   html = re.sub('[^`]\[caption\|dont\]\[/caption\]', '<div class="caption caption--dont"><div class="caption-bar"></div><div class="caption-label">Don\'t</div><div class="caption-text"></div></div>', html, ALL)
   html = re.sub('[^`]\[caption\|do\]([^\[]*)\[/caption\]', '<div class="caption caption--do"><div class="caption-bar"></div><div class="caption-label">Do</div><div class="caption-text">\\1</div></div>', html, ALL)
@@ -142,8 +143,8 @@ def process_special_tags(html):
   html = re.sub('\[bgimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--bg"><div class="page-image page-image--bg" style="background-image: url(\\1)"></div></div>', html)
   html = re.sub('\[slides\|([^\]]*)\]', '<iframe class"frame-slides" frameborder="0" src="https://docs.google.com/presentation/d/\\1/embed?authuser=0" allowfullscreen></iframe>', html)
   html = re.sub('\[fullsizeimage\|(.*)\]', '<div class="page-image-container page-image-container--fullsize"><div class="page-image" style="background-image:url(\\1)"></div></div>', html, ALL)
-  html = re.sub('\[fullwidthimage\|(.*)\]', '<div class="page-image-container page-image-container--fullwidth"><img src="\\1"></div>', html, ALL)
   html = re.sub('\[thumbnails\|([^\]]*)\]', '{% with folder = get_folder("\\1") %}{% import "_macros.html" as macros with context %}{{macros.render_assets(folder.children[\'assets\'], folder=folder)}}{% endwith %}', html, ALL)
+  html = re.sub('\[fullwidthimage\|([^\]]*)\]', '<div class="page-image-container page-image-container--fullwidth"><img src="\\1"></div>', html, ALL)
   html = re.sub('\`([^`]*)\`', '<code>\\1</code>', html)
   html = re.sub('</ol>[^<]*<ol>', '', html, ALL)
   html = re.sub('\[nav\|next([^\]]*)\]', '{% with page = get_page("\\1") %}{% include "nav.html" with context %}{% endwith %}', html, ALL)
@@ -263,11 +264,11 @@ def process_tables(soup, style_tag):
     # Process special image tags in all cells.
     for cell in table.find_all('td'):
       cell_str = str(cell)
+      process_image_tag('fullwidthimage', table, cell, cell_str)
       process_image_tag('bgimage', table, cell, cell_str)
       process_image_tag('heroimage', table, cell, cell_str)
       process_image_tag('singlecolumnimage', table, cell, cell_str,
           attr='data-page-document-table--has-images')
-      process_image_tag('fullwidthimage', table, cell, cell_str)
       process_callout_image('callout', table, cell, cell_str)
 
     # Process table header.

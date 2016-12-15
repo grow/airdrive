@@ -552,7 +552,7 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     return;
   }
   this.assets.forEach(function(asset) {
-    if (!asset.metadata.dimensions || !asset.metadata.label) {
+    if (!asset.metadata.label) {
       return;
     }
     asset.metadata.language = asset.metadata.language || 'en';

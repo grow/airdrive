@@ -158,6 +158,9 @@ class SettingsMessage(messages.Message):
   disable_domain_access = messages.StringField(28)
   root_folder_id = messages.StringField(29)
   site_id = messages.StringField(1)
+  public = messages.StringField(30)
+  style = messages.StringField(31)
+  head = messages.StringField(32)
 
 
 class ResourceMessage(messages.Message):

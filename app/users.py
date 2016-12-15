@@ -16,9 +16,6 @@ import logging
 import webapp2
 
 
-SETTINGS = settings.Settings.singleton()
-
-
 class User(models.Model, airlock.User):
   email = ndb.StringProperty()
   _message_class = messages.UserMessage
@@ -50,9 +47,12 @@ class User(models.Model, airlock.User):
 
   @property
   def has_access(self):
-    if self.is_domain_user and not SETTINGS.form.disable_domain_access:
+    form = settings.Settings.singleton().form
+    if self.is_domain_user and not form.disable_domain_access:
       return True
     if admins.Admin.is_admin(self.email):
+      return True
+    if form.public:
       return True
     return approvals.Approval.user_has_access(self)
 
@@ -69,7 +69,10 @@ class User(models.Model, airlock.User):
     return self.domain == appengine_config.CONFIG['domain']
 
   def has_access_to_folder(self, resource_id):
+    form = settings.Settings.singleton().form
     if self.is_domain_user or admins.Admin.is_admin(self.email):
+      return True
+    if form.public:
       return True
     approved_folder_ids = self.list_approved_folders
     return resource_id in approved_folder_ids

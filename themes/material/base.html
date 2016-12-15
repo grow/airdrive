@@ -41,7 +41,13 @@
         border-left: 5px solid {{page.linkcolor or page.parent.linkcolor}};
       }
     {% endif %}
+    {% if settings.form.style %}
+    {{settings.form.style|safe}}
+    {% endif %}
   </style>
+    {% if settings.form.head %}
+    {{settings.form.head|safe}}
+    {% endif %}
 </head>
 <body {% if body_class %}class="{{body_class}}"{% endif %}>
   {% if enable_sidebar is not sameas false %}

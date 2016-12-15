@@ -136,7 +136,7 @@ class Approval(models.BaseResourceModel):
 
   @classmethod
   def create_and_approve(cls, message, user, created_by):
-    ent = cls.get_or_create(message, user, send_email=False)
+    ent = cls.get_or_create(message, user, send_email=False, created_by=created_by)
     ent.approve(created_by, email=False)
     return ent
 

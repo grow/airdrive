@@ -15,28 +15,29 @@ class Emailer(object):
 
   def __init__(self, approval):
     self.approval = approval
+    self.title = SETTINGS.title
 
   def send_rejected_to_user(self):
     template_path = 'email_rejected_to_user.html'
-    subject = '[{}] Your access request has been rejected'.format(CONFIG['title'])
+    subject = '[{}] Your access request has been rejected'.format(self.title)
     to = self.approval.user.email
     self.send(to, subject, template_path)
 
   def send_approved_to_user(self):
     template_path = 'email_approved_to_user.html'
-    subject = '[{}] Your access request has been approved'.format(CONFIG['title'])
+    subject = '[{}] Your access request has been approved'.format(self.title)
     to = self.approval.user.email
     self.send(to, subject, template_path)
 
   def send_created_to_user(self):
     template_path = 'email_created_to_user.html'
-    subject = '[{}] We have received your access request'.format(CONFIG['title'])
+    subject = '[{}] We have received your access request'.format(self.title)
     to = self.approval.user.email
     self.send(to, subject, template_path)
 
   def send_created_to_admins(self):
     template_path = 'email_created_to_admins.html'
-    subject = '[{}] Access request from {}'.format(CONFIG['title'], self.approval.user.email)
+    subject = '[{}] Access request from {}'.format(self.title, self.approval.user.email)
     to = admins.Admin.list_emails()
     if to:
       self.send(to, subject, template_path)

@@ -146,17 +146,26 @@ def download_resource(resource_id, user=None, create_channel=False, queue='sync'
   if resp.get('mimeType', '') == 'application/vnd.google-apps.folder':
     text = 'Processing folder: {} ({})'
     message = text.format(title, resource_id)
-    update_channel(user, message)
+    try:
+      update_channel(user, message)
+    except channel.AppIdAliasRequired:
+      logging.warn('AppIdAliasRequired raised.')
     process_folder_response(resp, user, queue=queue)
   else:
     text = 'Processing file: {} ({})'
     message = text.format(title, resource_id)
-    update_channel(user, message)
+    try:
+      update_channel(user, message)
+    except channel.AppIdAliasRequired:
+      logging.warn('AppIdAliasRequired raised.')
     process_file_response(resp)
   folders.create_nav()
-  if create_channel:
-    token = channel.create_channel(user.ident)
-    return token
+  try:
+    if create_channel:
+      token = channel.create_channel(user.ident)
+      return token
+  except channel.AppIdAliasRequired:
+    logging.warn('AppIdAliasRequired raised.')
 
 
 def process_folder_response(resp, user, queue='sync'):
@@ -309,7 +318,7 @@ def set_resources_public(resource_ids):
 def create_root_folder():
   service = get_service()
   data = {
-    'name' : 'Root Folder',
+    'title' : 'Root Folder',
     'mimeType' : 'application/vnd.google-apps.folder'
   }
   resp = service.files().insert(body=data, fields='id').execute()

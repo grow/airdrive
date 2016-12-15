@@ -20,8 +20,8 @@ VARIANT_IDENTIFIERS = (
     ('_STD_', 'Standard'),
     ('_DBS_', 'Double-sided'),
     ('_SGS_', 'Single-sided'),
-    ('_15A_', '15° angle'),
-    ('_30A_', '30° angle'),
+    ('_15A_', '15 degree angle'),
+    ('_30A_', '30 degree angle'),
 )
 
 MESSAGING_IDENTIFIERS = (
@@ -33,15 +33,23 @@ MESSAGING_IDENTIFIERS = (
     ('_MUSIC_', 'Music'),
     ('_PHOTOS_', 'Photos'),
     ('_PROMO_', 'Promotional'),
-    ('_PROMOV2_', 'Promotional V2'),
-    ('_PROMOV3_', 'Promotional V3'),
+    ('_PROMOV1_', 'Promotional Single'),
+    ('_PROMOV2_', 'Promotional Lifestyle'),
+    ('_PROMOV3_', 'Promotional Multipack'),
     ('_SEARCH_', 'Search'),
     ('_SOCIALMEDIA_', 'Social media'),
     ('_STANDALONE_', 'Standalone'),
     ('_STD_', 'Standard'),
-    ('_STDV2_', 'Standard V2'),
-    ('_STDV3_', 'Standard V3'),
+    ('_STDV1_', 'Standard Single'),
+    ('_STDV2_', 'Standard Device'),
+    ('_STDV3_', 'Standard Multipack'),
     ('_YOUTUBE_', 'YouTube'),
+    ('CC_CC4K_CCA_', 'Chromecast, Chromecast Ultra & Chromecast Audio'),
+    ('CC_CC4K_', 'Chromecast & Chromecast Ultra'),
+    ('CC_CCA_', 'Chromecast & Chromecast Audio'),
+    ('CC_', 'Chromecast'),
+    ('CC4K_', 'Chromecast Ultra'),
+    ('CCA_', 'Chromecast Audio'),
 )
 
 FILENAME_IDENTIFIERS_TO_LOCALES = {
@@ -316,7 +324,8 @@ class Asset(models.BaseResourceModel):
 
   @webapp2.cached_property
   def parent(self):
-    return self.parents[0].get()
+    if self.parents:
+      return self.parents[0].get()
 
   def create_blob_key(self, thumbnail=False):
     if thumbnail:

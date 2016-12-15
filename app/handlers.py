@@ -332,11 +332,15 @@ class SyncHandler(Handler):
       self.response.headers['Content-Type'] = 'text/plain'
       self.response.out.write(str(e))
       return
-    token = channel.create_channel(self.me.ident)
-    content = json.dumps({
-        'token': token,
-    })
-    self.response.out.write(content)
+    try:
+      token = channel.create_channel(self.me.ident)
+      content = json.dumps({
+          'token': token,
+      })
+      self.response.out.write(content)
+    except channel.AppIdAliasRequired:
+      logging.warn('AppIdAliasRequired raised.')
+      self.response.out.write('Started sync: {}'.format(resource_id))
 
 
 class DeleteHandler(Handler):
