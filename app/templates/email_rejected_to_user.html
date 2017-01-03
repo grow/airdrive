@@ -7,6 +7,6 @@
     {% if approval.form.first_name %}
       <p>Hello {{approval.form.first_name}},</p>
     {% endif %}
-    <p>Unfortunately, your request to access {{config.CONFIG.title}} was declined.</p>
+    <p>Unfortunately, your request to access {{settings.form.title}} was declined.</p>
   {% endif %}
 {% endblock %}

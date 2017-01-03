@@ -14,6 +14,15 @@ airpress.main = function() {
       .controller('ApprovalsController', airpress.ng.ApprovalsController)
       .controller('SettingsController', airpress.ng.SettingsController)
       .controller('SyncController', airpress.ng.SyncController)
+      .filter('filesize', function() {
+        return function(bytes, precision) {
+          if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
+          if (typeof precision === 'undefined') precision = 1;
+          var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'];
+          var number = Math.floor(Math.log(bytes) / Math.log(1024));
+          return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) +  ' ' + units[number];
+        };
+      })
       .filter('prettyLanguage', function() {
          return function(identifier) {
            switch (identifier) {
@@ -599,13 +608,27 @@ airpress.ng.DownloadBarController.prototype.getAsset = function() {
 };
 
 
+airpress.ng.DownloadBarController.prototype.getAssetWithSize = function(size) {
+  if (!this.assets) {
+    return;
+  }
+  for (var i = 0; i < this.assets.length; i++) {
+    var asset = this.assets[i];
+    if (asset.metadata.dimensions == size
+          && asset.metadata.label == this.selectedAsset.label
+          && asset.metadata.language == this.selectedAsset.language) {
+      return asset;
+    }
+  }
+};
+
+
 airpress.ng.DownloadBarController.prototype.getDownloadUrl = function() {
   var asset = this.getAsset();
   if (!asset) {
     return;
   }
   return asset.download_url;
-
 };
 
 
@@ -682,7 +705,6 @@ airpress.ng.FooterNavController.prototype.getSibling = function(opt_next, opt_ro
   if (!nextItemEl) {
     return;
   }
-  console.log(nextItemEl);
   var nextLinkEl = nextItemEl.querySelector('a');
   var title = nextLinkEl.textContent.trim();
   var url = nextLinkEl.href;

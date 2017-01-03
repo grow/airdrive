@@ -7,7 +7,7 @@
     {% if approval.form.first_name %}
       <p>Hello {{approval.form.first_name}},</p>
     {% endif %}
-    <p>Your request to access {{config.CONFIG.title}} has been approved.</p>
+    <p>Your request to access {{settings.form.title}} has been approved.</p>
     <p class="centered"><a class="btn" href="{{config.BASE_URL}}">Visit website</a></p>
   {% endif %}
 {% endblock %}

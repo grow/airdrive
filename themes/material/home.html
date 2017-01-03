@@ -1,4 +1,4 @@
-{% set title = config.CONFIG.title %}
+{% set title = settings.form.title or config.CONFIG.title %}
 {% set enable_sidebar = false %}
 {% extends "base.html" %}
 

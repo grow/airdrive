@@ -46,6 +46,22 @@
   .contained
     max-width: 1100px
 
+  .downloadbar-preview
+    background: #fff
+    border: 1px solid #efefef;
+    bottom: 51px;
+    display: none;
+    margin-left: -20px;
+    padding: 20px
+    position: absolute
+
+    .downloadbar-preview__item__image
+      padding: 5px
+      text-align: center
+      img
+        max-height: 100px
+        max-width: 100%
+
   .downloadbar-col
     border-right: 1px solid rgba(0, 0, 0, .18);
     display: inline-block
@@ -57,6 +73,13 @@
       margin-left: 20px
       margin-top: 8px
       float: right;
+
+    &--centered
+      float: none !important;
+      margin: 0 !important;
+      padding: 5px 0;
+      text-align: center;
+      width: 100%;
 
     &--title
       font-weight: bold

@@ -167,6 +167,7 @@ class MainFolderHandler(Handler):
       return
     params = {
         'folder': folder,
+        'settings': self.settings,
     }
     self.render_template('folder.html', params)
 
@@ -192,6 +193,7 @@ class HomepageHandler(Handler):
     params = {
         'content': get_config_content('welcome.html'),
         'statuses': messages.Status,
+        'settings': self.settings,
     }
     if self.me.registered and not self.me.has_access:
       self.render_template('interstitial_access_request.html', params)

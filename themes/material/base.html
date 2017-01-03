@@ -74,11 +74,15 @@
               style="{{config.CONFIG.sidebar_subtitle_style}}"
               {% endif %}
               >
-              {% if config.CONFIG.sidebar_subtitle
-                  and (config.CONFIG.logo or config.CONFIG.logo_url) %}
-                {{config.CONFIG.sidebar_subtitle}}
+              {% if settings.form.title %}
+                {{settings.form.title}}
               {% else %}
-                {{config.CONFIG.title or config.CONFIG.sidebar_title}}
+                {% if config.CONFIG.sidebar_subtitle
+                    and (config.CONFIG.logo or config.CONFIG.logo_url) %}
+                  {{config.CONFIG.sidebar_subtitle}}
+                {% else %}
+                  {{config.CONFIG.title or config.CONFIG.sidebar_title}}
+                {% endif %}
               {% endif %}
             </div>
           {% endif %}
