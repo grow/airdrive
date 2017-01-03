@@ -89,7 +89,7 @@ def process_special_tags(html):
   html = re.sub('\[spacer\|([^\]]*)\]', '<div style="height: \\1"></div>', html)
   html = re.sub('[^`]\[b\]([^\[]+)\[/b\]', '<strong>\\1</strong>', html)
   html = re.sub('[^`]\[i\](.*)\[/i\]', '<em>\\1</em>', html)
-  html = re.sub('\[colorize\|([^\]]+)\]([^\[]+)\[/colorize\]', '<span style="color: \\1">\\2</span></span>', html, ALL)
+  html = re.sub('\[colorize\|([^\]]+)\]([^\[]+)\[/colorize\]', '<span style="color: \\1">\\2</span>', html, ALL)
   html = re.sub('(?:[^`]?)\[bi\](.*)\[/bi\]', '<strong><em>\\1</em></strong>', html)
   html = re.sub('(?:[^`]?)\[h2\]([^\[]+)\[/h2\]', '<h2>\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h1\]([^\[]+)\[/h1\]', '<h1>\\1</h1>', html, ALL)
@@ -106,6 +106,7 @@ def process_special_tags(html):
   html = re.sub('(?:[^`]?)\[h3\|center\]([^\[]+)\[/h3\]', '<h3 class="text--centered">\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
   html = re.sub('\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
+  html = re.sub('(?:[^`]?)\[h5\|color:([^\[]+)\]([^\[]+)\[/h5\]', '<h5 style="color: \\1">\\2</h5>', html, ALL)
   html = re.sub('\[h5\]([^\[]+)\[/h5\]', '<h5>\\1</h5>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
   html = re.sub('(?:[^`]?)\[h5\]([^\[]+)\[/h5\]', '<h5>\\1</h5>', html, ALL)
@@ -286,6 +287,8 @@ def process_tables(soup, style_tag):
         table['class'] += 'page-document-table page-document-table--callout'
       if re.findall('\[table.*data', tr_str):
         table['class'] += ' page-document-table--data'
+      if re.findall('table.*glossary', tr_str):
+        table['class'] += ' page-document-table--glossary'
       if re.findall('table.*savewidths', tr_str):
         save_widths = True
         table['class'] += ' page-document-table--save-widths'

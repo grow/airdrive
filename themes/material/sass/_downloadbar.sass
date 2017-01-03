@@ -10,8 +10,16 @@
   bottom: 0
   right: 0
   left: 0
+  background: rgba(0, 0, 0, .25);
+  transition: all 200ms ease
+  visibility: hidden
+  pointer-events: none
+  opacity: 0
 
   &--visible
+    visibility: visible
+    opacity: 1
+    pointer-events: auto 
     display: block
 
 .downloadbar 
@@ -21,7 +29,7 @@
   color: black
   font: 400 16px/1 "Roboto","Helvetica",arial,sans-serif
   left: 270px
-  padding: 15px
+  padding: 10px
   position: fixed
   transform: translateY(120px)
   transition: all 200ms ease
@@ -139,3 +147,44 @@
         right: 7px
         top: calc(50% - 9px)
         vertical-align: middle
+
+    .downloadbar-download-preview
+      background: #fff
+      border-radius: 2px
+      // border: 1px solid #efefef
+      box-sizing: border-box
+      bottom: 75px
+      box-shadow: 0 0 8px rgba(0,0,0,0.25)
+      margin-left: -25px
+      text-align: center
+      padding: 10px
+      position: absolute
+      min-width: 76px
+
+      &:after,
+      &:before 
+        border: solid transparent
+        content: " "
+        height: 0
+        left: 38px
+        pointer-events: none
+        position: absolute
+        top: 100%
+        width: 0
+
+      &:after
+        border-color: rgba(255, 255, 255, 0)
+        border-top-color: #fff
+        border-width: 15px
+        margin-left: -15px
+
+      &--x:before
+        border-color: rgba(239, 239, 239, 0)
+        border-top-color: #efefef
+        border-width: 16px
+        margin-left: -16px
+
+      img
+        margin: 0 auto
+        max-width: 100%
+        max-height: 200px

@@ -1,5 +1,17 @@
 var airpress = airpress || {};
 
+if (!String.prototype.endsWith) {
+  String.prototype.endsWith = function(searchString, position) {
+      var subjectString = this.toString();
+      if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
+        position = subjectString.length;
+      }
+      position -= searchString.length;
+      var lastIndex = subjectString.lastIndexOf(searchString, position);
+      return lastIndex !== -1 && lastIndex === position;
+  };
+}
+
 
 airpress.main = function() {
   angular.module('airpress', [])
@@ -24,58 +36,62 @@ airpress.main = function() {
         };
       })
       .filter('prettyLanguage', function() {
-         return function(identifier) {
-           switch (identifier) {
-             case 'de':
-               return 'German';
-             case 'fr-ca':
-               return 'French (Canada)';
-             case 'en-nz':
-               return 'English (New Zealand)';
-             case 'es':
-               return 'Spanish';
-             case 'fi':
-               return 'Finnish';
-             case 'fr':
-               return 'French (France)';
-             case 'it':
-               return 'Italian';
-             case 'nl':
-               return 'Dutch';
-             case 'no':
-               return 'Norwegian';
-             case 'se':
-               return 'Swedish';
-             case 'sv':
-               return 'Swedish';
-             case 'ja':
-               return 'Japanese';
-             case 'jp':
-               return 'Japanese';
-             case 'dk':
-               return 'Danish';
-             case 'da':
-               return 'Danish';
-             case 'en':
-               return 'English (US)';
-             case 'en-au':
-              return 'English (Australia)';
-             case 'en-gb':
-              return 'English (UK)';
-             case 'en-ca':
-              return 'English (Canada)';
-             case 'en-in':
-              return 'English (India)';
-             case 'fr-ca':
-              return 'French (Canada)';
-           }
-           return identifier;
-        }
-      })
-
+        return function(identifier) {
+	  return airpress.prettyLanguage(identifier);
+	};
+      });
   angular.bootstrap(document, ['airpress'])
   smoothScroll.init({offset: 40});
   airpress.moveLayoutFooter();
+};
+
+
+airpress.prettyLanguage = function(identifier) {
+  switch (identifier) {
+    case 'de':
+      return 'German';
+    case 'fr-ca':
+      return 'French (Canada)';
+    case 'en-nz':
+      return 'English (New Zealand)';
+    case 'es':
+      return 'Spanish';
+    case 'fi':
+      return 'Finnish';
+    case 'fr':
+      return 'French (France)';
+    case 'it':
+      return 'Italian';
+    case 'nl':
+      return 'Dutch';
+    case 'no':
+      return 'Norwegian';
+    case 'se':
+      return 'Swedish';
+    case 'sv':
+      return 'Swedish';
+    case 'ja':
+      return 'Japanese';
+    case 'jp':
+      return 'Japanese';
+    case 'dk':
+      return 'Danish';
+    case 'da':
+      return 'Danish';
+    case 'en':
+      return 'English (US)';
+    case 'en-au':
+      return 'English (Australia)';
+    case 'en-gb':
+      return 'English (UK)';
+    case 'en-ca':
+      return 'English (Canada)';
+    case 'en-in':
+      return 'English (India)';
+    case 'fr-ca':
+      return 'French (Canada)';
+  }
+  return identifier;
 };
 
 
@@ -515,10 +531,24 @@ airpress.ng.DownloadBarController = function($scope, $element) {
     this.setVisible(false);
     this.$scope.$apply();
   }.bind(this));
+
+  $scope.$watch(function(scope) {
+    return this.selectedAsset.language;
+  }.bind(this), function(newVal, oldVal) {
+    if (newVal) {
+      window.localStorage['hl'] = newVal;
+    }
+  }.bind(this));
 };
 
 
-airpress.ng.DownloadBarController.prototype.setVisible = function(visible, parentKey) {
+airpress.ng.DownloadBarController.prototype.orderBy = function(item) {
+  return airpress.prettyLanguage(item);
+};
+
+
+airpress.ng.DownloadBarController.prototype.setVisible =
+    function(visible, parentKey) {
   if (visible) {
       this.maskEl.classList.add('downloadbar-mask--visible');
       this.updateForm_([]);
@@ -548,6 +578,20 @@ airpress.ng.DownloadBarController.prototype.updateAsset_ = function(parentKey) {
 };
 
 
+airpress.ng.DownloadBarController.prototype.hasThumbnail = function(asset) {
+  if (!asset) {
+    return;
+  }
+  // Special case for PSD: Google Drive only generates thumbnails for files
+  // under 50MiB.
+  if (asset.metadata.ext == '.psd') {
+    return asset.size < 52430000;
+  }
+  var exts = ['.jpg', '.png', '.pdf'];
+  return exts.indexOf(asset.metadata.ext) != -1;
+};
+
+
 airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
   this.selectedAsset = {};
   this.assets = assets;
@@ -561,21 +605,26 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     return;
   }
   this.assets.forEach(function(asset) {
-    if (!asset.metadata.label) {
-      return;
-    }
     asset.metadata.language = asset.metadata.language || 'en';
     if (this.form.dimensions.indexOf(asset.metadata.dimensions) == -1) {
-      this.form.dimensions.push(asset.metadata.dimensions);
+      if (asset.metadata.dimensions) {
+        this.form.dimensions.push(asset.metadata.dimensions);
+      }
     }
     if (this.form.label.indexOf(asset.metadata.label) == -1) {
-      this.form.label.push(asset.metadata.label);
+      if (asset.metadata.label) {
+	this.form.label.push(asset.metadata.label);
+      }
     }
     if (this.form.language.indexOf(asset.metadata.language) == -1) {
-      this.form.language.push(asset.metadata.language);
+      if (asset.metadata.language) {
+        this.form.language.push(asset.metadata.language);
+      }
     }
     if (this.form.variant.indexOf(asset.metadata.variant) == -1) {
-      this.form.variant.push(asset.metadata.variant);
+      if (asset.metadata.variant) {
+        this.form.variant.push(asset.metadata.variant);
+      }
     }
   }.bind(this));
   if (this.form.variant.length == 1) {
@@ -589,6 +638,13 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
   }
   if (this.form.language.length == 1) {
     this.selectedAsset.language = this.form.language[0];
+  }
+  var hl = window.localStorage['hl'];
+  if (!hl) {
+    return;
+  }
+  if (this.form.language.indexOf(hl) != -1) {
+    this.selectedAsset.language = hl;
   }
 };
 
@@ -620,6 +676,29 @@ airpress.ng.DownloadBarController.prototype.getAssetWithSize = function(size) {
       return asset;
     }
   }
+};
+
+
+airpress.ng.DownloadBarController.prototype.updateThumbnailPreview =
+    function(opt_enabled) {
+  if (opt_enabled === false) {
+    this.thumbnailPreviewUrl = null;
+    return;
+  }
+  var asset = this.getAsset();
+  if (!asset) {
+    return;
+  }
+  var image = new Image();
+  image.onload = function() {
+    this.thumbnailPreviewUrl = image.src;
+    this.$scope.$apply();
+  }.bind(this);
+  image.onerror = function() {
+    this.thumbnailPreviewUrl = null;
+    this.$scope.$apply();
+  }.bind(this);
+  image.src = asset.thumbnail_url;
 };
 
 
