@@ -88,6 +88,7 @@ class BaseResourceModel(Model):
   template = ndb.StringProperty()
   is_parent = ndb.BooleanProperty()
   is_asset_container = ndb.BooleanProperty()
+  is_index = ndb.BooleanProperty()
   title_lower = ndb.StringProperty()
   top = ndb.BooleanProperty()
   linkcolor = ndb.StringProperty()
@@ -140,10 +141,11 @@ class BaseResourceModel(Model):
     is_parent = '[parent]' in title.lower()
     is_top = '[top]' in title.lower()
     is_asset_container = '[assets]' in title.lower()
+    is_index = '[index]' in title.lower()
     cleaned_title = re.sub('\[[^\]]*\]', '', title).replace('.docx', '').strip()
     title_lower = cleaned_title.lower()
-    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top, linkcolor, publicname)
+    return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top, linkcolor, publicname, is_index)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top, self.linkcolor, self.publicname = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top, self.linkcolor, self.publicname, self.is_index = (
         self._parse_title(unprocessed_title))

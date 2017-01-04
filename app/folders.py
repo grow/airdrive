@@ -49,6 +49,7 @@ def update_nav_item(page):
   item['url'] = page.url
   item['hidden'] = page.hidden
   item['draft'] = page.draft
+  item['is_index'] = page.is_index
   item['is_asset_container'] = (
       page.resource_type == 'Folder'
       and page.is_asset_container)

@@ -38,6 +38,11 @@ airpress.menu.init = function() {
       return;
     }
     var el = e.target;
+
+    // If the folder links to an index page.
+    if (el.href != 'javascript:') {
+      return;
+    }
     var parentEl = el.parentNode;
     var sublistEl = parentEl.nextSibling && parentEl.nextSibling.nextSibling;
     if (sublistEl) {
@@ -71,4 +76,15 @@ airpress.menu.decorate = function(el) {
     item.classList.add('menu-item-child--open');
   }
   el.classList.remove('menu--hidden');
+
+  var list = el.querySelectorAll('.menu-item-child--has-index');
+  [].forEach.call(list, function(el) {
+    var icon = el.querySelector('.material-icons');
+    if (icon.offsetParent) {
+      return;
+    }
+    var link = el.querySelector('a');
+    link.href = el.getAttribute('data-index-url');
+    el.classList.add('menu-item-child--hidden-children');
+  });
 };

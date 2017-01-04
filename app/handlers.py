@@ -128,6 +128,7 @@ class PageHandler(Handler):
       self.error(404)
       return
     html = page.get_processed_html()
+    content_template = None
     try:
         content_template = JINJA.from_string(html)
     except:
@@ -135,6 +136,17 @@ class PageHandler(Handler):
             html = html.encode('utf-8')
         logging.exception('Error parsing template.')
         logging.error(html)
+        try:
+          sync.download_resource(resource_id, self.me, queue='default')
+          page = pages.Page.get(resource_id)
+          html = page.get_processed_html()
+          content_template = JINJA.from_string(html)
+        except:
+          logging.exception('Tried syncing but failed.')
+          pass
+    if not content_template:
+      self.error(500)
+      return
     rendered_html = content_template.render({
         'asset': lambda *args, **kwargs: None,
         'get_asset': assets.Asset.get,

@@ -69,6 +69,10 @@ $header-height: 70px
       list-style: none
       font-size: $font-size-sm
 
+      li.menu-item-child--has-index:not(.menu-item-child--open)
+        .material-icons
+          display: none
+
       li.menu-item-child--open:not(.menu-item-child--kept-open)
         .material-icons
           transform: rotate(180deg)
