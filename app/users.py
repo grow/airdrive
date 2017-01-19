@@ -78,6 +78,34 @@ class User(models.Model, airlock.User):
     return resource_id in approved_folder_ids
 
   @classmethod
+  def add_access(cls, emails, created_by, form):
+    approval_ents = []
+    for email in emails:
+      user_ent = cls.get_or_create_by_email(email)
+      approval_ent = approvals.Approval.get(user_ent)
+      if not approval_ent:
+        approval_ent = approvals.Approval.get_or_create(
+              form=form,
+              user=user_ent, created_by=created_by,
+              status=messages.Status.APPROVED,
+              send_email=False)
+      approval_ent.add_folders(form.folders)
+      approval_ents.append(approval_ent)
+    return approval_ents
+
+  @classmethod
+  def remove_access(cls, emails, created_by, form):
+    approval_ents = []
+    for email in emails:
+      user_ent = cls.get_or_create_by_email(email)
+      approval_ent = approvals.Approval.get(user_ent)
+      if not approval_ent:
+        continue
+      approval_ent.remove_folders(form.folders)
+      approval_ents.append(approval_ent)
+    return approval_ents
+
+  @classmethod
   def direct_add_users(cls, emails, created_by=None, send_email=False, form=None):
     approval_ents = []
     for email in emails:

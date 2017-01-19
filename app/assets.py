@@ -219,6 +219,8 @@ class Asset(models.BaseResourceModel):
 
   @classmethod
   def process(cls, resp, gcs_path=None, gcs_thumbnail_path=None):
+    if '.preview' in resp['title']:  # Don't store previews.
+      return
     resource_id = resp['id']
     ent = cls.get_or_instantiate(resource_id)
     ent.resource_id = resource_id
@@ -229,8 +231,10 @@ class Asset(models.BaseResourceModel):
     ent.parse_title(resp['title'])
     ent.md5 = resp['md5Checksum']
     ent.etag = resp['etag']
-    ent.gcs_path = gcs_path
-    ent.gcs_thumbnail_path = gcs_thumbnail_path
+    if gcs_path:
+      ent.gcs_path = gcs_path
+    if gcs_thumbnail_path:
+      ent.gcs_thumbnail_path = gcs_thumbnail_path
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.synced = datetime.datetime.now()
     ent.parents = cls.generate_parent_keys(resp['parents'])
@@ -253,6 +257,12 @@ class Asset(models.BaseResourceModel):
     else:
         folder_message = None
     return folder_message, asset_messages
+
+  @classmethod
+  def get_by_basename(cls, basename):
+    query = cls.query()
+    query = query.filter(cls.basename == basename)
+    return query.get()
 
   def set_metadata(self, resp):
     metadata = messages.AssetMetadata()
@@ -340,4 +350,5 @@ class Asset(models.BaseResourceModel):
     message.size = self.size
     message.thumbnail_url = self.thumbnail_url
     message.metadata = self.metadata
+    message.has_thumbnail = bool(self.gcs_thumbnail_path)
     return message

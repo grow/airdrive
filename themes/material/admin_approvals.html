@@ -5,14 +5,14 @@
 
 <h2>Users</h2>
 
-<div ng-controller="ApprovalsController as ctrl">
-  <form ng-submit="ctrl.submit(ctrl.emails, ctrl.sendEmail, ctrl.folderChoices)" class="form">
+<div ng-controller="ApprovalsController as ctrl" ng-cloak>
+  <form class="form">
     <fieldset>
       <legend>Add users</legend>
       <div class="form-field">
         <label><input type="checkbox" ng-model="ctrl.sendEmail">Send email notification to added users</label>
       </div>
-      <b>Grant access to folders</b>
+      <b>Select folders to modify</b>
       <ul>
         {% for item in top_folders %}
           {% set folder = item['folder'] %}
@@ -23,18 +23,21 @@
         <textarea class="form-field-control form-field-control--wide" ng-model="ctrl.emails" placeholder="Enter emails, separated by commas"></textarea>
       </div>
       <div class="form-field">
-        <button class="btn btn--xs" type="submit" role="button">Add users</button>
+        <button class="btn btn--xs" ng-click="ctrl.submit(ctrl.emails, ctrl.sendEmail, ctrl.folderChoices)">Add users (overwrite access)</button>
+        <button class="btn btn--inverted btn--xs" ng-click="ctrl.updateAccess(ctrl.emails, true)">Add folders to user</button>
+        <button class="btn btn--inverted btn--xs" ng-click="ctrl.updateAccess(ctrl.emails, false)">Remove folders from user</button>
       </div>
 
       <label>
         <div class="form-field">
-          <input type="text" ng-model="ctrl.sheetId" class="form-field-control" placeholder="Enter Google Sheets ID">
-          <input type="text" ng-model="ctrl.sheetGid" class="form-field-control" placeholder="GID">
-        </div>
-        <div class="form-field">
-          <button class="btn btn--xs" type="button" ng-click="ctrl.importApprovals(ctrl.sheetId, ctrl.sheetGid)">Import from Google Sheets</button>
+          <input type="text" ng-model="ctrl.sheetId" class="form-field-control form-field-control--inline" placeholder="Enter Google Sheets ID">
+          <input type="text" ng-model="ctrl.sheetGid" class="form-field-control form-field-control--inline form-field-control--sm" placeholder="GID">
+          <button class="btn btn--inverted btn--control btn--xs" type="button" ng-click="ctrl.importApprovals(ctrl.sheetId, ctrl.sheetGid)">Import from Google Sheets</button>
         </div>
       </label>
+      <div ng-show="ctrl.updatedApprovals">
+        Updated [[ctrl.updatedApprovals.length]] users.
+      </div>
       <div ng-show="ctrl.importedApprovals">
         Imported [[ctrl.importedApprovals.length]] users. <a href="javascript:" ng-click="ctrl.searchApprovals(null, true)" >Refresh</a>
       </div>

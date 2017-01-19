@@ -140,6 +140,18 @@ class Approval(models.BaseResourceModel):
     ent.approve(created_by, email=False)
     return ent
 
+  def add_folders(self, folders):
+    for folder in folders:
+      if folder not in self.form.folders:
+        self.form.folders.append(folder)
+    self.put()
+
+  def remove_folders(self, folders):
+    for folder in folders:
+      if folder in self.form.folders:
+        self.form.folders.remove(folder)
+    self.put()
+
   @classmethod
   def search(cls, cursor=None, email=None, limit=None):
     start_cursor = datastore_query.Cursor(urlsafe=cursor) if cursor else None
@@ -153,8 +165,6 @@ class Approval(models.BaseResourceModel):
     return (results, next_cursor, has_more)
 
   def approve(self, updated_by, email=True):
-#    self.form.folders[0] = str(self.form.folders[0])
-#    self.form = messages.ApprovalFormMessage()
     self.status = messages.Status.APPROVED
     embedded_user = User(**updated_by.to_dict())
     self.updated_by = embedded_user

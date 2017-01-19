@@ -133,6 +133,25 @@ airpress.ng.ApprovalsController = function($scope) {
 };
 
 
+airpress.ng.ApprovalsController.prototype.setApprovals_ = function(approvals) {
+  var approvalsToSet = approvals;
+  this.approvals.forEach(function(approval) {
+    var addApproval = true;
+    approvalsToSet.forEach(function(approvalToSet) {
+      if (approval['ident'] == approvalToSet['ident']) {
+        addApproval = false;
+      }
+    });
+    if (addApproval) {
+      approvalsToSet.push(approval);
+    }
+  });
+  this.approvals = approvalsToSet;
+  this.updatedApprovals = approvals;
+  this.$scope.$apply();
+};
+
+
 airpress.ng.ApprovalsController.prototype.createApprovals =
     function(users, sendEmail) {
   var form = this.getFormWithFolders();
@@ -140,24 +159,26 @@ airpress.ng.ApprovalsController.prototype.createApprovals =
     'users': users,
     'form': form,
     'send_email': sendEmail
-  }).done(
-      function(resp) {
-    var approvalsToSet = resp['approvals'];
-    this.approvals.forEach(function(approval) {
-      var addApproval = true;
-      approvalsToSet.forEach(function(approvalToSet) {
-        if (approval['ident'] == approvalToSet['ident']) {
-          addApproval = false;
-        }
-      });
-      if (addApproval) {
-        approvalsToSet.push(approval);
-      }
-    });
-    this.approvals = approvalsToSet;
-    this.$scope.$apply();
+  }).done(function(resp) {
+    this.setApprovals_(resp['approvals']);
   }.bind(this));
+};
 
+
+airpress.ng.ApprovalsController.prototype.updateAccess = function(emailsInput, add) {
+  var users = [];
+  emailsInput.split(',').forEach(function(email) {
+    users.push({'email': email.trim()});
+  });
+  var form = this.getFormWithFolders();
+  airpress.rpc('admins.directly_add_users', {
+    'users': users,
+    'add': add == true,
+    'remove': add == false,
+    'form': form,
+  }).done(function(resp) {
+    this.setApprovals_(resp['approvals']);
+  }.bind(this));
 };
 
 
@@ -581,6 +602,9 @@ airpress.ng.DownloadBarController.prototype.updateAsset_ = function(parentKey) {
 airpress.ng.DownloadBarController.prototype.hasThumbnail = function(asset) {
   if (!asset) {
     return;
+  }
+  if (asset.has_thumbnail) {
+    return true;
   }
   // Special case for PSD: Google Drive only generates thumbnails for files
   // under 50MiB.

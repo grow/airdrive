@@ -62,6 +62,7 @@ class AssetMessage(messages.Message):
   size = messages.IntegerField(4)
   thumbnail_url = messages.StringField(8)
   metadata = messages.MessageField(AssetMetadata, 9)
+  has_thumbnail = messages.BooleanField(10)
 
 
 class FoldersMessage(messages.Message):
@@ -137,6 +138,8 @@ class DirectlyAddUsersMessage(messages.Message):
   users = messages.MessageField(UserMessage, 1, repeated=True)
   send_email = messages.BooleanField(2)
   form = messages.MessageField(ApprovalFormMessage, 3)
+  add = messages.BooleanField(4)
+  remove = messages.BooleanField(5)
 
 
 class SettingsMessage(messages.Message):

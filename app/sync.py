@@ -191,12 +191,28 @@ def replicate_asset_to_gcs(resp):
   content_type = resp['mimeType']
   thumbnail_bucket_path = None
 
+  thumbnail_id = resp['id']
+  title_slug = models.BaseResourceModel.generate_slug(resp['title'])
+
+  # Handle assets uploaded as previews.
+  basename, ext = os.path.splitext(resp['title'])
+  existing_asset = None
+  if basename.endswith('.preview'):
+      basename = basename[:-8]
+      existing_asset = assets.Asset.get_by_basename(basename)
+      if existing_asset:
+          thumbnail_id = existing_asset.resource_id
+          title_slug = models.BaseResourceModel.generate_slug(existing_asset.title)
+
   # Download thumbnail.
   if 'thumbnailLink' in resp:
-    title_slug = models.BaseResourceModel.generate_slug(resp['title'])
     thumbnail_path = 'assets/{}/thumbnail-{}-{}'.format(
-        root_folder_id, resp['id'], title_slug)
+        root_folder_id, thumbnail_id, title_slug)
     thumbnail_bucket_path = '/{}/{}'.format(BUCKET, thumbnail_path)
+    # TODO: Compute on-demand.
+    if existing_asset:
+        existing_asset.gcs_thumbnail_path = thumbnail_bucket_path
+        existing_asset.put()
     if not appengine_config.DEV_SERVER:
       try:
         gcs.stat(thumbnail_bucket_path)
@@ -215,7 +231,6 @@ def replicate_asset_to_gcs(resp):
         fp.close()
 
   # Download asset.
-  title_slug = models.BaseResourceModel.generate_slug(resp['title'])
   path = 'assets/{}/asset-{}-{}'
   path = path.format(root_folder_id, resp['id'], title_slug)
   bucket_path = '/{}/{}'.format(BUCKET, path)

@@ -168,14 +168,13 @@ class AdminService(airlock.Service):
               for user in request.users]
     send_email = request.send_email
     form = request.form
-#    import logging
-#    logging.info('abc')
-#    logging.info(form)
-#    if form.folders:
-#        for i, folder in enumerate(form.folders):
-#            form.folders[i] = str(folder)
-    approval_ents = users.User.direct_add_users(
-        emails, created_by=self.me, send_email=send_email, form=form)
+    if request.add:
+        approval_ents = users.User.add_access(emails, created_by=self.me, form=form)
+    elif request.remove:
+        approval_ents = users.User.remove_access(emails, created_by=self.me, form=form)
+    else:
+        approval_ents = users.User.direct_add_users(
+            emails, created_by=self.me, send_email=send_email, form=form)
     resp = messages.ApprovalsMessage()
     resp.approvals = [ent.to_message() for ent in approval_ents]
     return resp
