@@ -49,10 +49,10 @@
       {% set url = resource['url'] %}
     {% endif %}
     <li class="{{"menu-item-child--open" if resource['resource_id'] == active_resource_id or settings.form.keep_folders_open}} {{"menu-item-child--kept-open" if settings.form.keep_folders_open}}
-      {% if has_children and resource['children']['items'][0]['is_index'] %}
+      {% if has_children and resource['children']['items'] and resource['children']['items'][0]['is_index'] %}
       menu-item-child--has-index
       {% endif %}"
-      {% if has_children and resource['children']['items'][0]['is_index'] %}
+      {% if has_children and resource['children']['items'] and resource['children']['items'][0]['is_index'] %}
         data-index-url="{{resource['children']['items'][0]['url']}}"
       {% endif %}
         ><a

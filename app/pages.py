@@ -1,7 +1,8 @@
-import appengine_config
-from . import models
+from . import index
 from . import messages
+from . import models
 from . import process
+import appengine_config
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 from markdown.extensions import tables
@@ -53,6 +54,10 @@ class Page(models.BaseResourceModel):
     ent.parents = cls.generate_parent_keys(resp['parents'])
     ent.modified = cls.parse_datetime_string(resp['modifiedDate'])
     ent.put()
+    try:
+      index.index_doc(ent)
+    except:
+      logging.exception('Unable to index doc: {}'.format(self))
     return ent
 
   def process_content(self, unprocessed_content):

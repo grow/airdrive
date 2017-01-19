@@ -198,3 +198,16 @@ class GetSyncTreeRequest(messages.Message):
 
 class GetSyncTreeResponse(messages.Message):
   sync_tree = messages.StringField(1)
+
+
+class SearchResultMessage(messages.Message):
+  title = messages.StringField(1)
+  url = messages.StringField(2)
+
+
+class SearchRequest(messages.Message):
+  query = messages.StringField(1)
+
+
+class SearchResponse(messages.Message):
+  results = messages.MessageField(SearchResultMessage, 1, repeated=True)

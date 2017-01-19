@@ -60,6 +60,9 @@ $header-height: 70px
         line-height: $line-height-sm
         padding: $pad-md
 
+      &+.layout-side-bordered.layout-side-bordered--bottom
+        margin-top: 0
+
     .menu--hidden
       display: none
 
@@ -266,6 +269,24 @@ $header-height: 70px
         font-size: $font-size-sm
         font-weight: $semibold
         text-align: right
+
+        i
+          float: left
+          margin-top: 5px
+          margin-right: 5px
+
+        .form-control[type=text]
+          background: transparent
+          border: none
+          border-bottom: 1px solid $color-text-on-brand
+          color: $color-text-on-brand
+          width: 150px
+          min-width: 0
+          margin-top: 21px
+          padding-left: 0
+
+          &::placeholder
+            color: $color-text-on-brand
 
   &--wide
     .layout-main-header,

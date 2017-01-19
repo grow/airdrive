@@ -42,11 +42,6 @@ indexes:
   properties:
   - name: parents
   - name: weight
-
-- kind: Folder
-  properties:
-  - name: parents
-  - name: weight
     direction: desc
 
 - kind: Page

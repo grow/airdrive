@@ -3,6 +3,7 @@ from . import admins
 from . import approvals
 from . import assets
 from . import folders
+from . import index
 from . import messages
 from . import settings
 from . import sync
@@ -14,6 +15,13 @@ from google.appengine.ext import ndb
 
 
 class AssetService(airlock.Service):
+
+  @remote.method(messages.SearchRequest,
+                 messages.SearchResponse)
+  def search(self, request):
+    results = index.do_search(request.query)
+    resp = messages.SearchResponse()
+    return resp
 
   @remote.method(messages.GetAssetGroupRequest,
                  messages.GetAssetGroupResponse)

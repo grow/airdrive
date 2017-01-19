@@ -110,7 +110,9 @@
                   {% if not has_access(each_folder['resource_id']) %}
                     {% continue %}
                   {% endif %}
+                  {% if page or folder %}
                   {{macros.render_menu_tree(each_folder, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
+                  {% endif %}
                 {% endfor %}
               </ul>
             </div>
@@ -137,10 +139,13 @@
             {{title}}
           </div>
           <div class="layout-main-header-side">
-            {% if me.registered %}
-              <a href="{{uri_for('settings')}}">{{me.email}}</a> | <a href="{{urls.sign_out()}}">Sign out</a>
-            {% else %}
+            {% if not me.registered %}
               <a href="{{urls.sign_in()}}&prompt=select_account" class="btn btn--sm btn--inverted">Sign in</a>
+            {% else %}
+              <form action="/search" class="form form--inline">
+                <i class="material-icons">search</i>
+                <input type="text" name="q" value="{{query}}" class="form-control" {{"autofocus" if query}} placeholder="Search">
+              </form>
             {% endif %}
           </div>
           {% if enable_sidebar is sameas false %}

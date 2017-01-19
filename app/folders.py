@@ -36,7 +36,9 @@ def create_nav(include_draft=True):
       parent=root_folder_id, use_cache=True,
       include_draft=include_draft)
   for root_folder in root_folders:
-    nav.append(update_nav(root_folder, include_draft=include_draft))
+    item = update_nav(root_folder, include_draft=include_draft)
+    if item:
+      nav.append(item)
   memcache.set(NAV_CACHE_KEY + str(include_draft), nav)
   return nav
 
