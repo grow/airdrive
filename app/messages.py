@@ -63,6 +63,7 @@ class AssetMessage(messages.Message):
   thumbnail_url = messages.StringField(8)
   metadata = messages.MessageField(AssetMetadata, 9)
   has_thumbnail = messages.BooleanField(10)
+  preview = messages.BooleanField(11)
 
 
 class FoldersMessage(messages.Message):

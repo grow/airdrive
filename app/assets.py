@@ -247,7 +247,9 @@ class Asset(models.BaseResourceModel):
     query = cls.query()
     query = query.filter(cls.parents == parent_key)
     ents = query.fetch()
-    asset_messages = [ent.to_message() for ent in ents]
+    asset_messages = [
+        ent.to_message() for ent in ents
+        if '.preview' not in ent.title]
     for message in asset_messages:
       if message.metadata and not message.metadata.label:
         message.metadata.label = 'Standard'

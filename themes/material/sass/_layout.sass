@@ -263,6 +263,11 @@ $header-height: 70px
         font-weight: $semibold
         font-size: $font-size-title
         float: left
+
+      .layout-main-header-floating
+        position: absolute
+        right: 20px
+        top: 10px
       
       &-side
         float: right
@@ -332,3 +337,27 @@ $header-height: 70px
     top: 0;
     width: 100%
     z-index: 2
+
+.layout-main-header-floating
+  float: right
+  font-size: $font-size-sm
+  font-weight: $semibold
+  position: absolute
+  right: 20px
+  text-align: right
+  top: 10px
+  z-index: 1
+
+  i
+    margin-top: 5px
+    margin-right: 5px
+    position: absolute
+    left: 4px
+    font-size: 20px
+
+  .form-control[type=text]
+    margin-top: 21px
+    min-width: 0
+    outline: none
+    padding-left: 24px
+    width: 150px

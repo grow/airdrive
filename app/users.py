@@ -68,6 +68,22 @@ class User(models.Model, airlock.User):
   def is_domain_user(self):
     return self.domain == appengine_config.CONFIG['domain']
 
+  def can_access_resource(self, resource):
+    form = settings.Settings.singleton().form
+    if self.is_domain_user or admins.Admin.is_admin(self.email):
+      return True
+    if form.public:
+      return True
+    item = resource
+    approved_folder_ids = self.list_approved_folders
+    while item:
+      if item.hidden or item.draft:
+        return False
+      if item.resource_id in approved_folder_ids:
+        return True
+      item = item.parent
+    return False
+
   def has_access_to_folder(self, resource_id):
     form = settings.Settings.singleton().form
     if self.is_domain_user or admins.Admin.is_admin(self.email):

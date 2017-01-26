@@ -88,6 +88,7 @@ class Handler(airlock.Handler):
         params['get_sibling'] = folders.get_sibling
         params['get_page'] = pages.Page.get
         params['has_access'] = self.me.has_access_to_folder
+        params['can_access_resource'] = self.me.can_access_resource
         params['is_admin'] = self.is_admin(redirect=False)
         params['top_folders'] = \
             folders.Folder.list_top(include_draft=params['is_admin'])

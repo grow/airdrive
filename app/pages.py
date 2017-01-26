@@ -112,5 +112,16 @@ class Page(models.BaseResourceModel):
     message.resource_id = self.resource_id
     return message
 
+  @property
+  def breadcrumb(self):
+    parts = []
+    item = self
+    while item:
+      parts.append(item.parent)
+      item = item.parent
+    parts.reverse()
+    return parts[1:] if len(parts) >= 2 else parts
+
+
 def render_folder(tag_name, resource_id, *args, **kwargs):
   return '{{render_mosaic({})}}'.format(resource_id)

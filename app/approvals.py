@@ -33,6 +33,7 @@ class Approval(models.BaseResourceModel):
   user_key = ndb.KeyProperty()
   user = ndb.StructuredProperty(User)
   domain = ndb.StringProperty()
+  domain = ndb.StringProperty()
   updated_by_key = ndb.KeyProperty()
   updated_by = ndb.StructuredProperty(User)
   status = msgprop.EnumProperty(messages.Status, default=messages.Status.PENDING)
@@ -73,6 +74,7 @@ class Approval(models.BaseResourceModel):
                 logging.error("Couldn't migrate legacy user.")
     message.status = self.status
     message.updated = self.updated
+    message.domain = self.domain
     try:
         message.form = self.form
     except:
