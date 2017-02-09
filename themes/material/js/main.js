@@ -563,6 +563,21 @@ airpress.ng.DownloadBarController = function($scope, $element) {
 };
 
 
+airpress.ng.DownloadBarController.prototype.labelHasDimensions =
+    function(dimensions) {
+  if (!this.assets) {
+    return false;
+  }
+  for (var i = 0; i < this.assets.length; i++) {
+    var asset = this.assets[i];
+    if (asset.metadata.dimensions == dimensions
+          && asset.metadata.label == this.selectedAsset.label) {
+      return true;
+    }
+  }
+};
+
+
 airpress.ng.DownloadBarController.prototype.orderBy = function(item) {
   return airpress.prettyLanguage(item);
 };

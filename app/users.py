@@ -66,7 +66,12 @@ class User(models.Model, airlock.User):
 
   @property
   def is_domain_user(self):
-    return self.domain == appengine_config.CONFIG['domain']
+    options = settings.Settings.singleton()
+    if hasattr(options, 'domain'):
+        domain = options.domain or appengine_config.CONFIG.get('domain')
+    else:
+        domain = appengine_config.CONFIG.get('domain')
+    return self.domain == domain
 
   def can_access_resource(self, resource):
     form = settings.Settings.singleton().form
