@@ -11,11 +11,11 @@
     {% else %}
       {% if me.status == statuses.PENDING %}
         <p>
-          We are currently processing your request for access. You will receive an email when your request has been processed. Have questions? <a href="{{settings.form.contact_url}}">Contact us</a>.
+        We are currently processing your request for access. You will receive an email when your request has been processed. {% if settings.form.contact_url %}Have questions? <a href="{{settings.form.contact_url}}">Contact us</a>.{% endif %}
         </p>
       {% elif me.status == statuses.REJECTED %}
         <p>
-          You are signed in as <b>{{me.email}}</b> and your request to access the toolkit has been rejected. Please <a href="{{settings.form.contact_url}}">contact us</a> if you think this is in error.
+        You are signed in as <b>{{me.email}}</b> and your request to access the toolkit has been rejected. {% if settings.form.contact_url %}Please <a href="{{settings.form.contact_url}}">contact us</a> if you think this is in error.{% endif %}
         </p>
       {% else %}
         <p>Welcome, <b>{{me.email}}</b>. You must receive approval before you can access this site. Please fill out the form below.</p>

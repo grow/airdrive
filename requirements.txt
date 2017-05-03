@@ -1,4 +1,5 @@
 GoogleAppEngineCloudStorageClient
+gunicorn==19.6.0
 
 markupsafe
 Markdown==2.4

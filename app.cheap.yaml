@@ -1,0 +1,57 @@
+runtime: python27
+api_version: 1
+threadsafe: no
+
+#instance_class: F4_1G
+#automatic_scaling:
+#  min_idle_instances: 10
+
+env_variables:
+  AIRPRESS_CONFIG: config/config.yaml
+
+builtins:
+- deferred: on
+
+handlers:
+- url: /_ah/admin/interactive.*
+  script: google.appengine.ext.admin.application
+  login: admin
+  secure: always
+- url: /_ah/queue/deferred
+  script: google.appengine.ext.deferred.deferred.application
+  login: admin
+- url: /_app/[^/]*/config/
+  static_dir: config/assets/
+  secure: always
+- url: /_app/[^/]*/assets/
+  static_dir: dist/
+  secure: always
+- url: /_api/.*
+  script: app.main.api_app
+  secure: always
+- url: .*
+  script: app.main.app
+  secure: always
+
+libraries:
+- name: endpoints
+  version: latest
+- name: ssl
+  version: latest
+- name: webapp2
+  version: "2.5.2"
+- name: yaml
+  version: latest
+- name: lxml
+  version: latest
+
+skip_files:
+- - ^(.*/)?.*~
+- ^(.*/)?.*\.md$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?\.DS_Store$
+- ^(.*/)?\.gitignore$
+- ^\.git/.*
+- ^node_modules/.*
+- ^htmlcov/.*
+- ^env/.*

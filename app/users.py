@@ -7,6 +7,7 @@ from . import settings
 from . import sync
 from email import utils as email_utils
 from google.appengine.ext import ndb
+from google.appengine.ext import deferred
 from google.appengine.ext.ndb import msgprop
 import airlock
 import appengine_config
@@ -147,38 +148,35 @@ class User(models.Model, airlock.User):
       return email_utils.parseaddr(email)[1]
 
   @classmethod
+  def _import(cls, row, form, created_by, send_email):
+    valid_keys = []
+    email = cls.parse_email(row.pop('email', ''))
+    for key in row.keys():
+        if key in dir(messages.ApprovalFormMessage):
+          row[key] = row[key].decode('utf-8')
+          valid_keys.append(key)
+        else:
+          del row[key]
+    new_form = messages.ApprovalFormMessage(**row)
+    if form:
+      new_form.folders = form.folders
+    user = cls.get_or_create_by_email(email)
+    ent = approvals.Approval.get_or_create(
+        form=new_form,
+        user=user, created_by=created_by,
+        status=messages.Status.APPROVED,
+        send_email=send_email)
+
+  @classmethod
   def import_from_csv(cls, content, form, created_by, send_email=False):
     fp = io.BytesIO()
     fp.write(content)
     fp.seek(0)
     reader = csv.DictReader(fp)
-    ents = []
-    emails_to_forms = {}
     for row in reader:
-      valid_keys = []
-      if 'email' not in row:
-          continue
-      email = cls.parse_email(row.pop('email', ''))
-      for key in row.keys():
-          if key in dir(messages.ApprovalFormMessage):
-            valid_keys.append(key)
-          else:
-            del row[key]
-      new_form = messages.ApprovalFormMessage(**row)
-      if form:
-        new_form.folders = form.folders
-      emails_to_forms[email] = new_form
-
-    for email, form in emails_to_forms.iteritems():
-      user = cls.get_or_create_by_email(email)
-      ent = approvals.Approval.get_or_create(
-          form=form,
-          user=user, created_by=created_by,
-          status=messages.Status.APPROVED,
-          send_email=send_email)
-      ents.append(ent)
-
-    return ents
+        if 'email' not in row:
+            continue
+        cls._import(row, form, created_by, send_email)
 
   @classmethod
   def import_from_google_sheets(cls, sheet_id, created_by, form=None, gid=None,

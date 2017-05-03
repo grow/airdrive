@@ -58,6 +58,8 @@ airpress.prettyLanguage = function(identifier) {
       return 'Spanish';
     case 'fi':
       return 'Finnish';
+    case 'fil':
+      return 'Filipino';
     case 'fr':
       return 'French (France)';
     case 'it':
@@ -88,6 +90,24 @@ airpress.prettyLanguage = function(identifier) {
       return 'English (Canada)';
     case 'en-in':
       return 'English (India)';
+    case 'en-hk':
+      return 'English (Hong Kong)';
+    case 'en-my':
+      return 'English (Malaysia)';
+    case 'en-ph':
+      return 'English (Philippines)';
+    case 'id':
+      return 'Indonesian';
+    case 'ko':
+      return 'Korean';
+    case 'kr':
+      return 'Korean';
+    case 'th':
+      return 'Thai';
+    case 'zh-hk':
+      return 'Chinese (Hong Kong)';
+    case 'zh-tw':
+      return 'Chinese (Taiwan)';
     case 'fr-ca':
       return 'French (Canada)';
   }
@@ -563,6 +583,21 @@ airpress.ng.DownloadBarController = function($scope, $element) {
 };
 
 
+airpress.ng.DownloadBarController.prototype.labelHasExt =
+    function(ext) {
+  if (!this.assets) {
+    return false;
+  }
+  for (var i = 0; i < this.assets.length; i++) {
+    var asset = this.assets[i];
+    if (asset.metadata.ext == ext
+          && asset.metadata.label == this.selectedAsset.label) {
+      return true;
+    }
+  }
+};
+
+
 airpress.ng.DownloadBarController.prototype.labelHasDimensions =
     function(dimensions) {
   if (!this.assets) {
@@ -638,6 +673,7 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
     dimensions: [],
     label: [],
     variant: [],
+    fileType: [],
     language: [],
   };
   if (!this.assets) {
@@ -665,6 +701,11 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
         this.form.variant.push(asset.metadata.variant);
       }
     }
+    if (this.form.fileType.indexOf(asset.metadata.ext) == -1) {
+      if (asset.metadata.ext) {
+        this.form.fileType.push(asset.metadata.ext);
+      }
+    }
   }.bind(this));
   if (this.form.variant.length == 1) {
     this.selectedAsset.variant = this.form.variant[0];
@@ -677,6 +718,9 @@ airpress.ng.DownloadBarController.prototype.updateForm_ = function(assets) {
   }
   if (this.form.language.length == 1) {
     this.selectedAsset.language = this.form.language[0];
+  }
+  if (this.form.fileType.length == 1) {
+    this.selectedAsset.fileType = this.form.fileType[0];
   }
   var hl = window.localStorage['hl'];
   if (!hl) {
@@ -696,6 +740,7 @@ airpress.ng.DownloadBarController.prototype.getAsset = function() {
     var asset = this.assets[i];
     if (asset.metadata.dimensions == this.selectedAsset.dimensions
           && asset.metadata.label == this.selectedAsset.label
+          && asset.metadata.ext == this.selectedAsset.fileType
           && asset.metadata.language == this.selectedAsset.language) {
       return asset;
     }

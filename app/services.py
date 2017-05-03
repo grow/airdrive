@@ -234,13 +234,10 @@ class AdminService(airlock.Service):
                  messages.ApprovalsMessage)
   def import_approvals(self, request):
     self.require_admin()
-    send_email = False
-    ents = users.User.import_from_google_sheets(
+    users.User.import_from_google_sheets(
         sheet_id=request.sheet_id, gid=request.sheet_gid,
-        form=request.form, created_by=self.me,
-        send_email=send_email)
+        form=request.form, created_by=self.me)
     resp = messages.ApprovalsMessage()
-    resp.approvals = [approval.to_message() for approval in ents]
     return resp
 
   @remote.method(messages.GetSyncTreeRequest,
