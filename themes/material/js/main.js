@@ -96,6 +96,8 @@ airpress.prettyLanguage = function(identifier) {
       return 'English (Malaysia)';
     case 'en-ph':
       return 'English (Philippines)';
+    case 'en-sg':
+      return 'English (Singapore)';
     case 'id':
       return 'Indonesian';
     case 'ko':
