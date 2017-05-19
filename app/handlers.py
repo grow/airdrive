@@ -103,12 +103,12 @@ class FolderHandler(Handler):
         if not self.me.is_registered:
             self.redirect(self.urls.sign_in())
             return
+        if not self.me.has_access:
+            self.redirect('/')
+            return
         folder = folders.Folder.get(resource_id)
         if folder is None:
             self.error(404)
-            return
-        if not self.me.can_access_resource(folder):
-            self.redirect('/')
             return
         params = {
             'folder': folder,
@@ -140,12 +140,12 @@ class PageHandler(Handler):
         if not self.me.is_registered:
             self.redirect(self.urls.sign_in())
             return
+        if not self.me.has_access:
+            self.redirect('/')
+            return
         page = pages.Page.get(resource_id)
         if page is None:
             self.error(404)
-            return
-        if not self.me.can_access_resource(page):
-            self.redirect('/')
             return
         html = page.get_processed_html()
         content_template = None

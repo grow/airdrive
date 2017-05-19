@@ -96,10 +96,7 @@
             {% set has_top_menu = true %}
             {% set items = nav[0]['folder']['children']['items'] %}
             {% for item in items|sort(attribute='weight') %}
-              {% if not has_access(item['resource_id']) %}
-                {% continue %}
-              {% endif %}
-              {{macros.render_menu_tree(item, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
+            {{macros.render_menu_tree(item, config.CONFIG, active_resource_id=(page or folder).resource_id, is_admin=is_admin)}}
             {% endfor %}
           </ul>
           {% endif %}
