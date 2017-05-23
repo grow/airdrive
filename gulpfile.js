@@ -49,7 +49,6 @@ gulp.task('sass', function() {
 
 gulp.task('minifyjs', function() {
   return gulp.src([
-      './bower_components/angular/angular.min.js',
       './node_modules/smooth-scroll/dist/js/smooth-scroll.js',
       Path.JS_SOURCES,
   ])
