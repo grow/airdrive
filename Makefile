@@ -1,7 +1,7 @@
 project :=
 version := auto
 
-enable_services:
+enable-services:
 	gcloud service-management enable drive --project=$(project)
 	gcloud service-management enable storage-api.googleapis.com --project=$(project)
 
@@ -23,16 +23,44 @@ deploy-flex:
 		--no-promote \
 		app.flex.yaml
 
+deploy-yaml:
+	gcloud app deploy -q \
+		--project=$(project)\
+		queue.yaml
+	gcloud app deploy -q \
+		--project=$(project) \
+		index.yaml
+
 deploy:
 	gcloud app deploy -q \
 		--project=$(project) \
 		--version=$(version) \
+		--promote \
 		app.yaml
-	gcloud app deploy -q \
-		--project=$(project)\
-		--version=$(version) \
-		queue.yaml
+
+stage:
 	gcloud app deploy -q \
 		--project=$(project) \
 		--version=$(version) \
-		index.yaml
+		--no-promote \
+		app.yaml
+
+deploy-retail:
+	gcloud app deploy -q \
+		--project=$(project) \
+		--version=$(version) \
+		--promote \
+		retail.yaml
+
+stage-retail:
+	gcloud app deploy -q \
+		--project=$(project) \
+		--version=$(version) \
+		--no-promote \
+		retail.yaml
+
+deploy-queue:
+	gcloud app deploy \
+	  -q \
+	  --project=$(project) \
+	  queue.yaml

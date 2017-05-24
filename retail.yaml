@@ -5,12 +5,16 @@ threadsafe: yes
 instance_class: F4_1G
 
 env_variables:
-  AIRPRESS_CONFIG: config/config.yaml
+  AIRPRESS_CONFIG: config/config_retail.yaml
 
 builtins:
 - deferred: on
 
 handlers:
+- url: /_ah/admin/interactive.*
+  script: google.appengine.ext.admin.application
+  login: admin
+  secure: always
 - url: /_ah/queue/deferred
   script: google.appengine.ext.deferred.deferred.application
   login: admin
@@ -34,8 +38,6 @@ libraries:
   version: latest
 - name: webapp2
   version: "2.5.2"
-- name: jinja2
-  version: latest
 - name: yaml
   version: latest
 - name: lxml

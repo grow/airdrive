@@ -25,14 +25,6 @@ VARIANT_IDENTIFIERS = (
 )
 
 MESSAGING_IDENTIFIERS = (
-    ('CC4K_', 'Chromecast Ultra'),
-    ('CCA_', 'Chromecast Audio'),
-    ('CC_CC4K_', 'Chromecast & Chromecast Ultra'),
-    ('CC_CC4K_CCA_', 'Chromecast, Chromecast Ultra & Chromecast Audio'),
-    ('CC_CCA_', 'Chromecast & Chromecast Audio'),
-    ('CC_', 'Chromecast'),
-    ('DV_US_STD_COMMIT_COMBO_4x4', 'Demo + Product Card'),
-    ('PARTNER_LOGO_PROMO_CARD', 'Partner Logo Promo Card'),
     ('_ALL_', 'All'),
     ('_BASES_', 'Bases'),
     ('_CO-BRAND_1PK_', '1 Pack Co-branding (UK Only)'),
@@ -60,6 +52,14 @@ MESSAGING_IDENTIFIERS = (
     ('_STD_2PK_', '2 Pack Standard (UK Only)'),
     ('_STD_', 'Standard'),
     ('_YOUTUBE_', 'YouTube'),
+    ('CC4K_', 'Chromecast Ultra'),
+    ('CCA_', 'Chromecast Audio'),
+    ('CC_CC4K_', 'Chromecast & Chromecast Ultra'),
+    ('CC_CC4K_CCA_', 'Chromecast, Chromecast Ultra & Chromecast Audio'),
+    ('CC_CCA_', 'Chromecast & Chromecast Audio'),
+    ('CC_', 'Chromecast'),
+    ('DV_US_STD_COMMIT_COMBO_4x4', 'Demo + Product Card'),
+    ('PARTNER_LOGO_PROMO_CARD', 'Partner Logo Promo Card'),
 )
 
 FILENAME_IDENTIFIERS_TO_LOCALES = (
@@ -83,7 +83,6 @@ FILENAME_IDENTIFIERS_TO_LOCALES = (
     ('_AR_', 'ar'),
     ('_BE_', 'be'),
     ('_BG_', 'bg'),
-    ('_CA_', 'ca'),
     ('_CS_', 'cs'),
     ('_CY_', 'cy'),
     ('_DA_', 'da'),
@@ -212,6 +211,7 @@ FILENAME_IDENTIFIERS_TO_LOCALES = (
     ('_ZH-TW_', 'zh-tw'),
     ('_ZH_TW_', 'zh-tw'),
     ('_ZU_', 'zu'),
+    ('_CA_', 'ca'),
 )
 
 

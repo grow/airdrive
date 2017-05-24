@@ -241,6 +241,7 @@ def replicate_asset_to_gcs(resp):
         raise UploadRequiredError()
       raise UploadRequiredError()
     except (gcs.NotFoundError, UploadRequiredError):
+      # TODO - Verify if asset needs to be replicated.
       fp = download_asset_in_parts(service, resp['id'])
       write_gcs_file(path, BUCKET, fp, resp['mimeType'])
   return bucket_path, thumbnail_bucket_path
@@ -305,7 +306,13 @@ def process_file_response(resp):
       page.process_content(unprocessed_content)
   else:
     try:
-        gcs_path, gcs_thumbnail_path = replicate_asset_to_gcs(resp)
+        existing_asset = assets.Asset.get(resp['id'])
+        if existing_asset and existing_asset.etag == resp['etag']:
+            logging.info('Skipping GCS replication -> {}'.format(resp['id']))
+            gcs_path = existing_asset.gcs_path
+            gcs_thumbnail_path = existing_asset.gcs_thumbnail_path
+        else:
+            gcs_path, gcs_thumbnail_path = replicate_asset_to_gcs(resp)
     except:
         text = 'Error replicating asset to GCS: {}'
         logging.error(text.format(resp['title']))
