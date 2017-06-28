@@ -60,6 +60,7 @@ def update_nav_item(page):
       and page.is_asset_folder)
   item['top'] = page.top
   item['title'] = page.title
+  item['is_public'] = page.is_public
   item['is_parent'] = page.is_parent
   item['weight'] = page.weight
   return item
