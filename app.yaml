@@ -34,8 +34,6 @@ libraries:
   version: latest
 - name: webapp2
   version: "2.5.2"
-- name: jinja2
-  version: latest
 - name: yaml
   version: latest
 - name: lxml
