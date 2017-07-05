@@ -44,6 +44,7 @@ class Approval(models.BaseResourceModel):
       'company_email',
       'company_type',
       'country',
+      'created',
       'email',
       'email_opt_in',
       'first_name',
