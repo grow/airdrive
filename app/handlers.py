@@ -100,16 +100,17 @@ class Handler(airlock.Handler):
 class FolderHandler(Handler):
 
     def get(self, folder_slug, resource_id):
-        if not self.me.is_registered:
-            self.redirect(self.urls.sign_in())
-            return
-        if not self.me.has_access:
-            self.redirect('/')
-            return
         folder = folders.Folder.get(resource_id)
         if folder is None:
             self.error(404)
             return
+        if not folder.is_public_or_is_parent_public():
+            if not self.me.is_registered:
+                self.redirect(self.urls.sign_in())
+                return
+            if not self.me.can_access_resource(folder):
+                self.redirect('/')
+                return
         params = {
             'folder': folder,
             'is_admin': self.is_admin(redirect=False),
@@ -137,16 +138,19 @@ class SearchHandler(Handler):
 class PageHandler(Handler):
 
     def get(self, folder_slug, resource_id, page_slug):
-        if not self.me.is_registered:
-            self.redirect(self.urls.sign_in())
-            return
-        if not self.me.has_access:
-            self.redirect('/')
-            return
         page = pages.Page.get(resource_id)
         if page is None:
             self.error(404)
             return
+        if not page.is_public_or_is_parent_public():
+            if not self.me.is_registered:
+                self.redirect(self.urls.sign_in())
+                return
+            if not self.me.can_access_resource(page):
+                logging.info('cannot access')
+                logging.info(page)
+                self.redirect('/')
+                return
         html = page.get_processed_html()
         content_template = None
         try:

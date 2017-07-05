@@ -82,6 +82,8 @@ class User(models.Model, airlock.User):
       return True
     item = resource
     approved_folder_ids = self.list_approved_folders
+    if item.is_public_or_is_parent_public():
+      return True
     while item:
       if item.hidden or item.draft:
         return False

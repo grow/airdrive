@@ -153,3 +153,11 @@ class BaseResourceModel(Model):
   def parse_title(self, unprocessed_title):
     self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top, self.linkcolor, self.publicname, self.is_index, self.show_nav, is_public = (
         self._parse_title(unprocessed_title))
+
+  def is_public_or_is_parent_public(self):
+    item = self
+    while item:
+      if item.is_public:
+          return True
+      item = item.parent
+    return False
