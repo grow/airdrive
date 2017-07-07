@@ -145,7 +145,7 @@
             {% else %}
               <form action="/search" class="form form--inline">
                 <i class="material-icons">search</i>
-                <input type="text" name="q" value="{{query}}" class="form-control" {{"autofocus" if query}} placeholder="Search">
+                <input type="text" name="q" value="{{query}}" class="form-control" {{"autofocus" if query}} placeholder="Search" ng-non-bindable>
               </form>
             {% endif %}
           </div>

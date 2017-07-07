@@ -14,10 +14,10 @@ if (!String.prototype.endsWith) {
 
 
 airpress.main = function() {
-  angular.module('airpress', [])
-      .config(['$interpolateProvider', function($interpolateProvider) {
+  var app = angular.module('airpress', [])
+      .config(function($interpolateProvider) {
          $interpolateProvider.startSymbol('[[').endSymbol(']]');
-      }])
+      })
       .controller('FoldersController', airpress.ng.FoldersController)
       .controller('FooterNavController', airpress.ng.FooterNavController)
       .controller('DownloadBarController', airpress.ng.DownloadBarController)
@@ -40,6 +40,10 @@ airpress.main = function() {
 	  return airpress.prettyLanguage(identifier);
 	};
       });
+  app.run(function($rootScope, $location) {
+    var query = getParameterValue('q');
+    $rootScope.query = query;
+  });
   angular.bootstrap(document, ['airpress'])
   smoothScroll.init({offset: 40});
   airpress.moveLayoutFooter();
@@ -882,3 +886,11 @@ airpress.ng.FooterNavController.prototype.getSibling = function(opt_next, opt_ro
     url: url
   }
 };
+
+function getParameterValue(key, opt_uri) {
+  var uri = opt_uri || window.location.href;
+  key = key.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
+  var regex = new RegExp('[\\?&]' + key + '=([^&#]*)');
+  var results = regex.exec(uri);
+  return results === null ? null : results[1];
+}
