@@ -99,7 +99,14 @@ class User(models.Model, airlock.User):
     if form.public:
       return True
     approved_folder_ids = self.list_approved_folders
-    return resource_id in approved_folder_ids
+    result = resource_id in approved_folder_ids
+    if result:
+        return True
+    from . import folders
+    resource = folders.Folder.get(resource_id)
+    if resource and resource.is_public_or_is_parent_public():
+        return True
+    return False
 
   @classmethod
   def add_access(cls, emails, created_by, form):

@@ -147,8 +147,6 @@ class PageHandler(Handler):
                 self.redirect(self.urls.sign_in())
                 return
             if not self.me.can_access_resource(page):
-                logging.info('cannot access')
-                logging.info(page)
                 self.redirect('/')
                 return
         html = page.get_processed_html()

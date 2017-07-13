@@ -151,7 +151,7 @@ class BaseResourceModel(Model):
     return (cleaned_title, weight, draft, hidden, color, internal, template, is_parent, is_asset_container, title_lower, is_top, linkcolor, publicname, is_index, show_nav, is_public)
 
   def parse_title(self, unprocessed_title):
-    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top, self.linkcolor, self.publicname, self.is_index, self.show_nav, is_public = (
+    self.title, self.weight, self.draft, self.hidden, self.color, self.internal, self.template, self.is_parent, self.is_asset_container, self.title_lower, self.top, self.linkcolor, self.publicname, self.is_index, self.show_nav, self.is_public = (
         self._parse_title(unprocessed_title))
 
   def is_public_or_is_parent_public(self):
