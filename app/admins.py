@@ -15,6 +15,8 @@ class Admin(models.Model):
 
   @classmethod
   def is_admin(cls, email):
+    if not email:
+      return False
     if email in appengine_config.CONFIG['admins']:
       return True
     return cls.get_by_email(email)
