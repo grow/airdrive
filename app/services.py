@@ -215,8 +215,7 @@ class AdminService(airlock.Service):
     resp = messages.SyncMessage()
     for resource in request.resources:
       resource_id = resource.resource_id
-      token = sync.download_resource(
-          resource_id, self.me, create_channel=True)
+      token = sync.download_resource(resource_id, self.me)
       resp.token = token
     return resp
 

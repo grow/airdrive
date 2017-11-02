@@ -12,7 +12,6 @@ from . import settings
 from . import sync
 from . import users as app_users
 from datetime import datetime
-from google.appengine.api import channel
 from google.appengine.api import users
 from werkzeug.contrib import cache
 import airlock
@@ -146,7 +145,8 @@ class PageHandler(Handler):
             if not self.me.is_registered:
                 self.redirect(self.urls.sign_in())
                 return
-            if not self.me.can_access_resource(page):
+            # if not self.me.can_access_resource(page):
+            if not self.me.has_access:
                 self.redirect('/')
                 return
         html = page.get_processed_html()
@@ -238,6 +238,15 @@ class HomepageHandler(Handler):
                 self.redirect(page.url)
                 return
         self.render_template('interstitial.html', params)
+
+
+class RequestAccessHandler(Handler):
+
+    def get(self):
+        if not self.me.is_registered:
+            self.redirect(self.urls.sign_in())
+            return
+        self.render_template('interstitial_access_request.html', params)
 
 
 class ThumbnailDownloadHandler(Handler):
@@ -367,16 +376,10 @@ class SyncHandler(Handler):
             self.response.status = 500
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.out.write(str(e))
-            return
-        try:
-            token = channel.create_channel(self.me.ident)
-            content = json.dumps({
-                'token': token,
-            })
-            self.response.out.write(content)
-        except channel.AppIdAliasRequired:
-            logging.warn('AppIdAliasRequired raised.')
-            self.response.out.write('Started sync: {}'.format(resource_id))
+        content = json.dumps({
+            'message': 'Started sync: {}'.format(resource_id),
+        })
+        self.response.out.write(content)
 
 
 class DeleteHandler(Handler):

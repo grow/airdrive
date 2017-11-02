@@ -44,7 +44,15 @@ class User(models.Model, airlock.User):
 
   @webapp2.cached_property
   def list_approved_folders(self):
-    return approvals.Approval.list_approved_folders_for_user(self)
+    folder_ids = approvals.Approval.list_approved_folders_for_user(self)
+    if not folder_ids:
+        return []
+    # If user has been added to any folder, also give them access to the
+    # overview folder.
+    from . import folders
+    for parent in folders.Folder.get_homepage().parents:
+        folder_ids.add(parent)
+    return folder_ids
 
   @property
   def has_access(self):

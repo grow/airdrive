@@ -4,7 +4,6 @@ from . import models
 from . import pages
 from . import settings
 from google.appengine.api import app_identity
-from google.appengine.api import channel
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from google.appengine.api import urlfetch_errors
@@ -95,13 +94,6 @@ def get_storage_service():
   return discovery.build('storage', 'v1', http=http)
 
 
-def update_channel(user, message):
-  if user:
-    content = json.dumps({'message': message})
-    channel.send_message(user.ident, content)
-  logging.info(message)
-
-
 def download_folder(resource_id, process_deletes=True):
   service = get_service()
   page_token = None
@@ -134,7 +126,7 @@ def download_folder(resource_id, process_deletes=True):
   return child_resource_responses
 
 
-def download_resource(resource_id, user=None, create_channel=False, queue='sync'):
+def download_resource(resource_id, user=None, queue='sync'):
   service = get_service()
   resp = service.files().get(fileId=resource_id).execute()
   if 'mimeType' not in resp:
@@ -146,26 +138,12 @@ def download_resource(resource_id, user=None, create_channel=False, queue='sync'
   if resp.get('mimeType', '') == 'application/vnd.google-apps.folder':
     text = 'Processing folder: {} ({})'
     message = text.format(title, resource_id)
-    try:
-      update_channel(user, message)
-    except channel.AppIdAliasRequired:
-      logging.warn('AppIdAliasRequired raised.')
     process_folder_response(resp, user, queue=queue)
   else:
     text = 'Processing file: {} ({})'
     message = text.format(title, resource_id)
-    try:
-      update_channel(user, message)
-    except channel.AppIdAliasRequired:
-      logging.warn('AppIdAliasRequired raised.')
     process_file_response(resp)
   folders.create_nav()
-  try:
-    if create_channel:
-      token = channel.create_channel(user.ident)
-      return token
-  except channel.AppIdAliasRequired:
-    logging.warn('AppIdAliasRequired raised.')
 
 
 def process_folder_response(resp, user, queue='sync'):
