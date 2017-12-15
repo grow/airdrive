@@ -107,7 +107,7 @@ class FolderHandler(Handler):
             if not self.me.is_registered:
                 self.redirect(self.urls.sign_in())
                 return
-            if not self.me.can_access_resource(folder):
+            if not self.me.has_access:
                 self.redirect('/')
                 return
         params = {
