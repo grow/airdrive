@@ -11,6 +11,7 @@ from google.appengine.ext import deferred
 from google.appengine.ext.ndb import msgprop
 import airlock
 import appengine_config
+from protorpc import protojson
 import csv
 import io
 import logging
