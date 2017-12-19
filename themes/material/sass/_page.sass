@@ -234,15 +234,20 @@
       &.cols-1
         margin: $pad-md 0
 
-      &.cols-2
+      &.cols-2:not([data-page-document-table-size="2-col-wide"])
         & > tbody > tr > td
           width: 50%
 
+      &.cols-2
+        & > tbody > tr > td
           &:first-child
             padding-right: $pad-md
-          
           &:last-child
             padding-left: $pad-md
+
+      &.cols-2[data-page-document-table-size="2-col-wide"]
+        & > tbody > tr td:first-child
+          width: 30%
 
       &.cols-3:not(.page-document-table--data)
         width: calc(100% + 40px);
