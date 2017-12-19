@@ -191,13 +191,13 @@
 {% macro render_footer_nav_new(resource, is_admin=false) %}
   <div class="layout-main-footer" ng-controller="FooterNavController" ng-cloak>
     <div class="layout-main-footer-part">
-      <a href="[[prev.url]]" ng-if="prev">
+      <a href="[[prev.url]]" ng-if="prev.title">
         <span class="layout-main-footer-part-caption">Previous</span>
         <span><i class="material-icons arrow-R">arrow_backward</i> [[prev.title]]</span>
       </a>
     </div>
     <div class="layout-main-footer-part layout-main-footer-part--next">
-      <a href="[[next.url]]" ng-if="next">
+      <a href="[[next.url]]" ng-if="next.title">
         <span class="layout-main-footer-part-caption">Next</span>
         <span>[[next.title]] <i class="material-icons arrow-R">arrow_forward</i></span>
       </a>
