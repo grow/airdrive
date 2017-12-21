@@ -806,8 +806,8 @@ airpress.initTables = function() {
   $('.page-document > table').each(function(i, table) {
     var $table = $(table);
     if ($table) {
-      var numCols = $(this).find('> tbody > tr:first-child > td').size();
-      var numRows = $(this).find('tr').size();
+      var numCols = $(this).find('> tbody > tr:first-child > td').length;
+      var numRows = $(this).find('tr').length;
       if ($table.attr('class').indexOf('page-document-table')) {
         $(this).addClass('cols-' + numCols);
       }
