@@ -62,7 +62,12 @@ class Page(models.BaseResourceModel):
 
   def process_content(self, unprocessed_content):
     self.unprocessed_html = unprocessed_content
-    self.processed_html = process.process_html(unprocessed_content)
+    try:
+        if unprocessed_content:
+            self.processed_html = process.process_html(unprocessed_content)
+    except:
+        logging.error('Error processing -> {}'.format(unprocessed_content))
+        raise
     self.put()
 
   def should_process_content(self, resp):

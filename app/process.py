@@ -43,6 +43,9 @@ ALL = re.MULTILINE|re.DOTALL
 
 
 def process_html(html):
+  if not html:  # None, empty string handling.
+      return html
+
   soup = bs4.BeautifulSoup(html, 'lxml')
   style_tag = soup.find('style')
 
@@ -75,7 +78,8 @@ def process_html(html):
   process_tables(soup, style_text)
   process_hrefs(soup)
   remove_styles(soup)
-  remove_empty_tags(soup, EMPTY_TAGS_TO_REMOVE)
+  if soup:
+      remove_empty_tags(soup, EMPTY_TAGS_TO_REMOVE)
   html = soup.body.prettify()
   html = process_special_tags(html)
   return html
@@ -170,7 +174,7 @@ def remove_comments(soup):
 def remove_empty_tags(soup, tag_names):
   for tag_name in tag_names:
     for element in soup.find_all(tag_name):
-      if element.find_all('img'):
+      if not element or element.find_all('img'):
         continue
       text = element.get_text().strip()
       if dict(element.attrs).get('class') in ALLOWED_CLASSES:

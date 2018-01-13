@@ -337,6 +337,15 @@ class AdminSettingsHandler(Handler):
         self.render_template('admin_settings.html', params)
 
 
+
+class AnalyticsVerificationHandler(Handler):
+
+    def get(self):
+        content = self.settings.form.analytics_txt
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.out.write(content)
+
+
 class AdminHandler(Handler):
 
     def get(self, template='builds'):

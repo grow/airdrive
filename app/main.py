@@ -28,6 +28,7 @@ routes = [
     webapp2.Route('/<folder_slug>/', handlers.MainFolderHandler, name='main-folder'),
     webapp2.Route('/search', handlers.SearchHandler, name='search'),
     webapp2.Route('/request-access/', handlers.RequestAccessHandler, name='request-access'),
+    webapp2.Route('/analytics.txt', handlers.AnalyticsVerificationHandler),
     webapp2.Route('/', handlers.HomepageHandler, name='home'),
 ]
 main_app = airlock.WSGIApplication(routes)

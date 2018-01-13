@@ -166,6 +166,7 @@ class SettingsMessage(messages.Message):
   style = messages.StringField(31)
   head = messages.StringField(32)
   domain = messages.StringField(33)
+  analytics_txt = messages.StringField(34)
 
 
 class ResourceMessage(messages.Message):
