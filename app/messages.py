@@ -167,6 +167,7 @@ class SettingsMessage(messages.Message):
   head = messages.StringField(32)
   domain = messages.StringField(33)
   analytics_txt = messages.StringField(34)
+  redirect_url = messages.StringField(35)
 
 
 class ResourceMessage(messages.Message):

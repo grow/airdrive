@@ -229,6 +229,11 @@ class HomepageHandler(Handler):
             'statuses': messages.Status,
             'settings': self.settings,
         }
+        redirect_url = self.settings.form \
+                and self.settings.form.redirect_url
+        if redirect_url:
+            self.redirect(str(redirect_url))
+            return
         if self.me.registered and not self.me.has_access:
             self.render_template('interstitial_access_request.html', params)
             return
