@@ -117,8 +117,9 @@ def process_special_tags(html):
   html = re.sub('(?:[^`]?)\[h2\]([^\[]+)\[/h2\]', '<h2>\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h2\|center\]([^\[]+)\[/h2\]', '<h2 class="text--centered">\\1</h2>', html, ALL)
   html = re.sub('(?:[^`]?)\[h3\|center\]([^\[]+)\[/h3\]', '<h3 class="text--centered">\\1</h3>', html, ALL)
-  html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
+  # html = re.sub('(?:[^`]?)\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, all)
   html = re.sub('\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
+  html = re.sub('\[h3\]([^\[]+)\[/h3\]', '<h3>\\1</h3>', html, ALL)
   html = re.sub('(?:[^`]?)\[h5\|color:([^\[]+)\]([^\[]+)\[/h5\]', '<h5 style="color: \\1">\\2</h5>', html, ALL)
   html = re.sub('\[h5\]([^\[]+)\[/h5\]', '<h5>\\1</h5>', html, ALL)
   html = re.sub('(?:[^`]?)\[h4\]([^\[]+)\[/h4\]', '<h4>\\1</h4>', html, ALL)
@@ -366,7 +367,6 @@ def process_callout_image(name, table, cell, cell_str, attr=None):
   # [callout|id]Caption[/callout]
   regex = '.*\[callout\|([^\]]*)\]([^\[]*)\[/callout\].*'
   match = re.match(regex, cell_str)
-  logging.info(cell_str)
   if match:
     groups = match.groups()
     if attr:
