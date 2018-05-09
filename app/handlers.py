@@ -57,6 +57,7 @@ def get_config_content(name):
 
 
 class Handler(airlock.Handler):
+    redirected = True
 
 #  @webapp2.cached_property
 #  def me(self):
@@ -98,7 +99,7 @@ class Handler(airlock.Handler):
     def dispatch(self):
         redirect_url = self.settings.form \
                 and self.settings.form.redirect_url
-        if redirect_url:
+        if redirect_url and self.redirected is not False:
             self.redirect(str(redirect_url))
             return
         airlock.Handler.dispatch(self)
@@ -290,6 +291,7 @@ class AssetDownloadHandler(Handler):
 
 
 class SettingsHandler(Handler):
+    redirected = False
 
     def get(self):
         if not self.me.is_registered:
@@ -301,6 +303,7 @@ class SettingsHandler(Handler):
 
 
 class AdminApprovalsApprovalHandler(Handler):
+    redirected = False
 
     def get(self, ident):
         if not self.is_admin():
@@ -312,6 +315,7 @@ class AdminApprovalsApprovalHandler(Handler):
 
 
 class AdminAdminsHandler(Handler):
+    redirected = False
 
     def post(self):
         if not self.is_admin():
@@ -330,6 +334,7 @@ class AdminAdminsHandler(Handler):
 
 
 class AdminSettingsHandler(Handler):
+    redirected = False
 
     def get(self):
         if not self.is_admin():
@@ -347,6 +352,7 @@ class AdminSettingsHandler(Handler):
 
 
 class AnalyticsVerificationHandler(Handler):
+    redirected = False
 
     def get(self):
         content = self.settings.form.analytics_txt
@@ -355,6 +361,7 @@ class AnalyticsVerificationHandler(Handler):
 
 
 class AdminHandler(Handler):
+    redirected = False
 
     def get(self, template='builds'):
         if not self.is_admin():
@@ -379,6 +386,7 @@ class AdminHandler(Handler):
 
 
 class SyncHandler(Handler):
+    redirected = False
 
     def get(self, resource_id=None):
         if resource_id is None:
@@ -400,6 +408,7 @@ class SyncHandler(Handler):
 
 
 class DeleteHandler(Handler):
+    redirected = False
 
     def get(self, resource_id):
         if not self.is_admin():
@@ -416,6 +425,7 @@ class DeleteHandler(Handler):
 
 
 class ImportCsvHandler(Handler):
+    redirected = False
 
     def post(self):
         if not self.is_admin():
