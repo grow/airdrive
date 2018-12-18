@@ -3,16 +3,16 @@ organization :=
 version := auto
 
 setup:
-	gcloud projects create $(project)
-	gcloud app create --project=$(project)
+	# gcloud projects create $(project)
+	# gcloud app create --project=$(project)
 	$(MAKE) enable-services
 	$(MAKE) deploy
 	$(MAKE) deploy-yaml
 	$(MAKE) deploy-queue
 
 enable-services:
-	gcloud service-management enable drive --project=$(project)
-	gcloud service-management enable storage-api.googleapis.com --project=$(project)
+	gcloud services enable drive --project=$(project)
+	gcloud services enable storage-api.googleapis.com --project=$(project)
 
 run:
 	CONFIG=${CONFIG:-'config/config_play.yaml'}
