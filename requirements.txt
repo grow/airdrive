@@ -27,7 +27,7 @@ httplib2
 six
 uritemplate
 chardet
-urllib3==1.23
+urllib3==1.24.2
 certifi
 beautifulsoup4
 html2text==2016.1.8
